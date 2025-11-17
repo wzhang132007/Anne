@@ -581,13 +581,13 @@
             beaker6: { fillLevel: 0, colors: [] }
         };
 
-        // Color definitions
+        // Color definitions with RGB values for mixing
         const colorData = {
-            red: { primary: 'rgba(231, 76, 60, 0.9)', light: 'rgba(255, 120, 100, 0.5)' },
-            green: { primary: 'rgba(46, 204, 113, 0.9)', light: 'rgba(150, 255, 180, 0.5)' },
-            blue: { primary: 'rgba(52, 152, 219, 0.9)', light: 'rgba(150, 210, 255, 0.5)' },
-            pink: { primary: 'rgba(233, 30, 99, 0.9)', light: 'rgba(255, 170, 200, 0.5)' },
-            yellow: { primary: 'rgba(241, 196, 15, 0.9)', light: 'rgba(255, 240, 150, 0.6)' }
+            red: { r: 231, g: 76, b: 60 },
+            green: { r: 46, g: 204, b: 113 },
+            blue: { r: 52, g: 152, b: 219 },
+            pink: { r: 233, g: 30, b: 99 },
+            yellow: { r: 241, g: 196, b: 15 }
         };
 
         // Drag and drop handlers
@@ -681,11 +681,23 @@
 
         function mixColors(colors) {
             if (colors.length === 0) return 'rgba(52, 152, 219, 0.9)';
-            if (colors.length === 1) return colorData[colors[0]].primary;
 
-            // Simple color mixing - take the last color for now
-            // You can implement more sophisticated color mixing here
-            return colorData[colors[colors.length - 1]].primary;
+            // Get RGB values for all colors
+            let totalR = 0, totalG = 0, totalB = 0;
+
+            colors.forEach(color => {
+                const rgb = colorData[color];
+                totalR += rgb.r;
+                totalG += rgb.g;
+                totalB += rgb.b;
+            });
+
+            // Average the RGB values
+            const mixedR = Math.round(totalR / colors.length);
+            const mixedG = Math.round(totalG / colors.length);
+            const mixedB = Math.round(totalB / colors.length);
+
+            return `rgba(${mixedR}, ${mixedG}, ${mixedB}, 0.9)`;
         }
 
         // Add simple liquid wave effect
