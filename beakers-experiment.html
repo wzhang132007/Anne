@@ -293,6 +293,55 @@
             animation: smoke-rise 4s ease-out infinite;
         }
 
+        /* Bottom Steam Effect */
+        @keyframes steam-rise {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.8);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.8;
+            }
+            85% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-180px) translateX(var(--steam-drift)) scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        .bottom-steam {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle,
+                rgba(230, 240, 255, 0.7) 0%,
+                rgba(200, 220, 240, 0.5) 30%,
+                transparent 70%);
+            border-radius: 50%;
+            filter: blur(12px);
+            animation: steam-rise 3.5s ease-out infinite;
+        }
+
+        .bottom-steam::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle,
+                rgba(255, 255, 255, 0.6) 0%,
+                transparent 60%);
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
         /* Flame Effect */
         @keyframes flame-flicker {
             0%, 100% {
@@ -880,7 +929,7 @@
             reactionContainer.className = 'reaction-container';
 
             // Randomly choose a reaction type
-            const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant'];
+            const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant', 'bottomSteam'];
             const reactionType = reactions[Math.floor(Math.random() * reactions.length)];
 
             // Create the reaction based on type
@@ -899,6 +948,9 @@
                     break;
                 case 'plant':
                     createPlant(reactionContainer);
+                    break;
+                case 'bottomSteam':
+                    createBottomSteam(reactionContainer);
                     break;
             }
 
@@ -931,6 +983,19 @@
                 smoke.style.animationDelay = i * 0.5 + 's';
                 smoke.style.animationDuration = (3 + Math.random() * 2) + 's';
                 container.appendChild(smoke);
+            }
+        }
+
+        function createBottomSteam(container) {
+            // Create multiple steam wisps rising from the bottom
+            for (let i = 0; i < 12; i++) {
+                const steam = document.createElement('div');
+                steam.className = 'bottom-steam';
+                steam.style.setProperty('--steam-drift', (Math.random() * 50 - 25) + 'px');
+                steam.style.animationDelay = i * 0.3 + 's';
+                steam.style.animationDuration = (3 + Math.random() * 1.5) + 's';
+                steam.style.left = (40 + Math.random() * 20) + '%';
+                container.appendChild(steam);
             }
         }
 
