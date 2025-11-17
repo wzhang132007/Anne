@@ -145,23 +145,71 @@
         }
 
         .liquid {
-            display: none;
+            display: block;
+            opacity: 0;
         }
 
-        /* Hide liquid surface ellipses */
-        svg ellipse[fill*="rgba(72, 172, 239"],
-        svg ellipse[fill*="rgba(150, 210, 255"],
-        svg ellipse[fill*="rgba(66, 224, 133"],
-        svg ellipse[fill*="rgba(150, 255, 180"],
-        svg ellipse[fill*="rgba(251, 96, 80"],
-        svg ellipse[fill*="rgba(255, 170, 160"],
-        svg ellipse[fill*="rgba(175, 109, 202"],
-        svg ellipse[fill*="rgba(200, 160, 220"],
-        svg ellipse[fill*="rgba(255, 216, 35"],
-        svg ellipse[fill*="rgba(255, 240, 150"],
-        svg ellipse[fill*="rgba(250, 146, 54"],
-        svg ellipse[fill*="rgba(255, 180, 120"] {
-            display: none;
+        /* Color options panel */
+        .color-options {
+            position: fixed;
+            left: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .color-option {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            user-select: none;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-option:active {
+            cursor: grabbing;
+        }
+
+        .color-option.red {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+
+        .color-option.green {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+
+        .color-option.blue {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .color-option.pink {
+            background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+        }
+
+        .color-option.yellow {
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+        }
+
+        .beaker.drag-over {
+            transform: translateY(-15px) scale(1.1);
         }
 
         /* Glass shine effect */
@@ -172,6 +220,15 @@
     </style>
 </head>
 <body>
+    <!-- Color Options Panel -->
+    <div class="color-options">
+        <div class="color-option red" draggable="true" data-color="red">Red</div>
+        <div class="color-option green" draggable="true" data-color="green">Green</div>
+        <div class="color-option blue" draggable="true" data-color="blue">Blue</div>
+        <div class="color-option pink" draggable="true" data-color="pink">Pink</div>
+        <div class="color-option yellow" draggable="true" data-color="yellow">Yellow</div>
+    </div>
+
     <div class="lab-table">
         <div class="table-surface"></div>
         <div class="table-edge"></div>
@@ -498,23 +555,133 @@
     </div>
 
     <script>
-        // Add interactive effects
+        // Beaker fill tracking
+        const beakerStates = {
+            beaker1: { fillLevel: 0, colors: [] },
+            beaker2: { fillLevel: 0, colors: [] },
+            beaker3: { fillLevel: 0, colors: [] },
+            beaker4: { fillLevel: 0, colors: [] },
+            beaker5: { fillLevel: 0, colors: [] },
+            beaker6: { fillLevel: 0, colors: [] }
+        };
+
+        // Color definitions
+        const colorData = {
+            red: { primary: 'rgba(231, 76, 60, 0.9)', light: 'rgba(255, 120, 100, 0.5)' },
+            green: { primary: 'rgba(46, 204, 113, 0.9)', light: 'rgba(150, 255, 180, 0.5)' },
+            blue: { primary: 'rgba(52, 152, 219, 0.9)', light: 'rgba(150, 210, 255, 0.5)' },
+            pink: { primary: 'rgba(233, 30, 99, 0.9)', light: 'rgba(255, 170, 200, 0.5)' },
+            yellow: { primary: 'rgba(241, 196, 15, 0.9)', light: 'rgba(255, 240, 150, 0.6)' }
+        };
+
+        // Drag and drop handlers
+        const colorOptions = document.querySelectorAll('.color-option');
         const beakers = document.querySelectorAll('.beaker');
 
-        beakers.forEach((beaker, index) => {
-            beaker.addEventListener('click', () => {
-                const label = beaker.querySelector('.beaker-label').textContent;
-                console.log(`Clicked beaker ${index + 1}: ${label}`);
+        colorOptions.forEach(option => {
+            option.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('color', option.dataset.color);
+                option.style.opacity = '0.5';
+            });
+
+            option.addEventListener('dragend', (e) => {
+                option.style.opacity = '1';
             });
         });
+
+        beakers.forEach(beaker => {
+            beaker.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                beaker.classList.add('drag-over');
+            });
+
+            beaker.addEventListener('dragleave', (e) => {
+                beaker.classList.remove('drag-over');
+            });
+
+            beaker.addEventListener('drop', (e) => {
+                e.preventDefault();
+                beaker.classList.remove('drag-over');
+
+                const color = e.dataTransfer.getData('color');
+                const beakerId = beaker.id;
+
+                addLiquidToBeaker(beakerId, color);
+            });
+        });
+
+        function addLiquidToBeaker(beakerId, color) {
+            const state = beakerStates[beakerId];
+
+            // Check if beaker is full
+            if (state.fillLevel >= 3) {
+                alert('This beaker is full!');
+                return;
+            }
+
+            // Add color
+            state.colors.push(color);
+            state.fillLevel++;
+
+            // Update beaker visual
+            updateBeakerVisual(beakerId);
+        }
+
+        function updateBeakerVisual(beakerId) {
+            const state = beakerStates[beakerId];
+            const beaker = document.getElementById(beakerId);
+            const liquidPath = beaker.querySelector('.liquid');
+
+            if (state.fillLevel === 0) {
+                liquidPath.style.opacity = '0';
+                return;
+            }
+
+            // Calculate mixed color
+            const mixedColor = mixColors(state.colors);
+
+            // Calculate fill height (in SVG viewBox coordinates)
+            // Empty beaker top is at y=30, bottom at y=135
+            // Full range = 105 units
+            const fillPercentage = state.fillLevel / 3;
+            const fillHeight = 105 * fillPercentage;
+            const yPos = 135 - fillHeight;
+
+            // Update liquid path
+            const leftEdge = 32 - (fillPercentage * 2);
+            const rightEdge = 88 + (fillPercentage * 2);
+            const leftX = 22 - (fillPercentage * 2);
+            const rightX = 98 + (fillPercentage * 2);
+
+            liquidPath.setAttribute('d',
+                `M ${leftEdge} ${yPos} L ${leftX} 120 Q ${leftX} 128 ${leftEdge} 132 L ${rightEdge} 132 Q ${rightX} 128 ${rightX} 120 L ${rightEdge} ${yPos} Z`
+            );
+            liquidPath.setAttribute('fill', mixedColor);
+            liquidPath.style.opacity = '1';
+
+            // Animate fill
+            liquidPath.style.transition = 'all 0.5s ease';
+        }
+
+        function mixColors(colors) {
+            if (colors.length === 0) return 'rgba(52, 152, 219, 0.9)';
+            if (colors.length === 1) return colorData[colors[0]].primary;
+
+            // Simple color mixing - take the last color for now
+            // You can implement more sophisticated color mixing here
+            return colorData[colors[colors.length - 1]].primary;
+        }
 
         // Add simple liquid wave effect
         let time = 0;
         setInterval(() => {
             time += 0.1;
             document.querySelectorAll('.liquid').forEach((liquid, i) => {
-                const offset = Math.sin(time + i) * 2;
-                liquid.style.transform = `translateY(${offset}px)`;
+                if (liquid.style.opacity === '1') {
+                    const offset = Math.sin(time + i) * 2;
+                    const baseTransform = liquid.style.transform || '';
+                    liquid.style.transform = `translateY(${offset}px)`;
+                }
             });
         }, 50);
     </script>
