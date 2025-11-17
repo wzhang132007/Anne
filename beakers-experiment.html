@@ -228,6 +228,224 @@
             transform: translateY(-15px) scale(1.1);
         }
 
+        /* Chemical Reaction Effects */
+        .reaction-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        /* Bubbles Animation */
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-150px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: 30px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            animation: bubble-rise 3s ease-in infinite;
+        }
+
+        /* Smoke/Vapor Effect */
+        @keyframes smoke-rise {
+            0% {
+                transform: translateY(0) translateX(0) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-200px) translateX(var(--drift)) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .smoke {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(200, 200, 200, 0.6), transparent);
+            border-radius: 50%;
+            filter: blur(10px);
+            animation: smoke-rise 4s ease-out infinite;
+        }
+
+        /* Flame Effect */
+        @keyframes flame-flicker {
+            0%, 100% {
+                transform: translateY(0) scale(1) scaleY(1);
+                opacity: 0.9;
+            }
+            25% {
+                transform: translateY(-5px) scale(1.1) scaleY(1.2);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-2px) scale(0.95) scaleY(0.9);
+                opacity: 0.85;
+            }
+            75% {
+                transform: translateY(-8px) scale(1.05) scaleY(1.1);
+                opacity: 0.95;
+            }
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 80px;
+            background: linear-gradient(to top,
+                #ff6b00 0%,
+                #ff8c00 20%,
+                #ffa500 40%,
+                #ffdd00 60%,
+                #fff700 80%,
+                rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 0 20px #ff6b00, 0 0 40px #ff8c00;
+            animation: flame-flicker 0.3s ease-in-out infinite;
+            filter: blur(2px);
+        }
+
+        .flame::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 50px;
+            background: linear-gradient(to top,
+                #ffdd00 0%,
+                #fff700 50%,
+                rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            filter: blur(1px);
+        }
+
+        /* Ice/Freeze Effect */
+        @keyframes freeze-spread {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+        }
+
+        .ice-overlay {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: linear-gradient(135deg,
+                rgba(200, 230, 255, 0.4) 0%,
+                rgba(230, 245, 255, 0.6) 50%,
+                rgba(200, 230, 255, 0.4) 100%);
+            clip-path: polygon(0 20%, 100% 20%, 100% 100%, 0 100%);
+            animation: freeze-spread 2s ease-out forwards;
+        }
+
+        .ice-crystal {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.9) 50%, transparent 60%),
+                        linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.9) 50%, transparent 60%);
+            animation: freeze-spread 1.5s ease-out forwards;
+        }
+
+        /* Plant Growth Effect */
+        @keyframes plant-grow {
+            0% {
+                transform: translateY(100%) scale(0.1);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes leaf-sway {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(5deg);
+            }
+        }
+
+        .plant {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: plant-grow 3s ease-out forwards;
+        }
+
+        .plant-stem {
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(to top, #2d5016, #4a7c2c, #6ba83d);
+            margin: 0 auto;
+            border-radius: 2px;
+        }
+
+        .plant-leaf {
+            position: absolute;
+            width: 30px;
+            height: 15px;
+            background: linear-gradient(135deg, #4a7c2c 0%, #6ba83d 50%, #4a7c2c 100%);
+            border-radius: 0 50% 50% 0;
+            transform-origin: left center;
+            animation: leaf-sway 2s ease-in-out infinite;
+        }
+
+        .plant-leaf.left {
+            left: -15px;
+            transform: scaleX(-1);
+        }
+
+        .plant-leaf.right {
+            right: -15px;
+        }
+
         /* Glass shine effect */
         .glass-shine {
             opacity: 0.3;
@@ -641,6 +859,134 @@
 
             // Update beaker visual
             updateBeakerVisual(beakerId);
+
+            // Trigger reaction when beaker is full
+            if (state.fillLevel === 3) {
+                triggerReaction(beakerId);
+            }
+        }
+
+        function triggerReaction(beakerId) {
+            const beaker = document.getElementById(beakerId);
+
+            // Remove any existing reaction container
+            const existingReaction = beaker.querySelector('.reaction-container');
+            if (existingReaction) {
+                existingReaction.remove();
+            }
+
+            // Create reaction container
+            const reactionContainer = document.createElement('div');
+            reactionContainer.className = 'reaction-container';
+
+            // Randomly choose a reaction type
+            const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant'];
+            const reactionType = reactions[Math.floor(Math.random() * reactions.length)];
+
+            // Create the reaction based on type
+            switch(reactionType) {
+                case 'bubbles':
+                    createBubbles(reactionContainer);
+                    break;
+                case 'smoke':
+                    createSmoke(reactionContainer);
+                    break;
+                case 'fire':
+                    createFire(reactionContainer);
+                    break;
+                case 'freeze':
+                    createFreeze(reactionContainer);
+                    break;
+                case 'plant':
+                    createPlant(reactionContainer);
+                    break;
+            }
+
+            beaker.appendChild(reactionContainer);
+        }
+
+        function createBubbles(container) {
+            // Create multiple bubbles with random timing and positions
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = 5 + Math.random() * 15;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                    bubble.style.left = (30 + Math.random() * 40) + '%';
+                    bubble.style.animationDelay = Math.random() * 2 + 's';
+                    bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
+                    container.appendChild(bubble);
+                }, i * 200);
+            }
+        }
+
+        function createSmoke(container) {
+            // Create multiple smoke puffs
+            for (let i = 0; i < 8; i++) {
+                const smoke = document.createElement('div');
+                smoke.className = 'smoke';
+                smoke.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
+                smoke.style.animationDelay = i * 0.5 + 's';
+                smoke.style.animationDuration = (3 + Math.random() * 2) + 's';
+                container.appendChild(smoke);
+            }
+        }
+
+        function createFire(container) {
+            // Create flame effect
+            const flame = document.createElement('div');
+            flame.className = 'flame';
+            container.appendChild(flame);
+        }
+
+        function createFreeze(container) {
+            // Create ice overlay
+            const iceOverlay = document.createElement('div');
+            iceOverlay.className = 'ice-overlay';
+            container.appendChild(iceOverlay);
+
+            // Create ice crystals
+            for (let i = 0; i < 10; i++) {
+                const crystal = document.createElement('div');
+                crystal.className = 'ice-crystal';
+                crystal.style.top = (30 + Math.random() * 60) + '%';
+                crystal.style.left = (20 + Math.random() * 60) + '%';
+                crystal.style.animationDelay = (Math.random() * 1.5) + 's';
+                crystal.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(crystal);
+            }
+        }
+
+        function createPlant(container) {
+            // Create plant structure
+            const plant = document.createElement('div');
+            plant.className = 'plant';
+
+            const stem = document.createElement('div');
+            stem.className = 'plant-stem';
+            plant.appendChild(stem);
+
+            // Add leaves at different heights
+            const leafPositions = [20, 40, 60];
+            leafPositions.forEach((top, index) => {
+                // Left leaf
+                const leftLeaf = document.createElement('div');
+                leftLeaf.className = 'plant-leaf left';
+                leftLeaf.style.top = top + '%';
+                leftLeaf.style.animationDelay = (0.5 + index * 0.3) + 's';
+                plant.appendChild(leftLeaf);
+
+                // Right leaf
+                const rightLeaf = document.createElement('div');
+                rightLeaf.className = 'plant-leaf right';
+                rightLeaf.style.top = (top + 10) + '%';
+                rightLeaf.style.animationDelay = (0.7 + index * 0.3) + 's';
+                plant.appendChild(rightLeaf);
+            });
+
+            container.appendChild(plant);
         }
 
         function updateBeakerVisual(beakerId) {
