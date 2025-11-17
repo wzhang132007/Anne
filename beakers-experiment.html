@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>化学实验 - 烧杯实验台</title>
+    <title>Chemistry Lab - Beakers Experiment</title>
     <style>
         * {
             margin: 0;
@@ -93,7 +93,7 @@
             border-radius: 3px;
         }
 
-        /* 液体动画效果 */
+        /* Liquid animation effect */
         @keyframes bubble {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
@@ -103,7 +103,7 @@
             animation: bubble 3s ease-in-out infinite;
         }
 
-        /* 玻璃光泽效果 */
+        /* Glass shine effect */
         .glass-shine {
             opacity: 0.3;
             fill: white;
@@ -122,36 +122,36 @@
     </style>
 </head>
 <body>
-    <h1>🧪 化学实验室 - 烧杯实验台</h1>
+    <h1>🧪 Chemistry Laboratory - Beakers Workbench</h1>
 
     <div class="lab-table">
         <div class="table-surface"></div>
         <div class="beakers-container">
-            <!-- 烧杯 1 - 蓝色液体 -->
+            <!-- Beaker 1 - Blue liquid -->
             <div class="beaker" id="beaker1">
                 <svg width="120" height="150" viewBox="0 0 120 150">
-                    <!-- 烧杯主体 -->
+                    <!-- Beaker body -->
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
                           fill="rgba(255,255,255,0.1)"
                           stroke="rgba(255,255,255,0.4)"
                           stroke-width="2"/>
 
-                    <!-- 液体 -->
+                    <!-- Liquid -->
                     <path class="liquid" d="M 32 80 L 24 120 Q 24 128 32 132 L 88 132 Q 96 128 96 120 L 88 80 Z"
                           fill="rgba(52, 152, 219, 0.8)"/>
 
-                    <!-- 刻度线 -->
+                    <!-- Measurement lines -->
                     <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
                     <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
                     <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
 
-                    <!-- 玻璃光泽 -->
+                    <!-- Glass shine -->
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">蓝色溶液</div>
+                <div class="beaker-label">Blue Solution</div>
             </div>
 
-            <!-- 烧杯 2 - 绿色液体 -->
+            <!-- Beaker 2 - Green liquid -->
             <div class="beaker" id="beaker2">
                 <svg width="120" height="150" viewBox="0 0 120 150">
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
@@ -168,10 +168,10 @@
 
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">绿色溶液</div>
+                <div class="beaker-label">Green Solution</div>
             </div>
 
-            <!-- 烧杯 3 - 粉色液体 -->
+            <!-- Beaker 3 - Pink liquid -->
             <div class="beaker" id="beaker3">
                 <svg width="120" height="150" viewBox="0 0 120 150">
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
@@ -188,10 +188,10 @@
 
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">粉色溶液</div>
+                <div class="beaker-label">Pink Solution</div>
             </div>
 
-            <!-- 烧杯 4 - 紫色液体 -->
+            <!-- Beaker 4 - Purple liquid -->
             <div class="beaker" id="beaker4">
                 <svg width="120" height="150" viewBox="0 0 120 150">
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
@@ -208,10 +208,10 @@
 
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">紫色溶液</div>
+                <div class="beaker-label">Purple Solution</div>
             </div>
 
-            <!-- 烧杯 5 - 黄色液体 -->
+            <!-- Beaker 5 - Yellow liquid -->
             <div class="beaker" id="beaker5">
                 <svg width="120" height="150" viewBox="0 0 120 150">
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
@@ -228,10 +228,10 @@
 
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">黄色溶液</div>
+                <div class="beaker-label">Yellow Solution</div>
             </div>
 
-            <!-- 烧杯 6 - 橙色液体 -->
+            <!-- Beaker 6 - Orange liquid -->
             <div class="beaker" id="beaker6">
                 <svg width="120" height="150" viewBox="0 0 120 150">
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
@@ -248,28 +248,28 @@
 
                     <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
                 </svg>
-                <div class="beaker-label">橙色溶液</div>
+                <div class="beaker-label">Orange Solution</div>
             </div>
         </div>
     </div>
 
     <div class="info-panel">
-        <p>✨ 将鼠标悬停在烧杯上查看效果 | 这是化学实验原型的第一步</p>
-        <p>📋 实验台上有6个不同颜色的溶液：蓝色、绿色、粉色、紫色、黄色、橙色</p>
+        <p>✨ Hover over beakers to see effects | This is the first step of the chemistry experiment prototype</p>
+        <p>📋 The lab bench has 6 different colored solutions: Blue, Green, Pink, Purple, Yellow, Orange</p>
     </div>
 
     <script>
-        // 添加交互效果
+        // Add interactive effects
         const beakers = document.querySelectorAll('.beaker');
 
         beakers.forEach((beaker, index) => {
             beaker.addEventListener('click', () => {
                 const label = beaker.querySelector('.beaker-label').textContent;
-                console.log(`点击了第 ${index + 1} 个烧杯: ${label}`);
+                console.log(`Clicked beaker ${index + 1}: ${label}`);
             });
         });
 
-        // 添加简单的液体波动效果
+        // Add simple liquid wave effect
         let time = 0;
         setInterval(() => {
             time += 0.1;
