@@ -149,6 +149,16 @@
             opacity: 0;
         }
 
+        /* Hide liquid surface ellipses */
+        svg ellipse[cy="80"],
+        svg ellipse[cy="70"],
+        svg ellipse[cy="65"],
+        svg ellipse[cy="75"],
+        svg ellipse[cy="85"],
+        svg ellipse[cy="60"] {
+            display: none;
+        }
+
         /* Color options panel */
         .color-options {
             position: fixed;
