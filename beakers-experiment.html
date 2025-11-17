@@ -130,23 +130,63 @@
             <!-- Beaker 1 - Blue liquid -->
             <div class="beaker" id="beaker1">
                 <svg width="120" height="150" viewBox="0 0 120 150">
-                    <!-- Beaker body -->
-                    <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                    <defs>
+                        <!-- Glass gradient for 3D effect -->
+                        <linearGradient id="glassGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <!-- Liquid gradient for depth -->
+                        <linearGradient id="liquidGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(32, 132, 199, 0.9);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(52, 152, 219, 0.95);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(32, 132, 199, 0.9);stop-opacity:1" />
+                        </linearGradient>
+                        <!-- Highlight gradient -->
+                        <radialGradient id="highlight1">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
 
-                    <!-- Liquid -->
+                    <!-- Beaker shadow (back) -->
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
+
+                    <!-- Beaker body with gradient -->
+                    <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
+                          fill="url(#glassGrad1)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+
+                    <!-- Inner shadow for depth -->
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
+
+                    <!-- Liquid with gradient -->
                     <path class="liquid" d="M 32 80 L 24 120 Q 24 128 32 132 L 88 132 Q 96 128 96 120 L 88 80 Z"
-                          fill="rgba(52, 152, 219, 0.8)"/>
+                          fill="url(#liquidGrad1)"/>
+
+                    <!-- Liquid surface (ellipse for 3D) -->
+                    <ellipse cx="60" cy="80" rx="28" ry="5" fill="rgba(72, 172, 239, 0.8)"/>
+                    <ellipse cx="60" cy="80" rx="24" ry="4" fill="rgba(150, 210, 255, 0.5)"/>
+
+                    <!-- Beaker rim (top opening) -->
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
 
                     <!-- Measurement lines -->
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
 
-                    <!-- Glass shine -->
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <!-- Glass highlight -->
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight1)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Blue Solution</div>
             </div>
@@ -154,19 +194,50 @@
             <!-- Beaker 2 - Green liquid -->
             <div class="beaker" id="beaker2">
                 <svg width="120" height="150" viewBox="0 0 120 150">
+                    <defs>
+                        <linearGradient id="glassGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="liquidGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(36, 184, 93, 0.9);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(46, 204, 113, 0.95);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(36, 184, 93, 0.9);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="highlight2">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                          fill="url(#glassGrad2)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
 
                     <path class="liquid" d="M 32 70 L 22 120 Q 22 128 32 132 L 88 132 Q 98 128 98 120 L 88 70 Z"
-                          fill="rgba(46, 204, 113, 0.8)"/>
+                          fill="url(#liquidGrad2)"/>
 
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <ellipse cx="60" cy="70" rx="30" ry="5" fill="rgba(66, 224, 133, 0.8)"/>
+                    <ellipse cx="60" cy="70" rx="26" ry="4" fill="rgba(150, 255, 180, 0.5)"/>
 
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
+
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight2)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Green Solution</div>
             </div>
@@ -174,19 +245,50 @@
             <!-- Beaker 3 - Pink liquid -->
             <div class="beaker" id="beaker3">
                 <svg width="120" height="150" viewBox="0 0 120 150">
+                    <defs>
+                        <linearGradient id="glassGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="liquidGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(211, 56, 40, 0.85);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(231, 76, 60, 0.9);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(211, 56, 40, 0.85);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="highlight3">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                          fill="url(#glassGrad3)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
 
                     <path class="liquid" d="M 32 65 L 21 120 Q 21 128 32 132 L 88 132 Q 99 128 99 120 L 88 65 Z"
-                          fill="rgba(231, 76, 60, 0.7)"/>
+                          fill="url(#liquidGrad3)"/>
 
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <ellipse cx="60" cy="65" rx="31" ry="5.5" fill="rgba(251, 96, 80, 0.8)"/>
+                    <ellipse cx="60" cy="65" rx="27" ry="4.5" fill="rgba(255, 170, 160, 0.5)"/>
 
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
+
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight3)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Pink Solution</div>
             </div>
@@ -194,19 +296,50 @@
             <!-- Beaker 4 - Purple liquid -->
             <div class="beaker" id="beaker4">
                 <svg width="120" height="150" viewBox="0 0 120 150">
+                    <defs>
+                        <linearGradient id="glassGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="liquidGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(135, 69, 162, 0.9);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(155, 89, 182, 0.95);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(135, 69, 162, 0.9);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="highlight4">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                          fill="url(#glassGrad4)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
 
                     <path class="liquid" d="M 32 75 L 23 120 Q 23 128 32 132 L 88 132 Q 97 128 97 120 L 88 75 Z"
-                          fill="rgba(155, 89, 182, 0.8)"/>
+                          fill="url(#liquidGrad4)"/>
 
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <ellipse cx="60" cy="75" rx="29.5" ry="5.2" fill="rgba(175, 109, 202, 0.8)"/>
+                    <ellipse cx="60" cy="75" rx="25.5" ry="4.2" fill="rgba(200, 160, 220, 0.5)"/>
 
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
+
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight4)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Purple Solution</div>
             </div>
@@ -214,19 +347,50 @@
             <!-- Beaker 5 - Yellow liquid -->
             <div class="beaker" id="beaker5">
                 <svg width="120" height="150" viewBox="0 0 120 150">
+                    <defs>
+                        <linearGradient id="glassGrad5" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="liquidGrad5" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(221, 176, 0, 0.9);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(241, 196, 15, 0.95);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(221, 176, 0, 0.9);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="highlight5">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                          fill="url(#glassGrad5)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
 
                     <path class="liquid" d="M 32 85 L 25 120 Q 25 128 32 132 L 88 132 Q 95 128 95 120 L 88 85 Z"
-                          fill="rgba(241, 196, 15, 0.8)"/>
+                          fill="url(#liquidGrad5)"/>
 
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <ellipse cx="60" cy="85" rx="27.5" ry="4.8" fill="rgba(255, 216, 35, 0.9)"/>
+                    <ellipse cx="60" cy="85" rx="23.5" ry="3.8" fill="rgba(255, 240, 150, 0.6)"/>
 
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
+
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight5)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Yellow Solution</div>
             </div>
@@ -234,19 +398,50 @@
             <!-- Beaker 6 - Orange liquid -->
             <div class="beaker" id="beaker6">
                 <svg width="120" height="150" viewBox="0 0 120 150">
+                    <defs>
+                        <linearGradient id="glassGrad6" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.05);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.1);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.25);stop-opacity:1" />
+                        </linearGradient>
+                        <linearGradient id="liquidGrad6" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(210, 106, 14, 0.9);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(230, 126, 34, 0.95);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(210, 106, 14, 0.9);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="highlight6">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <ellipse cx="60" cy="137" rx="35" ry="5" fill="rgba(0,0,0,0.15)"/>
                     <path d="M 30 30 L 20 120 Q 20 130 30 135 L 90 135 Q 100 130 100 120 L 90 30 Z"
-                          fill="rgba(255,255,255,0.1)"
-                          stroke="rgba(255,255,255,0.4)"
-                          stroke-width="2"/>
+                          fill="url(#glassGrad6)"
+                          stroke="rgba(200,220,255,0.6)"
+                          stroke-width="2.5"/>
+                    <path d="M 32 35 L 22 120 Q 22 128 30 132 L 90 132 Q 98 128 98 120 L 88 35"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.1)"
+                          stroke-width="1.5"/>
 
                     <path class="liquid" d="M 32 60 L 21 120 Q 21 128 32 132 L 88 132 Q 99 128 99 120 L 88 60 Z"
-                          fill="rgba(230, 126, 34, 0.8)"/>
+                          fill="url(#liquidGrad6)"/>
 
-                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
-                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+                    <ellipse cx="60" cy="60" rx="32" ry="6" fill="rgba(250, 146, 54, 0.85)"/>
+                    <ellipse cx="60" cy="60" rx="28" ry="5" fill="rgba(255, 180, 120, 0.55)"/>
 
-                    <ellipse class="glass-shine" cx="40" cy="60" rx="8" ry="20"/>
+                    <ellipse cx="60" cy="30" rx="30" ry="6" fill="rgba(240,245,255,0.2)" stroke="rgba(200,220,255,0.8)" stroke-width="2"/>
+                    <ellipse cx="60" cy="30" rx="28" ry="5" fill="rgba(255,255,255,0.1)"/>
+
+                    <line x1="30" y1="90" x2="35" y2="90" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="70" x2="35" y2="70" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+                    <line x1="30" y1="50" x2="35" y2="50" stroke="rgba(255,255,255,0.6)" stroke-width="1"/>
+
+                    <ellipse cx="35" cy="60" rx="12" ry="30" fill="url(#highlight6)"/>
+                    <path d="M 28 45 Q 32 50 30 70" stroke="rgba(255,255,255,0.6)" stroke-width="3" fill="none" stroke-linecap="round"/>
                 </svg>
                 <div class="beaker-label">Orange Solution</div>
             </div>
