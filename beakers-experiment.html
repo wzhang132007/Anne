@@ -958,20 +958,43 @@
         }
 
         function createBubbles(container) {
-            // Create multiple bubbles with random timing and positions
-            for (let i = 0; i < 15; i++) {
-                setTimeout(() => {
-                    const bubble = document.createElement('div');
-                    bubble.className = 'bubble';
-                    const size = 5 + Math.random() * 15;
-                    bubble.style.width = size + 'px';
-                    bubble.style.height = size + 'px';
-                    bubble.style.left = (30 + Math.random() * 40) + '%';
-                    bubble.style.animationDelay = Math.random() * 2 + 's';
-                    bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
-                    container.appendChild(bubble);
-                }, i * 200);
+            // Create initial bubbles
+            for (let i = 0; i < 8; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = 5 + Math.random() * 15;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = (30 + Math.random() * 40) + '%';
+                bubble.style.animationDelay = (i * 0.3) + 's';
+                bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(bubble);
             }
+
+            // Continuously create new bubbles
+            const bubbleInterval = setInterval(() => {
+                // Check if container is still in DOM
+                if (!container.parentNode) {
+                    clearInterval(bubbleInterval);
+                    return;
+                }
+
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = 5 + Math.random() * 15;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = (30 + Math.random() * 40) + '%';
+                bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
+                container.appendChild(bubble);
+
+                // Remove bubble after animation completes
+                setTimeout(() => {
+                    if (bubble.parentNode) {
+                        bubble.remove();
+                    }
+                }, 4000);
+            }, 400);
         }
 
         function createSmoke(container) {
