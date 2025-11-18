@@ -928,9 +928,14 @@
             const reactionContainer = document.createElement('div');
             reactionContainer.className = 'reaction-container';
 
-            // Randomly choose a reaction type
-            const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant', 'bottomSteam'];
-            const reactionType = reactions[Math.floor(Math.random() * reactions.length)];
+            // Beaker 1 always gets plant reaction, others are random
+            let reactionType;
+            if (beakerId === 'beaker1') {
+                reactionType = 'plant';
+            } else {
+                const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant', 'bottomSteam'];
+                reactionType = reactions[Math.floor(Math.random() * reactions.length)];
+            }
 
             // Create the reaction based on type
             switch(reactionType) {
