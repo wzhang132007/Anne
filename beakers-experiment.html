@@ -958,19 +958,6 @@
         }
 
         function createBubbles(container) {
-            // Create initial bubbles
-            for (let i = 0; i < 8; i++) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                const size = 5 + Math.random() * 15;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-                bubble.style.left = (30 + Math.random() * 40) + '%';
-                bubble.style.animationDelay = (i * 0.3) + 's';
-                bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
-                container.appendChild(bubble);
-            }
-
             // Continuously create new bubbles
             const bubbleInterval = setInterval(() => {
                 // Check if container is still in DOM
@@ -985,16 +972,15 @@
                 bubble.style.width = size + 'px';
                 bubble.style.height = size + 'px';
                 bubble.style.left = (30 + Math.random() * 40) + '%';
-                bubble.style.animationDuration = (2 + Math.random() * 2) + 's';
                 container.appendChild(bubble);
 
-                // Remove bubble after animation completes
+                // Remove bubble after animation completes (3 seconds)
                 setTimeout(() => {
                     if (bubble.parentNode) {
                         bubble.remove();
                     }
-                }, 4000);
-            }, 400);
+                }, 3500);
+            }, 300);
         }
 
         function createSmoke(container) {
