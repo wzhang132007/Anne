@@ -1027,16 +1027,28 @@
         }
 
         function createBottomSteam(container) {
-            // Create multiple steam wisps rising from the bottom
-            for (let i = 0; i < 12; i++) {
+            // Continuously create steam wisps rising from the bottom
+            const steamInterval = setInterval(() => {
+                // Check if container is still in DOM
+                if (!container.parentNode) {
+                    clearInterval(steamInterval);
+                    return;
+                }
+
                 const steam = document.createElement('div');
                 steam.className = 'bottom-steam';
                 steam.style.setProperty('--steam-drift', (Math.random() * 50 - 25) + 'px');
-                steam.style.animationDelay = i * 0.3 + 's';
                 steam.style.animationDuration = (3 + Math.random() * 1.5) + 's';
                 steam.style.left = (40 + Math.random() * 20) + '%';
                 container.appendChild(steam);
-            }
+
+                // Remove steam after animation completes
+                setTimeout(() => {
+                    if (steam.parentNode) {
+                        steam.remove();
+                    }
+                }, 4500);
+            }, 400);
         }
 
         function createFire(container) {
