@@ -265,35 +265,7 @@
             animation: bubble-rise 3s ease-in infinite;
         }
 
-        /* Smoke/Vapor Effect */
-        @keyframes smoke-rise {
-            0% {
-                transform: translateY(0) translateX(0) scale(0.5);
-                opacity: 0;
-            }
-            20% {
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateY(-200px) translateX(var(--drift)) scale(2);
-                opacity: 0;
-            }
-        }
-
-        .smoke {
-            position: absolute;
-            top: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 60px;
-            background: radial-gradient(circle, rgba(200, 200, 200, 0.6), transparent);
-            border-radius: 50%;
-            filter: blur(10px);
-            animation: smoke-rise 4s ease-out infinite;
-        }
-
-        /* Bottom Steam Effect */
+        /* Bottom Steam Effect (Gas Emission) */
         @keyframes steam-rise {
             0% {
                 transform: translateY(0) translateX(0) scale(0.8);
@@ -396,44 +368,6 @@
                 rgba(255, 255, 255, 0.9) 100%);
             border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
             filter: blur(1px);
-        }
-
-        /* Ice/Freeze Effect */
-        @keyframes freeze-spread {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
-            50% {
-                opacity: 0.8;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 0.6;
-            }
-        }
-
-        .ice-overlay {
-            position: absolute;
-            top: 20px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            background: linear-gradient(135deg,
-                rgba(200, 230, 255, 0.4) 0%,
-                rgba(230, 245, 255, 0.6) 50%,
-                rgba(200, 230, 255, 0.4) 100%);
-            clip-path: polygon(0 20%, 100% 20%, 100% 100%, 0 100%);
-            animation: freeze-spread 2s ease-out forwards;
-        }
-
-        .ice-crystal {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(45deg, transparent 40%, rgba(255, 255, 255, 0.9) 50%, transparent 60%),
-                        linear-gradient(-45deg, transparent 40%, rgba(255, 255, 255, 0.9) 50%, transparent 60%);
-            animation: freeze-spread 1.5s ease-out forwards;
         }
 
         /* Plant Growth Effect */
