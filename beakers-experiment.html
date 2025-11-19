@@ -439,14 +439,14 @@
         /* Plant Growth Effect */
         @keyframes plant-grow {
             0% {
-                transform: translateY(100%) scale(0.1);
+                transform: translateY(150%) translateX(-50%) scale(0.1);
                 opacity: 0;
             }
             50% {
                 opacity: 1;
             }
             100% {
-                transform: translateY(0) scale(1);
+                transform: translateY(-80px) translateX(-50%) scale(1);
                 opacity: 1;
             }
         }
@@ -455,8 +455,11 @@
             0%, 100% {
                 transform: rotate(0deg);
             }
-            50% {
-                transform: rotate(5deg);
+            25% {
+                transform: rotate(8deg);
+            }
+            75% {
+                transform: rotate(-8deg);
             }
         }
 
@@ -465,34 +468,75 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            animation: plant-grow 3s ease-out forwards;
+            animation: plant-grow 4s ease-out forwards;
+            z-index: 5;
         }
 
         .plant-stem {
-            width: 4px;
-            height: 80px;
-            background: linear-gradient(to top, #2d5016, #4a7c2c, #6ba83d);
+            width: 8px;
+            height: 180px;
+            background: linear-gradient(to top,
+                #2d5016 0%,
+                #3a6420 20%,
+                #4a7c2c 50%,
+                #5a8c3c 80%,
+                #6ba83d 100%);
             margin: 0 auto;
-            border-radius: 2px;
+            border-radius: 4px;
+            box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.3),
+                        inset 2px 0 4px rgba(255, 255, 255, 0.2);
         }
 
         .plant-leaf {
             position: absolute;
-            width: 30px;
-            height: 15px;
-            background: linear-gradient(135deg, #4a7c2c 0%, #6ba83d 50%, #4a7c2c 100%);
+            width: 50px;
+            height: 25px;
+            background: linear-gradient(135deg,
+                #3a6420 0%,
+                #4a7c2c 20%,
+                #6ba83d 50%,
+                #7fc84d 70%,
+                #5a8c3c 100%);
             border-radius: 0 50% 50% 0;
             transform-origin: left center;
-            animation: leaf-sway 2s ease-in-out infinite;
+            animation: leaf-sway 3s ease-in-out infinite;
+            box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.2),
+                        0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .plant-leaf::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right,
+                #2d5016 0%,
+                #4a7c2c 50%,
+                transparent 100%);
         }
 
         .plant-leaf.left {
-            left: -15px;
+            left: -25px;
             transform: scaleX(-1);
         }
 
         .plant-leaf.right {
-            right: -15px;
+            right: -25px;
+        }
+
+        .plant-leaf.large {
+            width: 70px;
+            height: 35px;
+        }
+
+        .plant-leaf.large.left {
+            left: -35px;
+        }
+
+        .plant-leaf.large.right {
+            right: -35px;
         }
 
         /* Glass shine effect */
@@ -1047,21 +1091,29 @@
             stem.className = 'plant-stem';
             plant.appendChild(stem);
 
-            // Add leaves at different heights
-            const leafPositions = [20, 40, 60];
-            leafPositions.forEach((top, index) => {
+            // Add leaves at different heights with varying sizes
+            const leafData = [
+                { top: 15, size: 'normal' },
+                { top: 28, size: 'large' },
+                { top: 42, size: 'normal' },
+                { top: 55, size: 'large' },
+                { top: 68, size: 'normal' },
+                { top: 80, size: 'large' }
+            ];
+
+            leafData.forEach((data, index) => {
                 // Left leaf
                 const leftLeaf = document.createElement('div');
-                leftLeaf.className = 'plant-leaf left';
-                leftLeaf.style.top = top + '%';
-                leftLeaf.style.animationDelay = (0.5 + index * 0.3) + 's';
+                leftLeaf.className = `plant-leaf left ${data.size}`;
+                leftLeaf.style.top = data.top + '%';
+                leftLeaf.style.animationDelay = (0.5 + index * 0.2) + 's';
                 plant.appendChild(leftLeaf);
 
                 // Right leaf
                 const rightLeaf = document.createElement('div');
-                rightLeaf.className = 'plant-leaf right';
-                rightLeaf.style.top = (top + 10) + '%';
-                rightLeaf.style.animationDelay = (0.7 + index * 0.3) + 's';
+                rightLeaf.className = `plant-leaf right ${data.size}`;
+                rightLeaf.style.top = (data.top + 5) + '%';
+                rightLeaf.style.animationDelay = (0.6 + index * 0.2) + 's';
                 plant.appendChild(rightLeaf);
             });
 
