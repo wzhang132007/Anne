@@ -371,16 +371,30 @@
         }
 
         /* Plant Growth Effect */
-        @keyframes plant-grow {
+        @keyframes stem-grow {
             0% {
-                transform: translateY(150%) translateX(-50%) scale(0.1);
+                height: 0;
                 opacity: 0;
             }
-            50% {
+            30% {
+                height: 60px;
                 opacity: 1;
             }
+            60% {
+                height: 140px;
+            }
             100% {
-                transform: translateY(-80px) translateX(-50%) scale(1);
+                height: 220px;
+            }
+        }
+
+        @keyframes leaf-appear {
+            0% {
+                transform: scale(0) rotate(-90deg);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
                 opacity: 1;
             }
         }
@@ -402,75 +416,175 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            animation: plant-grow 4s ease-out forwards;
             z-index: 5;
         }
 
         .plant-stem {
-            width: 8px;
-            height: 180px;
+            width: 10px;
+            height: 0;
             background: linear-gradient(to top,
-                #2d5016 0%,
-                #3a6420 20%,
+                #1a3a0d 0%,
+                #2d5016 10%,
+                #3a6420 30%,
                 #4a7c2c 50%,
-                #5a8c3c 80%,
-                #6ba83d 100%);
+                #5a8c3c 70%,
+                #6ba83d 90%,
+                #7fc84d 100%);
             margin: 0 auto;
-            border-radius: 4px;
-            box-shadow: inset -2px 0 4px rgba(0, 0, 0, 0.3),
-                        inset 2px 0 4px rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            position: relative;
+            animation: stem-grow 4s ease-out forwards;
+            box-shadow:
+                inset -3px 0 6px rgba(0, 0, 0, 0.4),
+                inset 3px 0 6px rgba(255, 255, 255, 0.3),
+                2px 0 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Stem segments for texture */
+        .plant-stem::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to top,
+                transparent 0px,
+                transparent 18px,
+                rgba(0, 0, 0, 0.1) 18px,
+                rgba(0, 0, 0, 0.1) 20px
+            );
+        }
+
+        /* Roots at bottom */
+        .plant-root {
+            position: absolute;
+            bottom: -5px;
+            width: 3px;
+            height: 15px;
+            background: linear-gradient(to bottom,
+                #3a6420,
+                #2d5016,
+                #1a3a0d);
+            border-radius: 2px;
+            animation: stem-grow 2s ease-out forwards;
+        }
+
+        .plant-root.left {
+            left: -2px;
+            transform: rotate(-25deg);
+            transform-origin: top center;
+        }
+
+        .plant-root.right {
+            right: -2px;
+            transform: rotate(25deg);
+            transform-origin: top center;
         }
 
         .plant-leaf {
             position: absolute;
-            width: 50px;
-            height: 25px;
+            width: 55px;
+            height: 28px;
             background: linear-gradient(135deg,
-                #3a6420 0%,
-                #4a7c2c 20%,
+                #2d5016 0%,
+                #3a6420 15%,
+                #4a7c2c 30%,
                 #6ba83d 50%,
                 #7fc84d 70%,
-                #5a8c3c 100%);
+                #6ba83d 85%,
+                #4a7c2c 100%);
             border-radius: 0 50% 50% 0;
             transform-origin: left center;
-            animation: leaf-sway 3s ease-in-out infinite;
-            box-shadow: inset -2px 0 6px rgba(0, 0, 0, 0.2),
-                        0 2px 8px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            box-shadow:
+                inset -3px 0 8px rgba(0, 0, 0, 0.3),
+                inset 3px 0 8px rgba(255, 255, 255, 0.2),
+                0 3px 10px rgba(0, 0, 0, 0.2);
         }
 
+        /* Leaf vein details */
         .plant-leaf::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 0;
-            right: 0;
-            height: 1px;
+            right: 5%;
+            height: 2px;
             background: linear-gradient(to right,
-                #2d5016 0%,
-                #4a7c2c 50%,
+                rgba(45, 80, 22, 0.8) 0%,
+                rgba(74, 124, 44, 0.6) 30%,
+                rgba(90, 140, 60, 0.4) 60%,
                 transparent 100%);
+            transform: translateY(-50%);
+        }
+
+        .plant-leaf::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 8px,
+                rgba(255, 255, 255, 0.05) 8px,
+                rgba(255, 255, 255, 0.05) 9px
+            );
+            border-radius: 0 50% 50% 0;
         }
 
         .plant-leaf.left {
-            left: -25px;
+            left: -28px;
             transform: scaleX(-1);
         }
 
         .plant-leaf.right {
-            right: -25px;
+            right: -28px;
         }
 
         .plant-leaf.large {
-            width: 70px;
-            height: 35px;
+            width: 75px;
+            height: 38px;
         }
 
         .plant-leaf.large.left {
-            left: -35px;
+            left: -38px;
         }
 
         .plant-leaf.large.right {
-            right: -35px;
+            right: -38px;
+        }
+
+        /* Flower bud at top */
+        .plant-flower {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle,
+                #ff69b4 0%,
+                #ff1493 50%,
+                #c71585 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 2px 8px rgba(255, 105, 180, 0.5);
+            animation: leaf-appear 0.8s ease-out 4.5s forwards;
+        }
+
+        .plant-flower::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
         }
 
         /* Glass shine effect */
@@ -997,18 +1111,31 @@
             const plant = document.createElement('div');
             plant.className = 'plant';
 
+            // Create stem
             const stem = document.createElement('div');
             stem.className = 'plant-stem';
+
+            // Add roots
+            const leftRoot = document.createElement('div');
+            leftRoot.className = 'plant-root left';
+            stem.appendChild(leftRoot);
+
+            const rightRoot = document.createElement('div');
+            rightRoot.className = 'plant-root right';
+            stem.appendChild(rightRoot);
+
             plant.appendChild(stem);
 
-            // Add leaves at different heights with varying sizes
+            // Add leaves at different heights with varying sizes and staggered appearance
             const leafData = [
-                { top: 15, size: 'normal' },
-                { top: 28, size: 'large' },
-                { top: 42, size: 'normal' },
-                { top: 55, size: 'large' },
-                { top: 68, size: 'normal' },
-                { top: 80, size: 'large' }
+                { top: 20, size: 'normal', delay: 2.0 },
+                { top: 30, size: 'large', delay: 2.3 },
+                { top: 42, size: 'normal', delay: 2.6 },
+                { top: 52, size: 'large', delay: 2.9 },
+                { top: 65, size: 'normal', delay: 3.2 },
+                { top: 75, size: 'large', delay: 3.5 },
+                { top: 85, size: 'normal', delay: 3.8 },
+                { top: 92, size: 'large', delay: 4.1 }
             ];
 
             leafData.forEach((data, index) => {
@@ -1016,16 +1143,21 @@
                 const leftLeaf = document.createElement('div');
                 leftLeaf.className = `plant-leaf left ${data.size}`;
                 leftLeaf.style.top = data.top + '%';
-                leftLeaf.style.animationDelay = (0.5 + index * 0.2) + 's';
-                plant.appendChild(leftLeaf);
+                leftLeaf.style.animation = `leaf-appear 0.6s ease-out ${data.delay}s forwards, leaf-sway 3s ease-in-out ${data.delay + 0.6}s infinite`;
+                stem.appendChild(leftLeaf);
 
                 // Right leaf
                 const rightLeaf = document.createElement('div');
                 rightLeaf.className = `plant-leaf right ${data.size}`;
-                rightLeaf.style.top = (data.top + 5) + '%';
-                rightLeaf.style.animationDelay = (0.6 + index * 0.2) + 's';
-                plant.appendChild(rightLeaf);
+                rightLeaf.style.top = (data.top + 3) + '%';
+                rightLeaf.style.animation = `leaf-appear 0.6s ease-out ${data.delay + 0.15}s forwards, leaf-sway 3s ease-in-out ${data.delay + 0.75}s infinite`;
+                stem.appendChild(rightLeaf);
             });
+
+            // Add flower at top
+            const flower = document.createElement('div');
+            flower.className = 'plant-flower';
+            stem.appendChild(flower);
 
             container.appendChild(plant);
         }
