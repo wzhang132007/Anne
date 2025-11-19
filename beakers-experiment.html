@@ -977,7 +977,7 @@
             if (beakerId === 'beaker1') {
                 reactionType = 'plant';
             } else {
-                const reactions = ['bubbles', 'smoke', 'fire', 'freeze', 'plant', 'bottomSteam'];
+                const reactions = ['bubbles', 'bottomSteam', 'fire', 'plant'];
                 reactionType = reactions[Math.floor(Math.random() * reactions.length)];
             }
 
@@ -986,14 +986,8 @@
                 case 'bubbles':
                     createBubbles(reactionContainer);
                     break;
-                case 'smoke':
-                    createSmoke(reactionContainer);
-                    break;
                 case 'fire':
                     createFire(reactionContainer);
-                    break;
-                case 'freeze':
-                    createFreeze(reactionContainer);
                     break;
                 case 'plant':
                     createPlant(reactionContainer);
@@ -1032,18 +1026,6 @@
             }, 300);
         }
 
-        function createSmoke(container) {
-            // Create multiple smoke puffs
-            for (let i = 0; i < 8; i++) {
-                const smoke = document.createElement('div');
-                smoke.className = 'smoke';
-                smoke.style.setProperty('--drift', (Math.random() * 60 - 30) + 'px');
-                smoke.style.animationDelay = i * 0.5 + 's';
-                smoke.style.animationDuration = (3 + Math.random() * 2) + 's';
-                container.appendChild(smoke);
-            }
-        }
-
         function createBottomSteam(container) {
             // Create multiple steam wisps rising from the bottom
             for (let i = 0; i < 12; i++) {
@@ -1062,24 +1044,6 @@
             const flame = document.createElement('div');
             flame.className = 'flame';
             container.appendChild(flame);
-        }
-
-        function createFreeze(container) {
-            // Create ice overlay
-            const iceOverlay = document.createElement('div');
-            iceOverlay.className = 'ice-overlay';
-            container.appendChild(iceOverlay);
-
-            // Create ice crystals
-            for (let i = 0; i < 10; i++) {
-                const crystal = document.createElement('div');
-                crystal.className = 'ice-crystal';
-                crystal.style.top = (30 + Math.random() * 60) + '%';
-                crystal.style.left = (20 + Math.random() * 60) + '%';
-                crystal.style.animationDelay = (Math.random() * 1.5) + 's';
-                crystal.style.transform = `rotate(${Math.random() * 360}deg)`;
-                container.appendChild(crystal);
-            }
         }
 
         function createPlant(container) {
