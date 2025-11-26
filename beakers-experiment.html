@@ -384,7 +384,7 @@
                 height: 140px;
             }
             100% {
-                height: 220px;
+                height: 240px;
             }
         }
 
@@ -404,10 +404,33 @@
                 transform: rotate(0deg);
             }
             25% {
-                transform: rotate(8deg);
+                transform: rotate(10deg);
             }
             75% {
-                transform: rotate(-8deg);
+                transform: rotate(-10deg);
+            }
+        }
+
+        @keyframes flower-bloom {
+            0% {
+                transform: translateX(-50%) scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.2) rotate(180deg);
+            }
+            100% {
+                transform: translateX(-50%) scale(1) rotate(360deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes petal-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
             }
         }
 
@@ -420,24 +443,25 @@
         }
 
         .plant-stem {
-            width: 10px;
+            width: 12px;
             height: 0;
             background: linear-gradient(to top,
                 #1a3a0d 0%,
-                #2d5016 10%,
-                #3a6420 30%,
-                #4a7c2c 50%,
-                #5a8c3c 70%,
-                #6ba83d 90%,
-                #7fc84d 100%);
+                #2d5016 8%,
+                #3a6420 20%,
+                #4a7c2c 35%,
+                #5a8c3c 50%,
+                #6ba83d 70%,
+                #7fc84d 85%,
+                #95d45e 100%);
             margin: 0 auto;
-            border-radius: 5px;
+            border-radius: 6px;
             position: relative;
-            animation: stem-grow 4s ease-out forwards;
+            animation: stem-grow 4.5s ease-out forwards;
             box-shadow:
-                inset -3px 0 6px rgba(0, 0, 0, 0.4),
-                inset 3px 0 6px rgba(255, 255, 255, 0.3),
-                2px 0 4px rgba(0, 0, 0, 0.2);
+                inset -4px 0 8px rgba(0, 0, 0, 0.4),
+                inset 4px 0 8px rgba(255, 255, 255, 0.3),
+                3px 0 6px rgba(0, 0, 0, 0.2);
         }
 
         /* Stem segments for texture */
@@ -449,75 +473,113 @@
             background: repeating-linear-gradient(
                 to top,
                 transparent 0px,
-                transparent 18px,
-                rgba(0, 0, 0, 0.1) 18px,
-                rgba(0, 0, 0, 0.1) 20px
+                transparent 16px,
+                rgba(0, 0, 0, 0.15) 16px,
+                rgba(0, 0, 0, 0.15) 18px
             );
+        }
+
+        /* Stem highlight */
+        .plant-stem::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to top,
+                transparent 0%,
+                rgba(255, 255, 255, 0.3) 20%,
+                rgba(255, 255, 255, 0.5) 50%,
+                rgba(255, 255, 255, 0.3) 80%,
+                transparent 100%);
+            border-radius: 2px;
         }
 
         /* Roots at bottom */
         .plant-root {
             position: absolute;
             bottom: -5px;
-            width: 3px;
-            height: 15px;
+            width: 4px;
+            height: 18px;
             background: linear-gradient(to bottom,
+                #4a7c2c,
                 #3a6420,
                 #2d5016,
                 #1a3a0d);
             border-radius: 2px;
             animation: stem-grow 2s ease-out forwards;
+            box-shadow: 1px 0 2px rgba(0, 0, 0, 0.3);
         }
 
         .plant-root.left {
-            left: -2px;
-            transform: rotate(-25deg);
+            left: -3px;
+            transform: rotate(-30deg);
             transform-origin: top center;
         }
 
         .plant-root.right {
-            right: -2px;
-            transform: rotate(25deg);
+            right: -3px;
+            transform: rotate(30deg);
             transform-origin: top center;
+        }
+
+        .plant-root.center-left {
+            left: 2px;
+            transform: rotate(-15deg);
+            transform-origin: top center;
+            height: 14px;
+        }
+
+        .plant-root.center-right {
+            right: 2px;
+            transform: rotate(15deg);
+            transform-origin: top center;
+            height: 14px;
         }
 
         .plant-leaf {
             position: absolute;
-            width: 55px;
-            height: 28px;
+            width: 60px;
+            height: 32px;
             background: linear-gradient(135deg,
                 #2d5016 0%,
-                #3a6420 15%,
-                #4a7c2c 30%,
-                #6ba83d 50%,
-                #7fc84d 70%,
+                #3a6420 10%,
+                #4a7c2c 25%,
+                #6ba83d 45%,
+                #7fc84d 55%,
+                #95d45e 65%,
+                #7fc84d 75%,
                 #6ba83d 85%,
                 #4a7c2c 100%);
-            border-radius: 0 50% 50% 0;
+            border-radius: 0 60% 60% 0;
             transform-origin: left center;
             opacity: 0;
             box-shadow:
-                inset -3px 0 8px rgba(0, 0, 0, 0.3),
-                inset 3px 0 8px rgba(255, 255, 255, 0.2),
-                0 3px 10px rgba(0, 0, 0, 0.2);
+                inset -4px 0 10px rgba(0, 0, 0, 0.35),
+                inset 4px 0 10px rgba(255, 255, 255, 0.25),
+                0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Leaf vein details */
+        /* Main leaf vein */
         .plant-leaf::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 0;
-            right: 5%;
-            height: 2px;
+            right: 3%;
+            height: 2.5px;
             background: linear-gradient(to right,
-                rgba(45, 80, 22, 0.8) 0%,
-                rgba(74, 124, 44, 0.6) 30%,
-                rgba(90, 140, 60, 0.4) 60%,
+                rgba(45, 80, 22, 0.9) 0%,
+                rgba(74, 124, 44, 0.7) 30%,
+                rgba(90, 140, 60, 0.5) 60%,
+                rgba(127, 196, 77, 0.3) 80%,
                 transparent 100%);
             transform: translateY(-50%);
+            border-radius: 2px;
         }
 
+        /* Secondary veins */
         .plant-leaf::before {
             content: '';
             position: absolute;
@@ -525,66 +587,158 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 8px,
-                rgba(255, 255, 255, 0.05) 8px,
-                rgba(255, 255, 255, 0.05) 9px
-            );
-            border-radius: 0 50% 50% 0;
+            background:
+                repeating-linear-gradient(
+                    55deg,
+                    transparent,
+                    transparent 6px,
+                    rgba(45, 80, 22, 0.15) 6px,
+                    rgba(45, 80, 22, 0.15) 7px
+                ),
+                repeating-linear-gradient(
+                    125deg,
+                    transparent,
+                    transparent 6px,
+                    rgba(45, 80, 22, 0.15) 6px,
+                    rgba(45, 80, 22, 0.15) 7px
+                );
+            border-radius: 0 60% 60% 0;
         }
 
         .plant-leaf.left {
-            left: -28px;
+            left: -30px;
             transform: scaleX(-1);
         }
 
         .plant-leaf.right {
-            right: -28px;
+            right: -30px;
         }
 
         .plant-leaf.large {
-            width: 75px;
-            height: 38px;
+            width: 80px;
+            height: 42px;
         }
 
         .plant-leaf.large.left {
-            left: -38px;
+            left: -40px;
         }
 
         .plant-leaf.large.right {
-            right: -38px;
+            right: -40px;
         }
 
-        /* Flower bud at top */
+        /* Flower at top */
         .plant-flower {
             position: absolute;
-            top: -15px;
+            top: -20px;
             left: 50%;
             transform: translateX(-50%) scale(0);
-            width: 20px;
-            height: 20px;
-            background: radial-gradient(circle,
-                #ff69b4 0%,
-                #ff1493 50%,
-                #c71585 100%);
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-            box-shadow: 0 2px 8px rgba(255, 105, 180, 0.5);
-            animation: leaf-appear 0.8s ease-out 4.5s forwards;
+            width: 50px;
+            height: 50px;
+            animation: flower-bloom 1.2s ease-out 4.8s forwards;
         }
 
-        .plant-flower::before {
-            content: '';
+        /* Flower petals */
+        .flower-petal {
+            position: absolute;
+            width: 20px;
+            height: 28px;
+            background: radial-gradient(ellipse at center,
+                #ff69b4 0%,
+                #ff1493 40%,
+                #ff69b4 70%,
+                #c71585 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow:
+                inset 0 2px 4px rgba(255, 255, 255, 0.5),
+                0 2px 8px rgba(255, 105, 180, 0.6);
+            animation: petal-pulse 2s ease-in-out infinite;
+        }
+
+        .flower-petal:nth-child(1) {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            animation-delay: 0s;
+        }
+
+        .flower-petal:nth-child(2) {
+            top: 7px;
+            right: 7px;
+            transform: rotate(45deg);
+            animation-delay: 0.2s;
+        }
+
+        .flower-petal:nth-child(3) {
+            bottom: 7px;
+            right: 0;
+            transform: rotate(90deg);
+            animation-delay: 0.4s;
+        }
+
+        .flower-petal:nth-child(4) {
+            bottom: 0;
+            right: 7px;
+            transform: rotate(135deg);
+            animation-delay: 0.6s;
+        }
+
+        .flower-petal:nth-child(5) {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+            animation-delay: 0.8s;
+        }
+
+        .flower-petal:nth-child(6) {
+            bottom: 0;
+            left: 7px;
+            transform: rotate(225deg);
+            animation-delay: 1s;
+        }
+
+        .flower-petal:nth-child(7) {
+            bottom: 7px;
+            left: 0;
+            transform: rotate(270deg);
+            animation-delay: 1.2s;
+        }
+
+        .flower-petal:nth-child(8) {
+            top: 7px;
+            left: 7px;
+            transform: rotate(315deg);
+            animation-delay: 1.4s;
+        }
+
+        /* Flower center */
+        .flower-center {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 8px;
-            height: 8px;
-            background: #ffd700;
+            width: 16px;
+            height: 16px;
+            background: radial-gradient(circle,
+                #ffeb3b 0%,
+                #ffd700 40%,
+                #ffa000 100%);
             border-radius: 50%;
-            box-shadow: 0 0 4px rgba(255, 215, 0, 0.8);
+            box-shadow:
+                inset 0 -2px 4px rgba(0, 0, 0, 0.3),
+                0 0 8px rgba(255, 215, 0, 0.8),
+                0 0 12px rgba(255, 235, 59, 0.6);
+            z-index: 10;
+        }
+
+        /* Pollen dots on center */
+        .flower-center::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.6) 0%, transparent 50%);
+            border-radius: 50%;
         }
 
         /* Glass shine effect */
@@ -1115,7 +1269,7 @@
             const stem = document.createElement('div');
             stem.className = 'plant-stem';
 
-            // Add roots
+            // Add roots - 4 roots for better support
             const leftRoot = document.createElement('div');
             leftRoot.className = 'plant-root left';
             stem.appendChild(leftRoot);
@@ -1124,18 +1278,27 @@
             rightRoot.className = 'plant-root right';
             stem.appendChild(rightRoot);
 
+            const centerLeftRoot = document.createElement('div');
+            centerLeftRoot.className = 'plant-root center-left';
+            stem.appendChild(centerLeftRoot);
+
+            const centerRightRoot = document.createElement('div');
+            centerRightRoot.className = 'plant-root center-right';
+            stem.appendChild(centerRightRoot);
+
             plant.appendChild(stem);
 
             // Add leaves at different heights with varying sizes and staggered appearance
             const leafData = [
-                { top: 20, size: 'normal', delay: 2.0 },
-                { top: 30, size: 'large', delay: 2.3 },
-                { top: 42, size: 'normal', delay: 2.6 },
-                { top: 52, size: 'large', delay: 2.9 },
-                { top: 65, size: 'normal', delay: 3.2 },
-                { top: 75, size: 'large', delay: 3.5 },
-                { top: 85, size: 'normal', delay: 3.8 },
-                { top: 92, size: 'large', delay: 4.1 }
+                { top: 15, size: 'normal', delay: 2.0 },
+                { top: 25, size: 'large', delay: 2.2 },
+                { top: 35, size: 'normal', delay: 2.4 },
+                { top: 45, size: 'large', delay: 2.6 },
+                { top: 55, size: 'normal', delay: 2.8 },
+                { top: 65, size: 'large', delay: 3.0 },
+                { top: 75, size: 'normal', delay: 3.2 },
+                { top: 83, size: 'large', delay: 3.4 },
+                { top: 91, size: 'normal', delay: 3.6 }
             ];
 
             leafData.forEach((data, index) => {
@@ -1143,22 +1306,34 @@
                 const leftLeaf = document.createElement('div');
                 leftLeaf.className = `plant-leaf left ${data.size}`;
                 leftLeaf.style.top = data.top + '%';
-                leftLeaf.style.animation = `leaf-appear 0.6s ease-out ${data.delay}s forwards, leaf-sway 3s ease-in-out ${data.delay + 0.6}s infinite`;
+                leftLeaf.style.animation = `leaf-appear 0.7s ease-out ${data.delay}s forwards, leaf-sway 3.5s ease-in-out ${data.delay + 0.7}s infinite`;
                 stem.appendChild(leftLeaf);
 
                 // Right leaf
                 const rightLeaf = document.createElement('div');
                 rightLeaf.className = `plant-leaf right ${data.size}`;
                 rightLeaf.style.top = (data.top + 3) + '%';
-                rightLeaf.style.animation = `leaf-appear 0.6s ease-out ${data.delay + 0.15}s forwards, leaf-sway 3s ease-in-out ${data.delay + 0.75}s infinite`;
+                rightLeaf.style.animation = `leaf-appear 0.7s ease-out ${data.delay + 0.15}s forwards, leaf-sway 3.5s ease-in-out ${data.delay + 0.85}s infinite`;
                 stem.appendChild(rightLeaf);
             });
 
-            // Add flower at top
+            // Add beautiful flower at top
             const flower = document.createElement('div');
             flower.className = 'plant-flower';
-            stem.appendChild(flower);
 
+            // Create 8 petals
+            for (let i = 0; i < 8; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'flower-petal';
+                flower.appendChild(petal);
+            }
+
+            // Create flower center
+            const center = document.createElement('div');
+            center.className = 'flower-center';
+            flower.appendChild(center);
+
+            stem.appendChild(flower);
             container.appendChild(plant);
         }
 
