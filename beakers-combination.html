@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Lab - Combination Beaker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #e8f4f8 0%, #d4e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .lab-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            position: relative;
+        }
+
+        .instruction {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-size: 16px;
+            color: #2c3e50;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        /* Completed beakers from previous scene */
+        .completed-beakers {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 100;
+        }
+
+        .completed-beaker {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0.3),
+                rgba(200, 220, 255, 0.2));
+            border: 2px solid rgba(100, 150, 200, 0.5);
+            border-radius: 0 0 10px 10px;
+            position: relative;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .completed-beaker:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .completed-beaker.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .completed-beaker.hidden {
+            visibility: hidden;
+        }
+
+        .beaker-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70%;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .beaker-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: #2c3e50;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        /* Central combination apparatus */
+        .combination-apparatus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+        }
+
+        /* Central beaker */
+        .central-beaker {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 250px;
+            z-index: 50;
+        }
+
+        /* Branch tubes - 6 positions in a circle */
+        .branch-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .branch {
+            position: absolute;
+            width: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Position branches in a circle */
+        .branch:nth-child(1) { /* Top */
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .branch:nth-child(2) { /* Top-right */
+            top: 15%;
+            right: 5%;
+            transform: rotate(60deg);
+        }
+
+        .branch:nth-child(3) { /* Bottom-right */
+            bottom: 15%;
+            right: 5%;
+            transform: rotate(120deg);
+        }
+
+        .branch:nth-child(4) { /* Bottom */
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) rotate(180deg);
+        }
+
+        .branch:nth-child(5) { /* Bottom-left */
+            bottom: 15%;
+            left: 5%;
+            transform: rotate(240deg);
+        }
+
+        .branch:nth-child(6) { /* Top-left */
+            top: 15%;
+            left: 5%;
+            transform: rotate(300deg);
+        }
+
+        .branch-slot {
+            width: 90px;
+            height: 110px;
+            border: 3px dashed rgba(100, 150, 200, 0.5);
+            border-radius: 0 0 12px 12px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .branch-slot.drag-over {
+            border-color: rgba(52, 152, 219, 0.8);
+            background: rgba(52, 152, 219, 0.2);
+            transform: scale(1.1);
+        }
+
+        .branch-slot.filled {
+            border-style: solid;
+            border-color: rgba(46, 204, 113, 0.8);
+        }
+
+        .branch-tube {
+            width: 20px;
+            height: 80px;
+            background: linear-gradient(to bottom,
+                rgba(200, 220, 255, 0.6),
+                rgba(150, 180, 220, 0.8));
+            border: 2px solid rgba(100, 150, 200, 0.6);
+            border-radius: 10px;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Liquid flow animation in tubes */
+        .liquid-flow {
+            position: absolute;
+            width: 100%;
+            height: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom,
+                rgba(52, 152, 219, 0.7),
+                rgba(41, 128, 185, 0.9));
+            border-radius: 10px;
+            transition: height 2s ease;
+        }
+
+        .branch.active .liquid-flow {
+            height: 100%;
+        }
+
+        /* Reaction container in branch slots */
+        .reaction-mini {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+
+        /* Bubbles Animation */
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: 20px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            animation: bubble-rise 3s ease-in infinite;
+        }
+
+        /* Flame Effect */
+        @keyframes flame-flicker {
+            0%, 100% {
+                transform: translateY(0) scale(1) scaleY(1);
+                opacity: 0.9;
+            }
+            25% {
+                transform: translateY(-3px) scale(1.1) scaleY(1.2);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-1px) scale(0.95) scaleY(0.9);
+                opacity: 0.85;
+            }
+            75% {
+                transform: translateY(-5px) scale(1.05) scaleY(1.1);
+                opacity: 0.95;
+            }
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 50px;
+            background: linear-gradient(to top,
+                #ff6b00 0%,
+                #ff8c00 20%,
+                #ffa500 40%,
+                #ffdd00 60%,
+                #fff700 80%,
+                rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            box-shadow: 0 0 15px #ff6b00, 0 0 30px #ff8c00;
+            animation: flame-flicker 0.3s ease-in-out infinite;
+            filter: blur(1px);
+        }
+
+        /* Plant in mini */
+        @keyframes stem-grow-mini {
+            0% {
+                height: 0;
+            }
+            100% {
+                height: 80px;
+            }
+        }
+
+        .plant-mini {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .plant-stem-mini {
+            width: 8px;
+            height: 0;
+            background: linear-gradient(to top,
+                #1a3a0d 0%,
+                #4a7c2c 50%,
+                #7fc84d 100%);
+            margin: 0 auto;
+            border-radius: 4px;
+            position: relative;
+            animation: stem-grow-mini 3s ease-out forwards;
+        }
+
+        .plant-leaf-mini {
+            position: absolute;
+            width: 30px;
+            height: 16px;
+            background: linear-gradient(135deg,
+                #4a7c2c 0%,
+                #7fc84d 50%,
+                #6ba83d 100%);
+            border-radius: 0 50% 50% 0;
+        }
+
+        .plant-leaf-mini.left {
+            left: -15px;
+            transform: scaleX(-1);
+        }
+
+        .plant-leaf-mini.right {
+            right: -15px;
+        }
+
+        .plant-flower-mini {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #ff69b4, #ff1493);
+            border-radius: 50%;
+        }
+
+        /* Steam Effect */
+        @keyframes steam-rise {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.8;
+            }
+            85% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-120px) scale(2);
+                opacity: 0;
+            }
+        }
+
+        .bottom-steam {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle,
+                rgba(230, 240, 255, 0.7) 0%,
+                rgba(200, 220, 240, 0.5) 30%,
+                transparent 70%);
+            border-radius: 50%;
+            filter: blur(8px);
+            animation: steam-rise 3s ease-out infinite;
+        }
+
+        /* Final reaction effect in central beaker */
+        .final-reaction {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .final-reaction.active {
+            opacity: 1;
+        }
+
+        /* Rainbow explosion effect */
+        @keyframes rainbow-explosion {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(3) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .rainbow-particle {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            animation: rainbow-explosion 3s ease-out infinite;
+        }
+
+        .completion-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .completion-message.show {
+            opacity: 1;
+        }
+
+        .completion-message h2 {
+            color: #27ae60;
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .completion-message p {
+            color: #2c3e50;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instruction">
+        Drag each completed beaker into a branch slot to combine them!
+    </div>
+
+    <div class="lab-container">
+        <!-- Completed beakers from previous scene -->
+        <div class="completed-beakers">
+            <div class="completed-beaker" id="source-beaker1" draggable="true" data-beaker="1" data-reaction="plant">
+                <div class="beaker-label">beaker1</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(46, 204, 113, 0.7), rgba(46, 204, 113, 0.9));">
+                </div>
+            </div>
+            <div class="completed-beaker" id="source-beaker2" draggable="true" data-beaker="2" data-reaction="bubbles">
+                <div class="beaker-label">beaker2</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(52, 152, 219, 0.7), rgba(52, 152, 219, 0.9));">
+                </div>
+            </div>
+            <div class="completed-beaker" id="source-beaker3" draggable="true" data-beaker="3" data-reaction="fire">
+                <div class="beaker-label">beaker3</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(231, 76, 60, 0.7), rgba(231, 76, 60, 0.9));">
+                </div>
+            </div>
+            <div class="completed-beaker" id="source-beaker4" draggable="true" data-beaker="4" data-reaction="steam">
+                <div class="beaker-label">beaker4</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(155, 89, 182, 0.7), rgba(155, 89, 182, 0.9));">
+                </div>
+            </div>
+            <div class="completed-beaker" id="source-beaker5" draggable="true" data-beaker="5" data-reaction="plant">
+                <div class="beaker-label">beaker5</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(241, 196, 15, 0.7), rgba(241, 196, 15, 0.9));">
+                </div>
+            </div>
+            <div class="completed-beaker" id="source-beaker6" draggable="true" data-beaker="6" data-reaction="bubbles">
+                <div class="beaker-label">beaker6</div>
+                <div class="beaker-content" style="background: linear-gradient(to top, rgba(230, 126, 34, 0.7), rgba(230, 126, 34, 0.9));">
+                </div>
+            </div>
+        </div>
+
+        <!-- Combination apparatus -->
+        <div class="combination-apparatus">
+            <!-- Branch containers -->
+            <div class="branch-container">
+                <div class="branch" data-branch="1">
+                    <div class="branch-slot" data-slot="1">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="2">
+                    <div class="branch-slot" data-slot="2">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="3">
+                    <div class="branch-slot" data-slot="3">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="4">
+                    <div class="branch-slot" data-slot="4">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="5">
+                    <div class="branch-slot" data-slot="5">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="6">
+                    <div class="branch-slot" data-slot="6">
+                        <div class="reaction-mini"></div>
+                    </div>
+                    <div class="branch-tube">
+                        <div class="liquid-flow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central beaker -->
+            <div class="central-beaker">
+                <svg width="200" height="250" viewBox="0 0 200 250">
+                    <defs>
+                        <linearGradient id="centralGlass" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.1);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="centralHighlight">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.7);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+
+                    <!-- Beaker shadow -->
+                    <ellipse cx="100" cy="230" rx="60" ry="8" fill="rgba(0,0,0,0.2)"/>
+
+                    <!-- Beaker body -->
+                    <path d="M 40 40 L 20 200 Q 20 215 40 225 L 160 225 Q 180 215 180 200 L 160 40 Z"
+                          fill="url(#centralGlass)"
+                          stroke="rgba(150,180,220,0.8)"
+                          stroke-width="3"/>
+
+                    <!-- Inner shadow -->
+                    <path d="M 45 45 L 25 200 Q 25 213 40 220 L 160 220 Q 175 213 175 200 L 155 45"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.15)"
+                          stroke-width="2"/>
+
+                    <!-- Beaker rim -->
+                    <ellipse cx="100" cy="40" rx="60" ry="10" fill="rgba(240,245,255,0.3)" stroke="rgba(150,180,220,0.9)" stroke-width="3"/>
+                    <ellipse cx="100" cy="40" rx="55" ry="8" fill="rgba(255,255,255,0.2)"/>
+
+                    <!-- Glass highlight -->
+                    <ellipse cx="60" cy="120" rx="20" ry="60" fill="url(#centralHighlight)"/>
+                    <path d="M 50 80 Q 55 90 52 130" stroke="rgba(255,255,255,0.7)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                </svg>
+                <div class="final-reaction"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="completion-message">
+        <h2>Perfect Combination!</h2>
+        <p>All beakers have been successfully combined!</p>
+    </div>
+
+    <script>
+        // Track filled slots
+        const slotStates = {
+            1: null,
+            2: null,
+            3: null,
+            4: null,
+            5: null,
+            6: null
+        };
+
+        // Drag and drop handlers
+        const completedBeakers = document.querySelectorAll('.completed-beaker');
+        const branchSlots = document.querySelectorAll('.branch-slot');
+
+        completedBeakers.forEach(beaker => {
+            beaker.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('beakerId', beaker.dataset.beaker);
+                e.dataTransfer.setData('reaction', beaker.dataset.reaction);
+                beaker.classList.add('dragging');
+            });
+
+            beaker.addEventListener('dragend', (e) => {
+                beaker.classList.remove('dragging');
+            });
+        });
+
+        branchSlots.forEach(slot => {
+            slot.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!slot.classList.contains('filled')) {
+                    slot.classList.add('drag-over');
+                }
+            });
+
+            slot.addEventListener('dragleave', (e) => {
+                slot.classList.remove('drag-over');
+            });
+
+            slot.addEventListener('drop', (e) => {
+                e.preventDefault();
+                slot.classList.remove('drag-over');
+
+                const slotNum = slot.dataset.slot;
+
+                // Check if slot is already filled
+                if (slotStates[slotNum]) {
+                    return;
+                }
+
+                const beakerId = e.dataTransfer.getData('beakerId');
+                const reaction = e.dataTransfer.getData('reaction');
+
+                // Fill the slot
+                fillSlot(slotNum, beakerId, reaction);
+
+                // Hide the source beaker
+                const sourceBeaker = document.getElementById(`source-beaker${beakerId}`);
+                sourceBeaker.classList.add('hidden');
+
+                // Activate the branch tube
+                const branch = slot.closest('.branch');
+                branch.classList.add('active');
+
+                // Check if all slots are filled
+                checkCompletion();
+            });
+        });
+
+        function fillSlot(slotNum, beakerId, reaction) {
+            slotStates[slotNum] = { beakerId, reaction };
+
+            const slot = document.querySelector(`[data-slot="${slotNum}"]`);
+            slot.classList.add('filled');
+
+            const reactionContainer = slot.querySelector('.reaction-mini');
+
+            // Create reaction based on type
+            switch(reaction) {
+                case 'bubbles':
+                    createMiniReaction(reactionContainer, 'bubbles');
+                    break;
+                case 'fire':
+                    createMiniReaction(reactionContainer, 'fire');
+                    break;
+                case 'plant':
+                    createMiniReaction(reactionContainer, 'plant');
+                    break;
+                case 'steam':
+                    createMiniReaction(reactionContainer, 'steam');
+                    break;
+            }
+        }
+
+        function createMiniReaction(container, type) {
+            if (type === 'bubbles') {
+                setInterval(() => {
+                    if (!container.parentNode) return;
+                    const bubble = document.createElement('div');
+                    bubble.className = 'bubble';
+                    const size = 3 + Math.random() * 8;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                    bubble.style.left = (35 + Math.random() * 30) + '%';
+                    container.appendChild(bubble);
+                    setTimeout(() => bubble.remove(), 3500);
+                }, 400);
+            } else if (type === 'fire') {
+                const flame = document.createElement('div');
+                flame.className = 'flame';
+                container.appendChild(flame);
+            } else if (type === 'plant') {
+                const plant = document.createElement('div');
+                plant.className = 'plant-mini';
+
+                const stem = document.createElement('div');
+                stem.className = 'plant-stem-mini';
+
+                const leftLeaf1 = document.createElement('div');
+                leftLeaf1.className = 'plant-leaf-mini left';
+                leftLeaf1.style.top = '30%';
+                stem.appendChild(leftLeaf1);
+
+                const rightLeaf1 = document.createElement('div');
+                rightLeaf1.className = 'plant-leaf-mini right';
+                rightLeaf1.style.top = '35%';
+                stem.appendChild(rightLeaf1);
+
+                const leftLeaf2 = document.createElement('div');
+                leftLeaf2.className = 'plant-leaf-mini left';
+                leftLeaf2.style.top = '60%';
+                stem.appendChild(leftLeaf2);
+
+                const rightLeaf2 = document.createElement('div');
+                rightLeaf2.className = 'plant-leaf-mini right';
+                rightLeaf2.style.top = '65%';
+                stem.appendChild(rightLeaf2);
+
+                const flower = document.createElement('div');
+                flower.className = 'plant-flower-mini';
+                stem.appendChild(flower);
+
+                plant.appendChild(stem);
+                container.appendChild(plant);
+            } else if (type === 'steam') {
+                setInterval(() => {
+                    if (!container.parentNode) return;
+                    const steam = document.createElement('div');
+                    steam.className = 'bottom-steam';
+                    steam.style.left = (40 + Math.random() * 20) + '%';
+                    container.appendChild(steam);
+                    setTimeout(() => steam.remove(), 3500);
+                }, 500);
+            }
+        }
+
+        function checkCompletion() {
+            const filledCount = Object.values(slotStates).filter(s => s !== null).length;
+
+            if (filledCount === 6) {
+                // All slots filled - trigger final reaction
+                setTimeout(() => {
+                    triggerFinalReaction();
+                }, 2000);
+            }
+        }
+
+        function triggerFinalReaction() {
+            const finalReaction = document.querySelector('.final-reaction');
+            finalReaction.classList.add('active');
+
+            // Create rainbow particle explosion
+            const colors = ['#e74c3c', '#f39c12', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'];
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'rainbow-particle';
+                particle.style.background = colors[i % colors.length];
+                particle.style.animationDelay = (i * 0.1) + 's';
+
+                const angle = (i * 30) * Math.PI / 180;
+                const distance = 100;
+                particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+                particle.style.setProperty('--dy', Math.sin(angle) * distance + 'px');
+
+                finalReaction.appendChild(particle);
+            }
+
+            // Show completion message
+            setTimeout(() => {
+                const message = document.querySelector('.completion-message');
+                message.classList.add('show');
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

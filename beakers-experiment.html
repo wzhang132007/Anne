@@ -1202,6 +1202,43 @@
             }
 
             beaker.appendChild(reactionContainer);
+
+            // Check if all beakers are completed
+            checkAllBeakersCompleted();
+        }
+
+        function checkAllBeakersCompleted() {
+            // Check if all 6 beakers are filled
+            const allCompleted = Object.values(beakerStates).every(state => state.fillLevel === 3);
+
+            if (allCompleted) {
+                // Show transition message
+                setTimeout(() => {
+                    const message = document.createElement('div');
+                    message.style.cssText = `
+                        position: fixed;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(46, 204, 113, 0.95);
+                        color: white;
+                        padding: 30px 60px;
+                        border-radius: 15px;
+                        font-size: 24px;
+                        font-weight: bold;
+                        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+                        z-index: 10000;
+                        text-align: center;
+                    `;
+                    message.innerHTML = 'All beakers completed!<br><span style="font-size: 18px;">Moving to combination stage...</span>';
+                    document.body.appendChild(message);
+
+                    // Transition to next scene after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = 'beakers-combination.html';
+                    }, 2000);
+                }, 1000);
+            }
         }
 
         function createBubbles(container) {
