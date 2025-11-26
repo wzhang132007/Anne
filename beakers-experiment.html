@@ -34,9 +34,8 @@
         }
 
         .lab-table {
-            width: 95%;
-            max-width: 1200px;
-            height: 450px;
+            width: 100%;
+            height: 100vh;
             position: relative;
             overflow: visible;
         }
@@ -1293,15 +1292,20 @@
             const reactionContainer = document.createElement('div');
             reactionContainer.className = 'reaction-container';
 
-            // Beaker 1 always gets plant reaction, beaker 2 always gets bubbles, others are random
+            // Assign specific reactions to each beaker to ensure all 4 are visible
             let reactionType;
             if (beakerId === 'beaker1') {
-                reactionType = 'plant';
+                reactionType = 'plant';      // 植物
             } else if (beakerId === 'beaker2') {
-                reactionType = 'bubbles';
-            } else {
-                const reactions = ['bubbles', 'bottomSteam', 'fire', 'plant'];
-                reactionType = reactions[Math.floor(Math.random() * reactions.length)];
+                reactionType = 'bubbles';    // 气泡
+            } else if (beakerId === 'beaker3') {
+                reactionType = 'fire';       // 火焰
+            } else if (beakerId === 'beaker4') {
+                reactionType = 'bottomSteam'; // 冒气
+            } else if (beakerId === 'beaker5') {
+                reactionType = 'plant';      // 植物（重复）
+            } else if (beakerId === 'beaker6') {
+                reactionType = 'bubbles';    // 气泡（重复）
             }
 
             // Create the reaction based on type
@@ -1588,22 +1592,15 @@
         function populateCompletedBeakers() {
             const container = document.getElementById('completed-beakers-display');
 
-            // Get reaction types that were generated
+            // Get reaction types that match Scene 1 assignments
             const reactions = {
-                beaker1: 'plant',
-                beaker2: 'bubbles',
-                beaker3: null,
-                beaker4: null,
-                beaker5: null,
-                beaker6: null
+                beaker1: 'plant',      // 植物
+                beaker2: 'bubbles',    // 气泡
+                beaker3: 'fire',       // 火焰
+                beaker4: 'steam',      // 冒气
+                beaker5: 'plant',      // 植物（重复）
+                beaker6: 'bubbles'     // 气泡（重复）
             };
-
-            // Assign random reactions to beakers 3-6
-            const randomReactions = ['fire', 'steam', 'plant', 'bubbles'];
-            reactions.beaker3 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
-            reactions.beaker4 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
-            reactions.beaker5 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
-            reactions.beaker6 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
 
             for (let i = 1; i <= 6; i++) {
                 const beakerId = `beaker${i}`;
