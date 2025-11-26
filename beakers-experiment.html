@@ -9,7 +9,9 @@
         .scene {
             display: none;
             width: 100%;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
 
         .scene.active {
@@ -756,6 +758,44 @@
             opacity: 0.3;
             fill: white;
         }
+
+        /* Scene 2 - Completed beakers at bottom */
+        .completed-beaker {
+            width: 70px;
+            height: 90px;
+            background: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0.3),
+                rgba(200, 220, 255, 0.2));
+            border: 2px solid rgba(100, 150, 200, 0.5);
+            border-radius: 0 0 10px 10px;
+            position: relative;
+            cursor: grab;
+            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .completed-beaker:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .completed-beaker.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        .completed-beaker .beaker-label {
+            top: -22px;
+            font-size: 10px;
+        }
+
+        .completed-beaker .beaker-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 75%;
+            border-radius: 0 0 8px 8px;
+        }
     </style>
 </head>
 <body>
@@ -1103,11 +1143,11 @@
             Drag each completed beaker into a branch slot to combine them!
         </div>
 
-        <div id="completed-beakers-display" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 25px; z-index: 100; background: rgba(255, 255, 255, 0.85); padding: 20px 30px; border-radius: 15px; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);">
+        <div id="completed-beakers-display" style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 100; background: rgba(255, 255, 255, 0.85); padding: 15px 25px; border-radius: 15px; box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);">
             <!-- Completed beakers will be added here dynamically -->
         </div>
 
-        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px;">
+        <div style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); width: 550px; height: 550px;">
             <!-- Branch containers -->
             <div style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;">
                 <div class="branch" data-branch="1" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; top: 0; left: 50%; transform: translateX(-50%);">
@@ -1618,10 +1658,35 @@
 
                 beakerDiv.innerHTML = `
                     <div class="beaker-label">${beakerId}</div>
-                    <div class="beaker-content" style="background: ${mixedColor};"></div>
+                    <div class="beaker-content" style="background: ${mixedColor}; position: relative; overflow: visible;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
                 `;
 
                 container.appendChild(beakerDiv);
+
+                // Add reaction effect to the completed beaker
+                const reactionContainer = beakerDiv.querySelector('.reaction-mini');
+                setTimeout(() => {
+                    addCompletedBeakerReaction(reactionContainer, reaction);
+                }, 100);
+            }
+        }
+
+        function addCompletedBeakerReaction(container, reaction) {
+            switch(reaction) {
+                case 'bubbles':
+                    createMiniBubbles(container);
+                    break;
+                case 'fire':
+                    createMiniFire(container);
+                    break;
+                case 'plant':
+                    createMiniPlant(container);
+                    break;
+                case 'steam':
+                    createMiniSteam(container);
+                    break;
             }
         }
 
@@ -1728,27 +1793,28 @@
                 if (!container.parentNode) return;
                 const bubble = document.createElement('div');
                 bubble.className = 'bubble';
-                const size = 3 + Math.random() * 8;
+                const size = 2 + Math.random() * 5;
                 bubble.style.width = size + 'px';
                 bubble.style.height = size + 'px';
                 bubble.style.left = (35 + Math.random() * 30) + '%';
+                bubble.style.bottom = '10px';
                 container.appendChild(bubble);
                 setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 3500);
-            }, 400);
+            }, 500);
         }
 
         function createMiniFire(container) {
             const flame = document.createElement('div');
             flame.style.cssText = `
                 position: absolute;
-                bottom: 30px;
+                bottom: 15px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 25px;
-                height: 50px;
+                width: 18px;
+                height: 35px;
                 background: linear-gradient(to top, #ff6b00 0%, #ff8c00 20%, #ffa500 40%, #ffdd00 60%, #fff700 80%, rgba(255, 255, 255, 0.9) 100%);
                 border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-                box-shadow: 0 0 15px #ff6b00, 0 0 30px #ff8c00;
+                box-shadow: 0 0 10px #ff6b00, 0 0 20px #ff8c00;
                 animation: flame-flicker 0.3s ease-in-out infinite;
                 filter: blur(1px);
             `;
@@ -1757,27 +1823,27 @@
 
         function createMiniPlant(container) {
             const plant = document.createElement('div');
-            plant.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);';
+            plant.style.cssText = 'position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);';
 
             const stem = document.createElement('div');
             stem.style.cssText = `
-                width: 8px;
-                height: 80px;
+                width: 5px;
+                height: 50px;
                 background: linear-gradient(to top, #1a3a0d 0%, #4a7c2c 50%, #7fc84d 100%);
                 margin: 0 auto;
-                border-radius: 4px;
+                border-radius: 3px;
                 position: relative;
             `;
 
             const leftLeaf1 = document.createElement('div');
             leftLeaf1.style.cssText = `
                 position: absolute;
-                width: 30px;
-                height: 16px;
+                width: 20px;
+                height: 10px;
                 background: linear-gradient(135deg, #4a7c2c 0%, #7fc84d 50%, #6ba83d 100%);
                 border-radius: 0 50% 50% 0;
-                left: -15px;
-                top: 30%;
+                left: -10px;
+                top: 40%;
                 transform: scaleX(-1);
             `;
             stem.appendChild(leftLeaf1);
@@ -1785,23 +1851,23 @@
             const rightLeaf1 = document.createElement('div');
             rightLeaf1.style.cssText = `
                 position: absolute;
-                width: 30px;
-                height: 16px;
+                width: 20px;
+                height: 10px;
                 background: linear-gradient(135deg, #4a7c2c 0%, #7fc84d 50%, #6ba83d 100%);
                 border-radius: 0 50% 50% 0;
-                right: -15px;
-                top: 35%;
+                right: -10px;
+                top: 45%;
             `;
             stem.appendChild(rightLeaf1);
 
             const flower = document.createElement('div');
             flower.style.cssText = `
                 position: absolute;
-                top: -8px;
+                top: -6px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 20px;
-                height: 20px;
+                width: 12px;
+                height: 12px;
                 background: radial-gradient(circle, #ff69b4, #ff1493);
                 border-radius: 50%;
             `;
@@ -1817,9 +1883,12 @@
                 const steam = document.createElement('div');
                 steam.className = 'bottom-steam';
                 steam.style.left = (40 + Math.random() * 20) + '%';
+                steam.style.bottom = '15px';
+                steam.style.width = '20px';
+                steam.style.height = '20px';
                 container.appendChild(steam);
                 setTimeout(() => { if (steam.parentNode) steam.remove(); }, 3500);
-            }, 500);
+            }, 600);
         }
 
         function checkScene2Completion() {
