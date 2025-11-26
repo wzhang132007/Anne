@@ -3,8 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chemistry Lab - All 4 Reactions Edition v4.0</title>
+    <title>Chemistry Lab - Complete Experience</title>
     <style>
+        /* Scene control */
+        .scene {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .scene.active {
+            display: block;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -749,6 +760,8 @@
     </style>
 </head>
 <body>
+    <!-- SCENE 1: Fill Beakers -->
+    <div class="scene active" id="scene1">
     <!-- Color Options Panel -->
     <div class="color-options">
         <div class="color-option red" draggable="true" data-color="red">Red</div>
@@ -1082,6 +1095,112 @@
             </div>
         </div>
     </div>
+    </div>
+    <!-- End of Scene 1 -->
+
+    <!-- SCENE 2: Combination Beaker -->
+    <div class="scene" id="scene2">
+        <div style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.9); padding: 15px 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); font-size: 16px; color: #2c3e50; text-align: center; z-index: 1000;">
+            Drag each completed beaker into a branch slot to combine them!
+        </div>
+
+        <div id="completed-beakers-display" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 100;">
+            <!-- Completed beakers will be added here dynamically -->
+        </div>
+
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px;">
+            <!-- Branch containers -->
+            <div style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;">
+                <div class="branch" data-branch="1" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; top: 0; left: 50%; transform: translateX(-50%);">
+                    <div class="branch-slot" data-slot="1" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="2" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; top: 15%; right: 5%; transform: rotate(60deg);">
+                    <div class="branch-slot" data-slot="2" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="3" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; bottom: 15%; right: 5%; transform: rotate(120deg);">
+                    <div class="branch-slot" data-slot="3" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="4" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; bottom: 0; left: 50%; transform: translateX(-50%) rotate(180deg);">
+                    <div class="branch-slot" data-slot="4" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="5" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; bottom: 15%; left: 5%; transform: rotate(240deg);">
+                    <div class="branch-slot" data-slot="5" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+                <div class="branch" data-branch="6" style="position: absolute; width: 150px; display: flex; flex-direction: column; align-items: center; top: 15%; left: 5%; transform: rotate(300deg);">
+                    <div class="branch-slot" data-slot="6" style="width: 90px; height: 110px; border: 3px dashed rgba(100, 150, 200, 0.5); border-radius: 0 0 12px 12px; background: rgba(255, 255, 255, 0.3); position: relative; transition: all 0.3s ease; margin-bottom: 10px;">
+                        <div class="reaction-mini" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible;"></div>
+                    </div>
+                    <div class="branch-tube" style="width: 20px; height: 80px; background: linear-gradient(to bottom, rgba(200, 220, 255, 0.6), rgba(150, 180, 220, 0.8)); border: 2px solid rgba(100, 150, 200, 0.6); border-radius: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);">
+                        <div class="liquid-flow" style="position: absolute; width: 100%; height: 0; bottom: 0; background: linear-gradient(to bottom, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.9)); border-radius: 10px; transition: height 2s ease;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Central beaker -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 250px; z-index: 50;">
+                <svg width="200" height="250" viewBox="0 0 200 250">
+                    <defs>
+                        <linearGradient id="centralGlass" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.4);stop-opacity:1" />
+                            <stop offset="20%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(200,220,255,0.1);stop-opacity:1" />
+                            <stop offset="80%" style="stop-color:rgba(255,255,255,0.2);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0.3);stop-opacity:1" />
+                        </linearGradient>
+                        <radialGradient id="centralHighlight">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.7);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(255,255,255,0);stop-opacity:1" />
+                        </radialGradient>
+                    </defs>
+                    <ellipse cx="100" cy="230" rx="60" ry="8" fill="rgba(0,0,0,0.2)"/>
+                    <path d="M 40 40 L 20 200 Q 20 215 40 225 L 160 225 Q 180 215 180 200 L 160 40 Z"
+                          fill="url(#centralGlass)"
+                          stroke="rgba(150,180,220,0.8)"
+                          stroke-width="3"/>
+                    <path d="M 45 45 L 25 200 Q 25 213 40 220 L 160 220 Q 175 213 175 200 L 155 45"
+                          fill="none"
+                          stroke="rgba(0,0,0,0.15)"
+                          stroke-width="2"/>
+                    <ellipse cx="100" cy="40" rx="60" ry="10" fill="rgba(240,245,255,0.3)" stroke="rgba(150,180,220,0.9)" stroke-width="3"/>
+                    <ellipse cx="100" cy="40" rx="55" ry="8" fill="rgba(255,255,255,0.2)"/>
+                    <ellipse cx="60" cy="120" rx="20" ry="60" fill="url(#centralHighlight)"/>
+                    <path d="M 50 80 Q 55 90 52 130" stroke="rgba(255,255,255,0.7)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                </svg>
+                <div id="final-reaction" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; opacity: 0; transition: opacity 1s ease;"></div>
+            </div>
+        </div>
+
+        <div id="completion-message" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(255, 255, 255, 0.95); padding: 30px 50px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3); text-align: center; opacity: 0; transition: opacity 0.5s ease; z-index: 2000; pointer-events: none;">
+            <h2 style="color: #27ae60; font-size: 32px; margin-bottom: 15px;">Perfect Combination!</h2>
+            <p style="color: #2c3e50; font-size: 18px;">All beakers have been successfully combined!</p>
+        </div>
+    </div>
+    <!-- End of Scene 2 -->
 
     <script>
         // Beaker fill tracking
@@ -1235,7 +1354,8 @@
 
                     // Transition to next scene after 2 seconds
                     setTimeout(() => {
-                        window.location.href = 'https://htmlpreview.github.io/?https://github.com/wzhang132007/Anne/blob/claude/beakers-layout-setup-01TfUjjxBfsmXNnUDfBPSrDw/beakers-combination.html';
+                        message.remove();
+                        switchToScene2();
                     }, 2000);
                 }, 1000);
             }
@@ -1445,6 +1565,344 @@
                 }
             });
         }, 50);
+
+        // ===== SCENE 2 LOGIC =====
+
+        // Store completed beaker data for scene 2
+        const completedBeakersData = [];
+
+        function switchToScene2() {
+            // Hide scene 1
+            document.getElementById('scene1').classList.remove('active');
+
+            // Show scene 2
+            document.getElementById('scene2').classList.add('active');
+
+            // Populate completed beakers
+            populateCompletedBeakers();
+
+            // Initialize scene 2 drag and drop
+            initScene2();
+        }
+
+        function populateCompletedBeakers() {
+            const container = document.getElementById('completed-beakers-display');
+
+            // Get reaction types that were generated
+            const reactions = {
+                beaker1: 'plant',
+                beaker2: 'bubbles',
+                beaker3: null,
+                beaker4: null,
+                beaker5: null,
+                beaker6: null
+            };
+
+            // Assign random reactions to beakers 3-6
+            const randomReactions = ['fire', 'steam', 'plant', 'bubbles'];
+            reactions.beaker3 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
+            reactions.beaker4 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
+            reactions.beaker5 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
+            reactions.beaker6 = randomReactions[Math.floor(Math.random() * randomReactions.length)];
+
+            for (let i = 1; i <= 6; i++) {
+                const beakerId = `beaker${i}`;
+                const state = beakerStates[beakerId];
+                const mixedColor = mixColors(state.colors);
+                const reaction = reactions[beakerId];
+
+                const beakerDiv = document.createElement('div');
+                beakerDiv.className = 'completed-beaker';
+                beakerDiv.id = `source-${beakerId}`;
+                beakerDiv.draggable = true;
+                beakerDiv.dataset.beaker = i;
+                beakerDiv.dataset.reaction = reaction;
+                beakerDiv.dataset.color = mixedColor;
+
+                beakerDiv.innerHTML = `
+                    <div class="beaker-label">${beakerId}</div>
+                    <div class="beaker-content" style="background: ${mixedColor};"></div>
+                `;
+
+                container.appendChild(beakerDiv);
+            }
+        }
+
+        // Scene 2 state tracking
+        const slotStates = {
+            1: null, 2: null, 3: null, 4: null, 5: null, 6: null
+        };
+
+        function initScene2() {
+            const completedBeakers = document.querySelectorAll('#scene2 .completed-beaker');
+            const branchSlots = document.querySelectorAll('#scene2 .branch-slot');
+
+            completedBeakers.forEach(beaker => {
+                beaker.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('beakerId', beaker.dataset.beaker);
+                    e.dataTransfer.setData('reaction', beaker.dataset.reaction);
+                    e.dataTransfer.setData('color', beaker.dataset.color);
+                    beaker.classList.add('dragging');
+                });
+
+                beaker.addEventListener('dragend', (e) => {
+                    beaker.classList.remove('dragging');
+                });
+            });
+
+            branchSlots.forEach(slot => {
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!slot.classList.contains('filled')) {
+                        slot.style.borderColor = 'rgba(52, 152, 219, 0.8)';
+                        slot.style.background = 'rgba(52, 152, 219, 0.2)';
+                        slot.style.transform = 'scale(1.1)';
+                    }
+                });
+
+                slot.addEventListener('dragleave', (e) => {
+                    slot.style.borderColor = '';
+                    slot.style.background = '';
+                    slot.style.transform = '';
+                });
+
+                slot.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    slot.style.borderColor = '';
+                    slot.style.background = '';
+                    slot.style.transform = '';
+
+                    const slotNum = slot.dataset.slot;
+
+                    if (slotStates[slotNum]) {
+                        return;
+                    }
+
+                    const beakerId = e.dataTransfer.getData('beakerId');
+                    const reaction = e.dataTransfer.getData('reaction');
+                    const color = e.dataTransfer.getData('color');
+
+                    fillSlot(slotNum, beakerId, reaction, color, slot);
+
+                    const sourceBeaker = document.getElementById(`source-beaker${beakerId}`);
+                    if (sourceBeaker) {
+                        sourceBeaker.style.visibility = 'hidden';
+                    }
+
+                    const branch = slot.closest('.branch');
+                    const liquidFlow = branch.querySelector('.liquid-flow');
+                    if (liquidFlow) {
+                        liquidFlow.style.height = '100%';
+                        liquidFlow.style.background = `linear-gradient(to bottom, ${color}, ${color})`;
+                    }
+
+                    checkScene2Completion();
+                });
+            });
+        }
+
+        function fillSlot(slotNum, beakerId, reaction, color, slot) {
+            slotStates[slotNum] = { beakerId, reaction, color };
+
+            slot.style.borderStyle = 'solid';
+            slot.style.borderColor = 'rgba(46, 204, 113, 0.8)';
+            slot.style.background = color;
+
+            const reactionContainer = slot.querySelector('.reaction-mini');
+
+            switch(reaction) {
+                case 'bubbles':
+                    createMiniBubbles(reactionContainer);
+                    break;
+                case 'fire':
+                    createMiniFire(reactionContainer);
+                    break;
+                case 'plant':
+                    createMiniPlant(reactionContainer);
+                    break;
+                case 'steam':
+                    createMiniSteam(reactionContainer);
+                    break;
+            }
+        }
+
+        function createMiniBubbles(container) {
+            setInterval(() => {
+                if (!container.parentNode) return;
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = 3 + Math.random() * 8;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = (35 + Math.random() * 30) + '%';
+                container.appendChild(bubble);
+                setTimeout(() => { if (bubble.parentNode) bubble.remove(); }, 3500);
+            }, 400);
+        }
+
+        function createMiniFire(container) {
+            const flame = document.createElement('div');
+            flame.style.cssText = `
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 25px;
+                height: 50px;
+                background: linear-gradient(to top, #ff6b00 0%, #ff8c00 20%, #ffa500 40%, #ffdd00 60%, #fff700 80%, rgba(255, 255, 255, 0.9) 100%);
+                border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+                box-shadow: 0 0 15px #ff6b00, 0 0 30px #ff8c00;
+                animation: flame-flicker 0.3s ease-in-out infinite;
+                filter: blur(1px);
+            `;
+            container.appendChild(flame);
+        }
+
+        function createMiniPlant(container) {
+            const plant = document.createElement('div');
+            plant.style.cssText = 'position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);';
+
+            const stem = document.createElement('div');
+            stem.style.cssText = `
+                width: 8px;
+                height: 80px;
+                background: linear-gradient(to top, #1a3a0d 0%, #4a7c2c 50%, #7fc84d 100%);
+                margin: 0 auto;
+                border-radius: 4px;
+                position: relative;
+            `;
+
+            const leftLeaf1 = document.createElement('div');
+            leftLeaf1.style.cssText = `
+                position: absolute;
+                width: 30px;
+                height: 16px;
+                background: linear-gradient(135deg, #4a7c2c 0%, #7fc84d 50%, #6ba83d 100%);
+                border-radius: 0 50% 50% 0;
+                left: -15px;
+                top: 30%;
+                transform: scaleX(-1);
+            `;
+            stem.appendChild(leftLeaf1);
+
+            const rightLeaf1 = document.createElement('div');
+            rightLeaf1.style.cssText = `
+                position: absolute;
+                width: 30px;
+                height: 16px;
+                background: linear-gradient(135deg, #4a7c2c 0%, #7fc84d 50%, #6ba83d 100%);
+                border-radius: 0 50% 50% 0;
+                right: -15px;
+                top: 35%;
+            `;
+            stem.appendChild(rightLeaf1);
+
+            const flower = document.createElement('div');
+            flower.style.cssText = `
+                position: absolute;
+                top: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 20px;
+                height: 20px;
+                background: radial-gradient(circle, #ff69b4, #ff1493);
+                border-radius: 50%;
+            `;
+            stem.appendChild(flower);
+
+            plant.appendChild(stem);
+            container.appendChild(plant);
+        }
+
+        function createMiniSteam(container) {
+            setInterval(() => {
+                if (!container.parentNode) return;
+                const steam = document.createElement('div');
+                steam.className = 'bottom-steam';
+                steam.style.left = (40 + Math.random() * 20) + '%';
+                container.appendChild(steam);
+                setTimeout(() => { if (steam.parentNode) steam.remove(); }, 3500);
+            }, 500);
+        }
+
+        function checkScene2Completion() {
+            const filledCount = Object.values(slotStates).filter(s => s !== null).length;
+
+            if (filledCount === 6) {
+                setTimeout(() => {
+                    triggerFinalReaction();
+                }, 2000);
+            }
+        }
+
+        function triggerFinalReaction() {
+            const finalReaction = document.getElementById('final-reaction');
+            finalReaction.style.opacity = '1';
+
+            const colors = ['#e74c3c', '#f39c12', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'];
+
+            for (let i = 0; i < 12; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    bottom: 50%;
+                    left: 50%;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: ${colors[i % colors.length]};
+                    animation: rainbow-explosion 3s ease-out infinite;
+                    animation-delay: ${i * 0.1}s;
+                `;
+                finalReaction.appendChild(particle);
+            }
+
+            setTimeout(() => {
+                const message = document.getElementById('completion-message');
+                message.style.opacity = '1';
+            }, 1500);
+        }
+
+        // Add rainbow explosion animation if not already in CSS
+        if (!document.querySelector('#rainbow-explosion-keyframes')) {
+            const style = document.createElement('style');
+            style.id = 'rainbow-explosion-keyframes';
+            style.textContent = `
+                @keyframes rainbow-explosion {
+                    0% {
+                        transform: scale(0) rotate(0deg);
+                        opacity: 0;
+                    }
+                    50% {
+                        opacity: 1;
+                    }
+                    100% {
+                        transform: scale(3) rotate(360deg);
+                        opacity: 0;
+                    }
+                }
+                .branch.active .liquid-flow {
+                    height: 100%;
+                }
+                .branch-slot.drag-over {
+                    border-color: rgba(52, 152, 219, 0.8);
+                    background: rgba(52, 152, 219, 0.2);
+                    transform: scale(1.1);
+                }
+                .branch-slot.filled {
+                    border-style: solid;
+                    border-color: rgba(46, 204, 113, 0.8);
+                }
+                .completed-beaker:hover {
+                    transform: translateY(-5px) scale(1.05);
+                }
+                .completed-beaker.dragging {
+                    opacity: 0.5;
+                    cursor: grabbing;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     </script>
 </body>
 </html>
