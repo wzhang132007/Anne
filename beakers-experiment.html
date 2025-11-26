@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chemistry Lab - Beautiful Plant Edition v3.0</title>
+    <title>Chemistry Lab - All 4 Reactions Edition v4.0</title>
     <style>
         * {
             margin: 0;
@@ -1174,10 +1174,12 @@
             const reactionContainer = document.createElement('div');
             reactionContainer.className = 'reaction-container';
 
-            // Beaker 1 always gets plant reaction, others are random
+            // Beaker 1 always gets plant reaction, beaker 2 always gets bubbles, others are random
             let reactionType;
             if (beakerId === 'beaker1') {
                 reactionType = 'plant';
+            } else if (beakerId === 'beaker2') {
+                reactionType = 'bubbles';
             } else {
                 const reactions = ['bubbles', 'bottomSteam', 'fire', 'plant'];
                 reactionType = reactions[Math.floor(Math.random() * reactions.length)];
