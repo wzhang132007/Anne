@@ -517,15 +517,20 @@
           drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
         }
 
-        // 腮红：左右各一块椭圆
+        // 腮红 - 使用官方 cheek landmarks（苹果肌）
         if (currentMakeup.blush) {
-          drawBlushOval(canvasCtx, landmarks, 'left',  currentMakeup.blush, w, h);
-          drawBlushOval(canvasCtx, landmarks, 'right', currentMakeup.blush, w, h);
+          const leftCheek  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftCheek,  w, h, 1.35);
+          const rightCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightCheek, w, h, 1.35);
+          drawPolygon(canvasCtx, leftCheek,  currentMakeup.blush);
+          drawPolygon(canvasCtx, rightCheek, currentMakeup.blush);
         }
 
-        // 眉毛：跟着眼睛的 bounding box 走
+        // 眉毛 - 使用官方 brow landmarks（自然弧度）
         if (currentMakeup.brows) {
-          drawBrowsFromEyes(canvasCtx, landmarks, currentMakeup.brows, w, h);
+          const leftBrow  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 1.15);
+          const rightBrow = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 1.15);
+          drawPolygon(canvasCtx, leftBrow,  currentMakeup.brows);
+          drawPolygon(canvasCtx, rightBrow, currentMakeup.brows);
         }
 
         canvasCtx.globalCompositeOperation = "source-over";
