@@ -301,6 +301,7 @@
           <button class="segment-tab" data-segment="blush">Cheeks</button>
           <button class="segment-tab" data-segment="eyes">Eyes</button>
           <button class="segment-tab" data-segment="brows">Brows</button>
+          <button class="segment-tab" data-segment="effects">Effects</button>
         </div>
       </header>
 
@@ -376,12 +377,16 @@
         { label: "Dark Brown", color: "rgba(54, 36, 21, 0.7)" },
         { label: "Ash Brown", color: "rgba(80, 78, 74, 0.65)" },
         { label: "Natural Black", color: "rgba(20, 20, 20, 0.7)" }
+      ],
+      effects: [
+        { label: "Bunny Ears", type: "bunny", color: "rgba(255, 192, 203, 0.9)" },
+        { label: "Cat Ears", type: "cat", color: "rgba(139, 69, 19, 0.9)" }
       ]
     };
 
     let activeSegment = "lips";
-    let activeSelections = { lips: null, blush: null, eyes: null, brows: null };
-    let currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
+    let activeSelections = { lips: null, blush: null, eyes: null, brows: null, effects: null };
+    let currentMakeup = { lips: null, blush: null, eyes: null, brows: null, effects: null };
 
     // 绘制多边形
     function drawPolygon(ctx, points, color) {
@@ -406,8 +411,108 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    // 画一个椭圆腮红
-    function drawBlushOval(ctx, landmarks, side, color, w, h) {
+    // 绘制兔子耳朵
+    function drawBunnyEars(ctx, landmarks, w, h) {
+      // 使用头部顶部和侧面的 landmarks 来定位耳朵
+      const topHead = landmarks[10];  // 头顶
+      const leftSide = landmarks[234]; // 左脸颊
+      const rightSide = landmarks[454]; // 右脸颊
+
+      const headWidth = Math.abs(leftSide.x - rightSide.x) * w;
+      const earWidth = headWidth * 0.15;
+      const earHeight = headWidth * 0.35;
+
+      function drawBunnyEar(x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // 外耳 - 粉色
+        ctx.fillStyle = "rgba(255, 192, 203, 0.95)";
+        ctx.beginPath();
+        ctx.ellipse(0, 0, earWidth * 0.5, earHeight, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 内耳 - 浅粉色
+        ctx.fillStyle = "rgba(255, 228, 225, 0.9)";
+        ctx.beginPath();
+        ctx.ellipse(0, earHeight * 0.1, earWidth * 0.3, earHeight * 0.7, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 耳朵边缘
+        ctx.strokeStyle = "rgba(255, 182, 193, 1)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, earWidth * 0.5, earHeight, 0, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // 左耳
+      const leftEarX = (topHead.x - 0.12) * w;
+      const leftEarY = (topHead.y - 0.15) * h;
+      drawBunnyEar(leftEarX, leftEarY);
+
+      // 右耳
+      const rightEarX = (topHead.x + 0.12) * w;
+      const rightEarY = (topHead.y - 0.15) * h;
+      drawBunnyEar(rightEarX, rightEarY);
+    }
+
+    // 绘制猫耳朵
+    function drawCatEars(ctx, landmarks, w, h) {
+      const topHead = landmarks[10];
+      const leftSide = landmarks[234];
+      const rightSide = landmarks[454];
+
+      const headWidth = Math.abs(leftSide.x - rightSide.x) * w;
+      const earSize = headWidth * 0.18;
+
+      function drawCatEar(x, y) {
+        ctx.save();
+        ctx.translate(x, y);
+
+        // 外耳 - 三角形
+        ctx.fillStyle = "rgba(139, 69, 19, 0.95)";
+        ctx.beginPath();
+        ctx.moveTo(0, -earSize);
+        ctx.lineTo(-earSize * 0.6, earSize * 0.3);
+        ctx.lineTo(earSize * 0.6, earSize * 0.3);
+        ctx.closePath();
+        ctx.fill();
+
+        // 内耳 - 粉色三角
+        ctx.fillStyle = "rgba(255, 192, 203, 0.8)";
+        ctx.beginPath();
+        ctx.moveTo(0, -earSize * 0.6);
+        ctx.lineTo(-earSize * 0.35, earSize * 0.1);
+        ctx.lineTo(earSize * 0.35, earSize * 0.1);
+        ctx.closePath();
+        ctx.fill();
+
+        // 边缘
+        ctx.strokeStyle = "rgba(101, 67, 33, 1)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -earSize);
+        ctx.lineTo(-earSize * 0.6, earSize * 0.3);
+        ctx.lineTo(earSize * 0.6, earSize * 0.3);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      // 左耳
+      const leftEarX = (topHead.x - 0.14) * w;
+      const leftEarY = (topHead.y - 0.12) * h;
+      drawCatEar(leftEarX, leftEarY);
+
+      // 右耳
+      const rightEarX = (topHead.x + 0.14) * w;
+      const rightEarY = (topHead.y - 0.12) * h;
+      drawCatEar(rightEarX, rightEarY);
+    }
       // 左右眼外眼角 landmark：33（左） / 263（右）
       const eyeIndex  = side === 'left' ? 33 : 263;
       // 鼻翼附近 landmark：1
@@ -619,6 +724,15 @@
         }
 
         canvasCtx.globalCompositeOperation = "source-over";
+
+        // 特效：耳朵（在妆容之后绘制，使用 source-over）
+        if (currentMakeup.effects) {
+          if (currentMakeup.effects.type === 'bunny') {
+            drawBunnyEars(canvasCtx, landmarks, w, h);
+          } else if (currentMakeup.effects.type === 'cat') {
+            drawCatEars(canvasCtx, landmarks, w, h);
+          }
+        }
       }
 
       canvasCtx.restore();
@@ -678,7 +792,8 @@
         segment === 'lips' ? 'Lip Colors' :
         segment === 'blush' ? 'Blush Shades' :
         segment === 'eyes' ? 'Eyeshadow' :
-        'Brow Colors';
+        segment === 'brows' ? 'Brow Colors' :
+        'Fun Effects';
 
       const paletteGrid = document.createElement('div');
       paletteGrid.className = 'palette';
@@ -703,7 +818,11 @@
 
         chip.addEventListener('click', () => {
           activeSelections[segment] = index;
-          currentMakeup[segment] = item.color;
+          if (segment === 'effects') {
+            currentMakeup[segment] = item;  // 保存整个 item 对象（包含 type）
+          } else {
+            currentMakeup[segment] = item.color;
+          }
           renderPalette(segment);
         });
 
@@ -732,8 +851,8 @@
     });
 
     document.getElementById('clearAllBtn').addEventListener('click', () => {
-      currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
-      activeSelections = { lips: null, blush: null, eyes: null, brows: null };
+      currentMakeup = { lips: null, blush: null, eyes: null, brows: null, effects: null };
+      activeSelections = { lips: null, blush: null, eyes: null, brows: null, effects: null };
       renderPalette(activeSegment);
     });
 
