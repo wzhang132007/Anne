@@ -397,6 +397,15 @@
       ctx.fill();
     }
 
+    // 把 rgba 里的透明度改掉，例如 setAlpha("rgba(80,78,74,0.7)", 0.3)
+    function setAlpha(color, alpha) {
+      const match = color.match(/rgba?\(([^)]+)\)/);
+      if (!match) return color;
+      const parts = match[1].split(',').map(p => p.trim());
+      const r = parts[0], g = parts[1], b = parts[2];
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
     // 画一个椭圆腮红
     function drawBlushOval(ctx, landmarks, side, color, w, h) {
       // 左右眼外眼角 landmark：33（左） / 263（右）
@@ -517,37 +526,96 @@
           drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
         }
 
-        // 腮红：以 234 / 454 作为苹果肌中心画椭圆
+        // 腮红：左右各一块椭圆，中心深、边缘淡
         if (currentMakeup.blush) {
-          // 左脸颊中心 landmark: 234
-          const l = landmarks[234];
-          // 右脸颊中心 landmark: 454
-          const r = landmarks[454];
+          // 使用 234 / 454 作为苹果肌中心
+          const left  = landmarks[234];
+          const right = landmarks[454];
 
-          function drawCheek(landmark, color) {
-            const cx = landmark.x * w;
-            // 稍微往下移一点点，让腮红不压在眼睛上
-            const cy = landmark.y * h + 0.02 * h;
+          function drawBlushOval(landmark, side, baseColor) {
+            // 基础中心位置
+            let cx = landmark.x * w;
+            let cy = landmark.y * h + 0.01 * h; // 稍微往下
 
-            const radiusX = 0.065 * w;   // 横向大小
-            const radiusY = 0.045 * h;   // 纵向大小
+            // 稍微往脸中间挪一点点
+            const offsetX = 0.018 * w;
+            if (side === 'left')  cx += offsetX;
+            if (side === 'right') cx -= offsetX;
 
+            const radiusX = 0.055 * w;  // 横向宽度
+            const radiusY = 0.04  * h;  // 纵向高度
+
+            canvasCtx.save();
+            // 把椭圆坐标系转成圆，然后用径向渐变
+            canvasCtx.translate(cx, cy);
+            canvasCtx.scale(radiusX, radiusY);
+
+            const grad = canvasCtx.createRadialGradient(
+              0, 0, 0,
+              0, 0, 1
+            );
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.75)); // 中心最深
+            grad.addColorStop(0.5, setAlpha(baseColor, 0.45));
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.0));  // 边缘完全透明
+
+            canvasCtx.fillStyle = grad;
             canvasCtx.beginPath();
-            canvasCtx.ellipse(cx, cy, radiusX, radiusY, 0, 0, Math.PI * 2);
-            canvasCtx.fillStyle = color;
+            canvasCtx.arc(0, 0, 1, 0, Math.PI * 2);
             canvasCtx.fill();
+            canvasCtx.restore();
           }
 
-          drawCheek(l, currentMakeup.blush);
-          drawCheek(r, currentMakeup.blush);
+          drawBlushOval(left,  'left',  currentMakeup.blush);
+          drawBlushOval(right, 'right', currentMakeup.blush);
         }
 
-        // 眉毛 - 使用官方 brow landmarks（自然弧度）
+        // 眉毛：沿着眉骨，用线性渐变做由浅到深
         if (currentMakeup.brows) {
-          const leftBrow  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 0.98);
-          const rightBrow = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 0.98);
-          drawPolygon(canvasCtx, leftBrow,  currentMakeup.brows);
-          drawPolygon(canvasCtx, rightBrow, currentMakeup.brows);
+          const leftBrowPts  = getLandmarkPoints(
+            landmarks, FACE_LANDMARKS.leftBrow,  w, h, 0.97   // 稍微收一点，别太粗
+          );
+          const rightBrowPts = getLandmarkPoints(
+            landmarks, FACE_LANDMARKS.rightBrow, w, h, 0.97
+          );
+
+          function drawGradientBrow(points, baseColor) {
+            // 先算一个 bounding box
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            points.forEach(p => {
+              if (p.x < minX) minX = p.x;
+              if (p.x > maxX) maxX = p.x;
+              if (p.y < minY) minY = p.y;
+              if (p.y > maxY) maxY = p.y;
+            });
+
+            const width  = maxX - minX;
+            const height = maxY - minY;
+
+            canvasCtx.save();
+            // 建一个 polygon 作为 clip 区域
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+              canvasCtx.lineTo(points[i].x, points[i].y);
+            }
+            canvasCtx.closePath();
+            canvasCtx.clip();
+
+            // 眉头 → 眉尾 做线性渐变
+            const grad = canvasCtx.createLinearGradient(minX, minY, maxX, minY);
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.25)); // 眉头更浅
+            grad.addColorStop(0.5, setAlpha(baseColor, 0.75)); // 中段最深
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.4));  // 眉尾稍微淡一点
+
+            canvasCtx.fillStyle = grad;
+            // 在 clip 里画一个矩形就可以，颜色会被裁成眉毛形状
+            canvasCtx.fillRect(minX, minY - height * 0.2, width, height * 1.4);
+
+            canvasCtx.restore();
+          }
+
+          drawGradientBrow(leftBrowPts,  currentMakeup.brows);
+          drawGradientBrow(rightBrowPts, currentMakeup.brows);
         }
 
         canvasCtx.globalCompositeOperation = "source-over";
