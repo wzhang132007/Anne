@@ -1,359 +1,616 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diatom Image Gallery</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <title>AR Makeup Mini Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1f2937, #020617);
+      color: #f9fafb;
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+    .app {
+      width: min(1100px, 100vw - 24px);
+      height: min(650px, 100vh - 24px);
+      background: #020617;
+      border-radius: 24px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: 0 30px 80px rgba(15, 23, 42, 0.8);
+    }
 
-        header {
-            text-align: center;
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-        }
+    /* 左侧摄像头区域 */
+    .camera-panel {
+      position: relative;
+      flex: 3;
+      background: #000;
+      overflow: hidden;
+    }
 
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #020617;
+    }
 
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
+    .camera-overlay {
+      position: absolute;
+      inset: 16px;
+      pointer-events: none;
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+    }
 
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 20px;
-        }
+    .face-guide {
+      position: absolute;
+      inset: 16% 22%;
+      border-radius: 50%;
+      border: 1px dashed rgba(248, 250, 252, 0.4);
+      pointer-events: none;
+    }
 
-        .gallery-item {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
+    .hint {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.75);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(10px);
+    }
 
-        .gallery-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-        }
+    .hint-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
 
-        .gallery-item img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
+    .camera-error {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      font-size: 14px;
+      background: radial-gradient(circle at top, #111827, #020617);
+    }
 
-        .gallery-item-info {
-            padding: 20px;
-        }
+    /* 妆容遮罩层 */
+    .overlay-layer {
+      position: absolute;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, background-color 0.25s ease;
+      mix-blend-mode: screen;
+    }
 
-        .gallery-item-info h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
+    .overlay-visible {
+      opacity: 0.9;
+    }
 
-        .gallery-item-info p {
-            color: #666;
-            line-height: 1.6;
-            font-size: 0.95em;
-        }
+    /* 位置是大概的，需要自己把脸对上去 😂 */
+    .overlay-lips {
+      width: 18%;
+      height: 9%;
+      border-radius: 999px;
+      bottom: 23%;
+      left: 41%;
+    }
 
-        .upload-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-        }
+    .overlay-cheek {
+      width: 12%;
+      height: 10%;
+      border-radius: 50%;
+    }
 
-        .upload-section h2 {
-            color: white;
-            margin-bottom: 15px;
-        }
+    .overlay-cheek-left {
+      bottom: 34%;
+      left: 27%;
+    }
 
-        .upload-btn {
-            background: white;
-            color: #667eea;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
+    .overlay-cheek-right {
+      bottom: 34%;
+      right: 27%;
+    }
 
-        .upload-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
+    .overlay-eyeshadow {
+      width: 32%;
+      height: 12%;
+      border-radius: 50%;
+      bottom: 39%;
+      left: 34%;
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            animation: fadeIn 0.3s ease;
-        }
+    /* 右侧工具栏 */
+    .tools-panel {
+      flex: 2;
+      background: linear-gradient(145deg, #020617, #020617, #111827);
+      padding: 18px 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-left: 1px solid rgba(30, 64, 175, 0.4);
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+    .tools-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
 
-        .modal-content {
-            position: relative;
-            margin: auto;
-            padding: 20px;
-            max-width: 90%;
-            max-height: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
+    .app-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
 
-        .modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
-        }
+    .app-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+    }
 
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            z-index: 1001;
-        }
+    .segment-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
 
-        .close:hover {
-            color: #667eea;
-        }
+    .segment-tab {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #e5e7eb;
+      background: radial-gradient(circle at top, #020617, #020617);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        .filter-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
+    .segment-tab.active {
+      background: radial-gradient(circle at top, #4c1d95, #1d4ed8);
+      border-color: rgba(191, 219, 254, 0.9);
+      color: #f9fafb;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.6);
+    }
 
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1em;
-        }
+    .segment-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(248, 250, 252, 0.8);
+    }
 
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: white;
-            color: #667eea;
-        }
+    .tools-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 4px;
+    }
 
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
+    .section-title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
 
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
+    .palette {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
 
-            .filter-btn {
-                margin: 5px;
-            }
-        }
-    </style>
+    .tool-chip {
+      border-radius: 999px;
+      padding: 3px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at top, #020617, #020617);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-size: 11px;
+      color: #e5e7eb;
+      text-align: center;
+    }
+
+    .tool-chip:hover {
+      border-color: rgba(191, 219, 254, 0.9);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(15, 23, 42, 0.6);
+    }
+
+    .tool-chip.active {
+      border-color: #f9a8d4;
+      box-shadow: 0 0 14px rgba(244, 114, 182, 0.9);
+    }
+
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .tool-label {
+      line-height: 1.2;
+    }
+
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 12px;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: #6b7280;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid transparent;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      background: none;
+      color: inherit;
+    }
+
+    .primary-btn {
+      background: radial-gradient(circle at top, #4c1d95, #1d4ed8);
+      border-color: rgba(191, 219, 254, 0.9);
+      color: #f9fafb;
+      box-shadow: 0 15px 30px rgba(55, 48, 163, 0.7);
+    }
+
+    .primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 40px rgba(55, 48, 163, 0.9);
+    }
+
+    .ghost-btn {
+      border-color: rgba(148, 163, 184, 0.4);
+      color: #e5e7eb;
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), #020617);
+    }
+
+    .ghost-btn:hover {
+      border-color: rgba(248, 250, 252, 0.8);
+    }
+
+    .btn-icon {
+      font-size: 14px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(55, 65, 81, 0.8);
+      border-radius: 999px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Diatom Image Gallery</h1>
-            <p>Explore the microscopic beauty of diatoms - nature's glass sculptures</p>
-        </header>
+  <div class="app">
+    <!-- 左侧：摄像头 + 妆容遮罩 -->
+    <div class="camera-panel">
+      <video id="camera" autoplay playsinline muted></video>
 
-        <div class="upload-section">
-            <h2>Add Your Diatom Images</h2>
-            <p style="color: white; margin-bottom: 15px;">Upload images to the 'images' folder and refresh the page</p>
-            <button class="upload-btn" onclick="alert('Place your diatom images in the images/ directory')">Learn More</button>
+      <div class="camera-overlay">
+        <div class="face-guide"></div>
+        <div class="hint">
+          <span class="hint-dot"></span>
+          <span>把脸放在虚线圈里试试不同妆容</span>
         </div>
 
-        <div class="filter-section">
-            <button class="filter-btn active" onclick="filterGallery('all')">All</button>
-            <button class="filter-btn" onclick="filterGallery('pennate')">Pennate</button>
-            <button class="filter-btn" onclick="filterGallery('centric')">Centric</button>
-            <button class="filter-btn" onclick="filterGallery('other')">Other</button>
-        </div>
+        <!-- 妆容遮罩层（大概位置，需要自己对齐 😊） -->
+        <div
+          class="overlay-layer overlay-lips"
+          data-layer="lips"
+        ></div>
+        <div
+          class="overlay-layer overlay-cheek overlay-cheek-left"
+          data-layer="blush"
+        ></div>
+        <div
+          class="overlay-layer overlay-cheek overlay-cheek-right"
+          data-layer="blush"
+        ></div>
+        <div
+          class="overlay-layer overlay-eyeshadow"
+          data-layer="eyeshadow"
+        ></div>
+      </div>
 
-        <div class="gallery" id="gallery">
-            <!-- Sample diatom images - replace with actual images -->
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=500" alt="Diatom Sample 1">
-                <div class="gallery-item-info">
-                    <h3>Pennate Diatom</h3>
-                    <p>A beautiful example of a pennate (bilateral) diatom showing intricate silica structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500" alt="Diatom Sample 2">
-                <div class="gallery-item-info">
-                    <h3>Centric Diatom</h3>
-                    <p>Radially symmetric diatom with circular patterns resembling a mandala.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1564701148686-5d4b5c7d4c2c?w=500" alt="Diatom Sample 3">
-                <div class="gallery-item-info">
-                    <h3>Navicula Species</h3>
-                    <p>Boat-shaped pennate diatom with distinctive linear markings.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1582719366055-4b689f5ffcdf?w=500" alt="Diatom Sample 4">
-                <div class="gallery-item-info">
-                    <h3>Circular Diatom</h3>
-                    <p>Perfect symmetry displayed in this circular centric diatom structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="other">
-                <img src="https://images.unsplash.com/photo-1564701148705-50c0c4c47b7f?w=500" alt="Diatom Sample 5">
-                <div class="gallery-item-info">
-                    <h3>Colonial Diatom</h3>
-                    <p>Multiple diatoms forming a chain-like colonial structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1579168724170-0c070a56a4f7?w=500" alt="Diatom Sample 6">
-                <div class="gallery-item-info">
-                    <h3>Elongated Diatom</h3>
-                    <p>Highly elongated pennate diatom with fine transverse striations.</p>
-                </div>
-            </div>
-        </div>
+      <div id="cameraError" class="camera-error" style="display: none;">
+        无法访问摄像头 🥲
+        请检查浏览器的摄像头权限，或换一个支持的浏览器再试一次。
+      </div>
     </div>
 
-    <!-- Modal for enlarged images -->
-    <div id="imageModal" class="modal">
-        <span class="close">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Enlarged diatom image">
+    <!-- 右侧：化妆工具 -->
+    <div class="tools-panel">
+      <header class="tools-header">
+        <div class="app-title">AR Makeup Mini Game</div>
+        <div class="app-subtitle">选择化妆品，让镜头里的你立刻变妆 ✨</div>
+
+        <div class="segment-tabs">
+          <button class="segment-tab active" data-segment="lips">
+            <span class="segment-dot"></span>
+            Lips
+          </button>
+          <button class="segment-tab" data-segment="blush">Cheeks</button>
+          <button class="segment-tab" data-segment="eyes">Eyes</button>
         </div>
+      </header>
+
+      <main class="tools-scroll" id="toolsArea">
+        <!-- 这里的内容由 JS 根据选中的 segment 填充 -->
+      </main>
+
+      <footer class="footer-actions">
+        <div class="small-note">
+          提示：和现实化妆一样，不要一下子用太多颜色 😆
+        </div>
+        <div>
+          <button class="ghost-btn" id="clearAllBtn">
+            <span class="btn-icon">🧴</span>
+            清除妆容
+          </button>
+        </div>
+      </footer>
     </div>
+  </div>
 
-    <script>
-        // Modal functionality
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        const closeBtn = document.getElementsByClassName('close')[0];
+  <script>
+    // --- 摄像头初始化 ---
+    const videoEl = document.getElementById("camera");
+    const cameraError = document.getElementById("cameraError");
 
-        // Add click event to all gallery images
-        document.querySelectorAll('.gallery-item img').forEach(img => {
-            img.addEventListener('click', function() {
-                modal.style.display = 'block';
-                modalImg.src = this.src;
-            });
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false,
         });
+        videoEl.srcObject = stream;
+      } catch (err) {
+        console.error("Camera error:", err);
+        cameraError.style.display = "flex";
+      }
+    }
 
-        // Close modal
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      initCamera();
+    } else {
+      cameraError.style.display = "flex";
+    }
+
+    // --- 工具数据 ---
+    const palettes = {
+      lips: [
+        {
+          label: "Cherry",
+          color: "rgba(227, 35, 86, 0.8)",
+        },
+        {
+          label: "Rose",
+          color: "rgba(214, 92, 124, 0.8)",
+        },
+        {
+          label: "Coral",
+          color: "rgba(244, 114, 82, 0.8)",
+        },
+        {
+          label: "Plum",
+          color: "rgba(147, 51, 234, 0.8)",
+        },
+        {
+          label: "Brick",
+          color: "rgba(185, 28, 28, 0.85)",
+        },
+        {
+          label: "Soft Nude",
+          color: "rgba(248, 187, 151, 0.9)",
+        },
+      ],
+      blush: [
+        {
+          label: "Soft Pink",
+          color: "rgba(248, 113, 166, 0.7)",
+        },
+        {
+          label: "Warm Coral",
+          color: "rgba(248, 153, 112, 0.7)",
+        },
+        {
+          label: "Peach",
+          color: "rgba(252, 211, 172, 0.8)",
+        },
+        {
+          label: "Rose Flush",
+          color: "rgba(225, 29, 72, 0.4)",
+        },
+      ],
+      eyes: [
+        {
+          label: "Brown Nude",
+          color: "rgba(88, 64, 44, 0.7)",
+        },
+        {
+          label: "Cool Smoke",
+          color: "rgba(55, 65, 81, 0.75)",
+        },
+        {
+          label: "Soft Lilac",
+          color: "rgba(167, 139, 250, 0.7)",
+        },
+        {
+          label: "Gold Shimmer",
+          color: "rgba(250, 204, 21, 0.55)",
+        },
+      ],
+    };
+
+    const toolsArea = document.getElementById("toolsArea");
+    const segmentTabs = document.querySelectorAll(".segment-tab");
+    let activeSegment = "lips";
+    let activeSelections = {
+      lips: null,
+      blush: null,
+      eyes: null,
+    };
+
+    function renderPalette(segment) {
+      toolsArea.innerHTML = "";
+
+      const sectionTitle = document.createElement("div");
+      sectionTitle.className = "section-title";
+      sectionTitle.textContent =
+        segment === "lips"
+          ? "Lip Colors"
+          : segment === "blush"
+          ? "Blush Shades"
+          : "Eyeshadow";
+
+      const paletteGrid = document.createElement("div");
+      paletteGrid.className = "palette";
+
+      palettes[segment].forEach((item, index) => {
+        const chip = document.createElement("button");
+        chip.className = "tool-chip";
+        chip.dataset.segment = segment;
+        chip.dataset.index = index.toString();
+        chip.dataset.color = item.color;
+        chip.dataset.label = item.label;
+
+        if (activeSelections[segment] === index) {
+          chip.classList.add("active");
         }
 
-        // Close modal when clicking outside image
-        modal.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
+        const dot = document.createElement("div");
+        dot.className = "color-dot";
+        dot.style.background = item.color;
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                modal.style.display = 'none';
-            }
+        const label = document.createElement("div");
+        label.className = "tool-label";
+        label.textContent = item.label;
+
+        chip.appendChild(dot);
+        chip.appendChild(label);
+
+        chip.addEventListener("click", () => {
+          activeSelections[segment] = index;
+          applyMakeup(segment, item.color);
+          renderPalette(segment);
         });
 
-        // Filter gallery
-        function filterGallery(category) {
-            const items = document.querySelectorAll('.gallery-item');
-            const buttons = document.querySelectorAll('.filter-btn');
+        paletteGrid.appendChild(chip);
+      });
 
-            // Update active button
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+      toolsArea.appendChild(sectionTitle);
+      toolsArea.appendChild(paletteGrid);
+    }
 
-            // Filter items
-            items.forEach(item => {
-                if (category === 'all' || item.dataset.category === category) {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    item.style.opacity = '0';
-                    item.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 300);
-                }
-            });
+    function setActiveSegment(segment) {
+      activeSegment = segment;
+      segmentTabs.forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.segment === segment);
+      });
+      renderPalette(segment);
+    }
+
+    segmentTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const segment = tab.dataset.segment;
+        if (segment && segment !== activeSegment) {
+          setActiveSegment(segment);
         }
+      });
+    });
 
-        // Add smooth transitions
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.style.transition = 'all 0.3s ease';
-        });
-    </script>
+    // 初始显示 Lips
+    setActiveSegment("lips");
+
+    // --- 应用妆容函数 ---
+    function applyMakeup(segment, color) {
+      let layerName;
+      if (segment === "lips") {
+        layerName = "lips";
+      } else if (segment === "blush") {
+        layerName = "blush";
+      } else if (segment === "eyes") {
+        layerName = "eyeshadow";
+      }
+
+      if (!layerName) return;
+
+      const layers = document.querySelectorAll(
+        `.overlay-layer[data-layer="${layerName}"]`
+      );
+
+      layers.forEach((layer) => {
+        layer.style.backgroundColor = color;
+        layer.classList.add("overlay-visible");
+      });
+    }
+
+    // --- 清除妆容 ---
+    const clearBtn = document.getElementById("clearAllBtn");
+
+    clearBtn.addEventListener("click", () => {
+      const layers = document.querySelectorAll(".overlay-layer");
+      layers.forEach((layer) => {
+        layer.classList.remove("overlay-visible");
+        layer.style.backgroundColor = "transparent";
+      });
+      activeSelections = { lips: null, blush: null, eyes: null };
+      renderPalette(activeSegment);
+    });
+  </script>
 </body>
 </html>
