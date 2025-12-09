@@ -372,10 +372,10 @@
         { label: "Gold Shimmer", color: "rgba(250, 204, 21, 0.45)" }
       ],
       brows: [
-        { label: "Soft Brown", color: "rgba(87, 65, 39, 0.9)" },
-        { label: "Dark Brown", color: "rgba(54, 36, 21, 0.9)" },
-        { label: "Ash Brown", color: "rgba(80, 78, 74, 0.9)" },
-        { label: "Natural Black", color: "rgba(20, 20, 20, 0.9)" }
+        { label: "Soft Brown", color: "rgba(87, 65, 39, 0.65)" },
+        { label: "Dark Brown", color: "rgba(54, 36, 21, 0.7)" },
+        { label: "Ash Brown", color: "rgba(80, 78, 74, 0.65)" },
+        { label: "Natural Black", color: "rgba(20, 20, 20, 0.7)" }
       ]
     };
 
@@ -517,18 +517,35 @@
           drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
         }
 
-        // 腮红 - 使用官方 cheek landmarks（苹果肌）
+        // 腮红：以 234 / 454 作为苹果肌中心画椭圆
         if (currentMakeup.blush) {
-          const leftCheek  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftCheek,  w, h, 1.35);
-          const rightCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightCheek, w, h, 1.35);
-          drawPolygon(canvasCtx, leftCheek,  currentMakeup.blush);
-          drawPolygon(canvasCtx, rightCheek, currentMakeup.blush);
+          // 左脸颊中心 landmark: 234
+          const l = landmarks[234];
+          // 右脸颊中心 landmark: 454
+          const r = landmarks[454];
+
+          function drawCheek(landmark, color) {
+            const cx = landmark.x * w;
+            // 稍微往下移一点点，让腮红不压在眼睛上
+            const cy = landmark.y * h + 0.02 * h;
+
+            const radiusX = 0.065 * w;   // 横向大小
+            const radiusY = 0.045 * h;   // 纵向大小
+
+            canvasCtx.beginPath();
+            canvasCtx.ellipse(cx, cy, radiusX, radiusY, 0, 0, Math.PI * 2);
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+          }
+
+          drawCheek(l, currentMakeup.blush);
+          drawCheek(r, currentMakeup.blush);
         }
 
         // 眉毛 - 使用官方 brow landmarks（自然弧度）
         if (currentMakeup.brows) {
-          const leftBrow  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 1.15);
-          const rightBrow = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 1.15);
+          const leftBrow  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 0.98);
+          const rightBrow = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 0.98);
           drawPolygon(canvasCtx, leftBrow,  currentMakeup.brows);
           drawPolygon(canvasCtx, rightBrow, currentMakeup.brows);
         }
