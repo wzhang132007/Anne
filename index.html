@@ -513,60 +513,6 @@
       const rightEarY = (topHead.y - 0.12) * h;
       drawCatEar(rightEarX, rightEarY);
     }
-      // 左右眼外眼角 landmark：33（左） / 263（右）
-      const eyeIndex  = side === 'left' ? 33 : 263;
-      // 鼻翼附近 landmark：1
-      const noseIndex = 1;
-
-      const eye  = landmarks[eyeIndex];
-      const nose = landmarks[noseIndex];
-
-      // 腮红中心：大致在眼角和鼻子之间，再往下移一点
-      const cx = ((eye.x + nose.x) / 2) * w;
-      const cy = (nose.y * 0.7 + eye.y * 0.3) * h + 0.04 * h;
-
-      const radiusX = 0.07 * w; // 腮红横向大小
-      const radiusY = 0.045 * h; // 腮红纵向大小
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.ellipse(cx, cy, radiusX, radiusY, 0, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-      ctx.restore();
-    }
-
-    // 根据眼睛画一条比较自然的眉毛
-    function drawBrowsFromEyes(ctx, landmarks, color, w, h) {
-      const leftEyePts  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftEye,  w, h, 1.0);
-      const rightEyePts = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightEye, w, h, 1.0);
-
-      function drawOneBrow(pts) {
-        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        pts.forEach(p => {
-          if (p.x < minX) minX = p.x;
-          if (p.x > maxX) maxX = p.x;
-          if (p.y < minY) minY = p.y;
-          if (p.y > maxY) maxY = p.y;
-        });
-
-        const eyeHeight = maxY - minY;
-        const browY     = minY - eyeHeight * 0.9;  // 往上移一点
-        const browH     = eyeHeight * 0.6;         // 眉毛厚度
-
-        ctx.beginPath();
-        ctx.moveTo(minX, browY + browH);
-        ctx.lineTo(maxX, browY + browH);
-        ctx.lineTo(maxX, browY);
-        ctx.lineTo(minX, browY);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-      }
-
-      drawOneBrow(leftEyePts);
-      drawOneBrow(rightEyePts);
-    }
 
     // 获取关键点坐标（支持区域放大）
     function getLandmarkPoints(landmarks, indices, width, height, expand = 1.0) {
