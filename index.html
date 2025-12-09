@@ -46,6 +46,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: none; /* 隐藏，只用 canvas 显示 */
     }
 
     #canvasElement {
@@ -54,6 +55,7 @@
       left: 0;
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     .hint {
@@ -385,53 +387,78 @@
       ctx.fill();
     }
 
-    // 获取关键点坐标
-    function getLandmarkPoints(landmarks, indices, width, height) {
-      return indices.map(index => ({
+    // 获取关键点坐标（支持区域放大）
+    function getLandmarkPoints(landmarks, indices, width, height, expand = 1.0) {
+      const points = indices.map(index => ({
         x: landmarks[index].x * width,
         y: landmarks[index].y * height
+      }));
+
+      if (expand === 1.0) return points;
+
+      // 计算中心点
+      const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+      const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+
+      // 从中心点向外扩展
+      return points.map(p => ({
+        x: centerX + (p.x - centerX) * expand,
+        y: centerY + (p.y - centerY) * expand
       }));
     }
 
     // MediaPipe Face Mesh 回调
     function onResults(results) {
-      canvasElement.width = videoElement.videoWidth;
-      canvasElement.height = videoElement.videoHeight;
+      // 用 FaceMesh 返回的 image 尺寸来当基准
+      const image = results.image;
+      if (!image) return;
+
+      const w = image.width;
+      const h = image.height;
+
+      canvasElement.width  = w;
+      canvasElement.height = h;
 
       canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      canvasCtx.clearRect(0, 0, w, h);
+
+      // 先把视频帧画上来，再叠加妆容
+      canvasCtx.drawImage(image, 0, 0, w, h);
 
       if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
         const landmarks = results.multiFaceLandmarks[0];
-        const width = canvasElement.width;
-        const height = canvasElement.height;
 
-        // 绘制嘴唇
+        // 让妆容和皮肤融合一点
+        canvasCtx.globalCompositeOperation = "soft-light";
+
+        // 嘴唇
         if (currentMakeup.lips) {
-          const upperLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.upper, width, height);
-          const lowerLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.lower, width, height);
-          const outerLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.outer, width, height);
-
+          const outerLip = getLandmarkPoints(
+            landmarks,
+            FACE_LANDMARKS.lips.outer,
+            w, h,
+            1.05 // 稍微放大一点
+          );
           drawPolygon(canvasCtx, outerLip, currentMakeup.lips);
         }
 
-        // 绘制腮红
+        // 腮红
         if (currentMakeup.blush) {
-          const leftCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftCheek, width, height);
-          const rightCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightCheek, width, height);
-
-          drawPolygon(canvasCtx, leftCheek, currentMakeup.blush);
+          const leftCheek  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftCheek,  w, h, 1.3);
+          const rightCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightCheek, w, h, 1.3);
+          drawPolygon(canvasCtx, leftCheek,  currentMakeup.blush);
           drawPolygon(canvasCtx, rightCheek, currentMakeup.blush);
         }
 
-        // 绘制眼影
+        // 眼影
         if (currentMakeup.eyes) {
-          const leftEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftEye, width, height);
-          const rightEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightEye, width, height);
-
-          drawPolygon(canvasCtx, leftEye, currentMakeup.eyes);
+          const leftEye  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftEye,  w, h, 1.15);
+          const rightEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightEye, w, h, 1.15);
+          drawPolygon(canvasCtx, leftEye,  currentMakeup.eyes);
           drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
         }
+
+        canvasCtx.globalCompositeOperation = "source-over";
       }
 
       canvasCtx.restore();
