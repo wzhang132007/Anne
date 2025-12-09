@@ -32,7 +32,6 @@
       box-shadow: 0 30px 80px rgba(15, 23, 42, 0.8);
     }
 
-    /* 左侧摄像头区域 */
     .camera-panel {
       position: relative;
       flex: 3;
@@ -40,27 +39,21 @@
       overflow: hidden;
     }
 
-    video {
+    #videoElement {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      background: #020617;
     }
 
-    .camera-overlay {
+    #canvasElement {
       position: absolute;
-      inset: 16px;
-      pointer-events: none;
-      border-radius: 20px;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .face-guide {
-      position: absolute;
-      inset: 16% 22%;
-      border-radius: 50%;
-      border: 1px dashed rgba(248, 250, 252, 0.4);
-      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
     }
 
     .hint {
@@ -75,6 +68,7 @@
       align-items: center;
       gap: 6px;
       backdrop-filter: blur(10px);
+      z-index: 10;
     }
 
     .hint-dot {
@@ -82,6 +76,12 @@
       height: 6px;
       border-radius: 50%;
       background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
     }
 
     .camera-error {
@@ -94,55 +94,9 @@
       text-align: center;
       font-size: 14px;
       background: radial-gradient(circle at top, #111827, #020617);
+      z-index: 100;
     }
 
-    /* 妆容遮罩层 */
-    .overlay-layer {
-      position: absolute;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.25s ease, background-color 0.25s ease;
-      mix-blend-mode: screen;
-    }
-
-    .overlay-visible {
-      opacity: 0.9;
-    }
-
-    /* 位置是大概的，需要自己把脸对上去 😂 */
-    .overlay-lips {
-      width: 18%;
-      height: 9%;
-      border-radius: 999px;
-      bottom: 23%;
-      left: 41%;
-    }
-
-    .overlay-cheek {
-      width: 12%;
-      height: 10%;
-      border-radius: 50%;
-    }
-
-    .overlay-cheek-left {
-      bottom: 34%;
-      left: 27%;
-    }
-
-    .overlay-cheek-right {
-      bottom: 34%;
-      right: 27%;
-    }
-
-    .overlay-eyeshadow {
-      width: 32%;
-      height: 12%;
-      border-radius: 50%;
-      bottom: 39%;
-      left: 34%;
-    }
-
-    /* 右侧工具栏 */
     .tools-panel {
       flex: 2;
       background: linear-gradient(145deg, #020617, #020617, #111827);
@@ -279,37 +233,18 @@
       color: #6b7280;
     }
 
-    .primary-btn,
     .ghost-btn {
       border-radius: 999px;
       padding: 8px 14px;
-      border: 1px solid transparent;
+      border: 1px solid rgba(148, 163, 184, 0.4);
       font-size: 12px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
       transition: all 0.2s ease;
-      background: none;
-      color: inherit;
-    }
-
-    .primary-btn {
-      background: radial-gradient(circle at top, #4c1d95, #1d4ed8);
-      border-color: rgba(191, 219, 254, 0.9);
-      color: #f9fafb;
-      box-shadow: 0 15px 30px rgba(55, 48, 163, 0.7);
-    }
-
-    .primary-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 20px 40px rgba(55, 48, 163, 0.9);
-    }
-
-    .ghost-btn {
-      border-color: rgba(148, 163, 184, 0.4);
-      color: #e5e7eb;
       background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), #020617);
+      color: #e5e7eb;
     }
 
     .ghost-btn:hover {
@@ -336,47 +271,25 @@
 </head>
 <body>
   <div class="app">
-    <!-- 左侧：摄像头 + 妆容遮罩 -->
     <div class="camera-panel">
-      <video id="camera" autoplay playsinline muted></video>
+      <video id="videoElement" autoplay playsinline muted></video>
+      <canvas id="canvasElement"></canvas>
 
-      <div class="camera-overlay">
-        <div class="face-guide"></div>
-        <div class="hint">
-          <span class="hint-dot"></span>
-          <span>把脸放在虚线圈里试试不同妆容</span>
-        </div>
-
-        <!-- 妆容遮罩层（大概位置，需要自己对齐 😊） -->
-        <div
-          class="overlay-layer overlay-lips"
-          data-layer="lips"
-        ></div>
-        <div
-          class="overlay-layer overlay-cheek overlay-cheek-left"
-          data-layer="blush"
-        ></div>
-        <div
-          class="overlay-layer overlay-cheek overlay-cheek-right"
-          data-layer="blush"
-        ></div>
-        <div
-          class="overlay-layer overlay-eyeshadow"
-          data-layer="eyeshadow"
-        ></div>
+      <div class="hint">
+        <span class="hint-dot"></span>
+        <span>Face tracking active ✨</span>
       </div>
 
       <div id="cameraError" class="camera-error" style="display: none;">
-        无法访问摄像头 🥲
-        请检查浏览器的摄像头权限，或换一个支持的浏览器再试一次。
+        无法访问摄像头 🥲<br>
+        请检查浏览器的摄像头权限
       </div>
     </div>
 
-    <!-- 右侧：化妆工具 -->
     <div class="tools-panel">
       <header class="tools-header">
-        <div class="app-title">AR Makeup Mini Game</div>
-        <div class="app-subtitle">选择化妆品，让镜头里的你立刻变妆 ✨</div>
+        <div class="app-title">AR Makeup Game</div>
+        <div class="app-subtitle">Face tracking makeup effects</div>
 
         <div class="segment-tabs">
           <button class="segment-tab active" data-segment="lips">
@@ -388,13 +301,11 @@
         </div>
       </header>
 
-      <main class="tools-scroll" id="toolsArea">
-        <!-- 这里的内容由 JS 根据选中的 segment 填充 -->
-      </main>
+      <main class="tools-scroll" id="toolsArea"></main>
 
       <footer class="footer-actions">
         <div class="small-note">
-          提示：和现实化妆一样，不要一下子用太多颜色 😆
+          Real-time face tracking
         </div>
         <div>
           <button class="ghost-btn" id="clearAllBtn">
@@ -406,146 +317,204 @@
     </div>
   </div>
 
-  <script>
-    // --- 摄像头初始化 ---
-    const videoEl = document.getElementById("camera");
-    const cameraError = document.getElementById("cameraError");
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
 
+  <script>
+    const videoElement = document.getElementById('videoElement');
+    const canvasElement = document.getElementById('canvasElement');
+    const canvasCtx = canvasElement.getContext('2d');
+    const cameraError = document.getElementById('cameraError');
+
+    // MediaPipe Face Mesh 关键点索引
+    const FACE_LANDMARKS = {
+      // 嘴唇轮廓 - 更精确
+      lips: {
+        upper: [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291],
+        lower: [146, 91, 181, 84, 17, 314, 405, 321, 375, 61],
+        outer: [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185]
+      },
+      // 眼影区域
+      leftEye: [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+      rightEye: [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
+      // 腮红区域 (脸颊)
+      leftCheek: [116, 123, 147, 213, 192, 214, 212, 202, 194],
+      rightCheek: [345, 352, 376, 433, 416, 434, 432, 422, 418]
+    };
+
+    // 颜色配置
+    const palettes = {
+      lips: [
+        { label: "Cherry", color: "rgba(227, 35, 86, 0.75)" },
+        { label: "Rose", color: "rgba(214, 92, 124, 0.75)" },
+        { label: "Coral", color: "rgba(244, 114, 82, 0.75)" },
+        { label: "Plum", color: "rgba(147, 51, 234, 0.75)" },
+        { label: "Brick", color: "rgba(185, 28, 28, 0.8)" },
+        { label: "Soft Nude", color: "rgba(248, 187, 151, 0.85)" }
+      ],
+      blush: [
+        { label: "Soft Pink", color: "rgba(248, 113, 166, 0.5)" },
+        { label: "Warm Coral", color: "rgba(248, 153, 112, 0.5)" },
+        { label: "Peach", color: "rgba(252, 211, 172, 0.6)" },
+        { label: "Rose Flush", color: "rgba(225, 29, 72, 0.35)" }
+      ],
+      eyes: [
+        { label: "Brown Nude", color: "rgba(88, 64, 44, 0.6)" },
+        { label: "Cool Smoke", color: "rgba(55, 65, 81, 0.65)" },
+        { label: "Soft Lilac", color: "rgba(167, 139, 250, 0.6)" },
+        { label: "Gold Shimmer", color: "rgba(250, 204, 21, 0.45)" }
+      ]
+    };
+
+    let activeSegment = "lips";
+    let activeSelections = { lips: null, blush: null, eyes: null };
+    let currentMakeup = { lips: null, blush: null, eyes: null };
+
+    // 绘制多边形
+    function drawPolygon(ctx, points, color) {
+      if (!points || points.length === 0) return;
+
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // 获取关键点坐标
+    function getLandmarkPoints(landmarks, indices, width, height) {
+      return indices.map(index => ({
+        x: landmarks[index].x * width,
+        y: landmarks[index].y * height
+      }));
+    }
+
+    // MediaPipe Face Mesh 回调
+    function onResults(results) {
+      canvasElement.width = videoElement.videoWidth;
+      canvasElement.height = videoElement.videoHeight;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+        const width = canvasElement.width;
+        const height = canvasElement.height;
+
+        // 绘制嘴唇
+        if (currentMakeup.lips) {
+          const upperLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.upper, width, height);
+          const lowerLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.lower, width, height);
+          const outerLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.outer, width, height);
+
+          drawPolygon(canvasCtx, outerLip, currentMakeup.lips);
+        }
+
+        // 绘制腮红
+        if (currentMakeup.blush) {
+          const leftCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftCheek, width, height);
+          const rightCheek = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightCheek, width, height);
+
+          drawPolygon(canvasCtx, leftCheek, currentMakeup.blush);
+          drawPolygon(canvasCtx, rightCheek, currentMakeup.blush);
+        }
+
+        // 绘制眼影
+        if (currentMakeup.eyes) {
+          const leftEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftEye, width, height);
+          const rightEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightEye, width, height);
+
+          drawPolygon(canvasCtx, leftEye, currentMakeup.eyes);
+          drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
+        }
+      }
+
+      canvasCtx.restore();
+    }
+
+    // 初始化 Face Mesh
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+      }
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    // 初始化摄像头
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: false,
+          video: { facingMode: 'user', width: 1280, height: 720 },
+          audio: false
         });
-        videoEl.srcObject = stream;
+        videoElement.srcObject = stream;
+
+        videoElement.onloadedmetadata = () => {
+          const camera = new Camera(videoElement, {
+            onFrame: async () => {
+              await faceMesh.send({ image: videoElement });
+            },
+            width: 1280,
+            height: 720
+          });
+          camera.start();
+        };
       } catch (err) {
-        console.error("Camera error:", err);
-        cameraError.style.display = "flex";
+        console.error('Camera error:', err);
+        cameraError.style.display = 'flex';
       }
     }
 
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      initCamera();
-    } else {
-      cameraError.style.display = "flex";
-    }
-
-    // --- 工具数据 ---
-    const palettes = {
-      lips: [
-        {
-          label: "Cherry",
-          color: "rgba(227, 35, 86, 0.8)",
-        },
-        {
-          label: "Rose",
-          color: "rgba(214, 92, 124, 0.8)",
-        },
-        {
-          label: "Coral",
-          color: "rgba(244, 114, 82, 0.8)",
-        },
-        {
-          label: "Plum",
-          color: "rgba(147, 51, 234, 0.8)",
-        },
-        {
-          label: "Brick",
-          color: "rgba(185, 28, 28, 0.85)",
-        },
-        {
-          label: "Soft Nude",
-          color: "rgba(248, 187, 151, 0.9)",
-        },
-      ],
-      blush: [
-        {
-          label: "Soft Pink",
-          color: "rgba(248, 113, 166, 0.7)",
-        },
-        {
-          label: "Warm Coral",
-          color: "rgba(248, 153, 112, 0.7)",
-        },
-        {
-          label: "Peach",
-          color: "rgba(252, 211, 172, 0.8)",
-        },
-        {
-          label: "Rose Flush",
-          color: "rgba(225, 29, 72, 0.4)",
-        },
-      ],
-      eyes: [
-        {
-          label: "Brown Nude",
-          color: "rgba(88, 64, 44, 0.7)",
-        },
-        {
-          label: "Cool Smoke",
-          color: "rgba(55, 65, 81, 0.75)",
-        },
-        {
-          label: "Soft Lilac",
-          color: "rgba(167, 139, 250, 0.7)",
-        },
-        {
-          label: "Gold Shimmer",
-          color: "rgba(250, 204, 21, 0.55)",
-        },
-      ],
-    };
-
-    const toolsArea = document.getElementById("toolsArea");
-    const segmentTabs = document.querySelectorAll(".segment-tab");
-    let activeSegment = "lips";
-    let activeSelections = {
-      lips: null,
-      blush: null,
-      eyes: null,
-    };
+    // UI 逻辑
+    const toolsArea = document.getElementById('toolsArea');
+    const segmentTabs = document.querySelectorAll('.segment-tab');
 
     function renderPalette(segment) {
-      toolsArea.innerHTML = "";
+      toolsArea.innerHTML = '';
 
-      const sectionTitle = document.createElement("div");
-      sectionTitle.className = "section-title";
+      const sectionTitle = document.createElement('div');
+      sectionTitle.className = 'section-title';
       sectionTitle.textContent =
-        segment === "lips"
-          ? "Lip Colors"
-          : segment === "blush"
-          ? "Blush Shades"
-          : "Eyeshadow";
+        segment === 'lips' ? 'Lip Colors' :
+        segment === 'blush' ? 'Blush Shades' : 'Eyeshadow';
 
-      const paletteGrid = document.createElement("div");
-      paletteGrid.className = "palette";
+      const paletteGrid = document.createElement('div');
+      paletteGrid.className = 'palette';
 
       palettes[segment].forEach((item, index) => {
-        const chip = document.createElement("button");
-        chip.className = "tool-chip";
-        chip.dataset.segment = segment;
-        chip.dataset.index = index.toString();
-        chip.dataset.color = item.color;
-        chip.dataset.label = item.label;
-
+        const chip = document.createElement('button');
+        chip.className = 'tool-chip';
         if (activeSelections[segment] === index) {
-          chip.classList.add("active");
+          chip.classList.add('active');
         }
 
-        const dot = document.createElement("div");
-        dot.className = "color-dot";
+        const dot = document.createElement('div');
+        dot.className = 'color-dot';
         dot.style.background = item.color;
 
-        const label = document.createElement("div");
-        label.className = "tool-label";
+        const label = document.createElement('div');
+        label.className = 'tool-label';
         label.textContent = item.label;
 
         chip.appendChild(dot);
         chip.appendChild(label);
 
-        chip.addEventListener("click", () => {
+        chip.addEventListener('click', () => {
           activeSelections[segment] = index;
-          applyMakeup(segment, item.color);
+          currentMakeup[segment] = item.color;
           renderPalette(segment);
         });
 
@@ -558,14 +527,14 @@
 
     function setActiveSegment(segment) {
       activeSegment = segment;
-      segmentTabs.forEach((tab) => {
-        tab.classList.toggle("active", tab.dataset.segment === segment);
+      segmentTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.segment === segment);
       });
       renderPalette(segment);
     }
 
-    segmentTabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
+    segmentTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
         const segment = tab.dataset.segment;
         if (segment && segment !== activeSegment) {
           setActiveSegment(segment);
@@ -573,44 +542,15 @@
       });
     });
 
-    // 初始显示 Lips
-    setActiveSegment("lips");
-
-    // --- 应用妆容函数 ---
-    function applyMakeup(segment, color) {
-      let layerName;
-      if (segment === "lips") {
-        layerName = "lips";
-      } else if (segment === "blush") {
-        layerName = "blush";
-      } else if (segment === "eyes") {
-        layerName = "eyeshadow";
-      }
-
-      if (!layerName) return;
-
-      const layers = document.querySelectorAll(
-        `.overlay-layer[data-layer="${layerName}"]`
-      );
-
-      layers.forEach((layer) => {
-        layer.style.backgroundColor = color;
-        layer.classList.add("overlay-visible");
-      });
-    }
-
-    // --- 清除妆容 ---
-    const clearBtn = document.getElementById("clearAllBtn");
-
-    clearBtn.addEventListener("click", () => {
-      const layers = document.querySelectorAll(".overlay-layer");
-      layers.forEach((layer) => {
-        layer.classList.remove("overlay-visible");
-        layer.style.backgroundColor = "transparent";
-      });
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      currentMakeup = { lips: null, blush: null, eyes: null };
       activeSelections = { lips: null, blush: null, eyes: null };
       renderPalette(activeSegment);
     });
+
+    // 启动
+    setActiveSegment('lips');
+    initCamera();
   </script>
 </body>
 </html>
