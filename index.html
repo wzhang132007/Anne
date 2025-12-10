@@ -388,6 +388,12 @@
     let activeSelections = { lips: null, blush: null, eyes: null, brows: null, effects: null };
     let currentMakeup = { lips: null, blush: null, eyes: null, brows: null, effects: null };
 
+    // 新增特效状态（可以多选）
+    let activeEffects = {
+      catEars: false,
+      cheekSparkles: false
+    };
+
     // 绘制多边形
     function drawPolygon(ctx, points, color) {
       if (!points || points.length === 0) return;
@@ -584,30 +590,31 @@
           const right = landmarks[454];
 
           function drawBlushOval(landmark, side, baseColor) {
-            // 基础中心点
+            // landmark：234（左） / 454（右）
             let cx = landmark.x * w;
             let cy = landmark.y * h;
 
-            // 腮红稍微往上提一点点，靠近眼睛下面
-            cy -= 0.02 * h;
+            // 腮红稍微往上提一点点（靠近眼睛下方）
+            cy -= 0.015 * h;
 
-            // 不再往侧面推那么多，只轻微往中间集中
-            const offsetX = 0.01 * w;  // 原来是 0.018
-            if (side === 'left')  cx += offsetX;   // 往脸中央一点
-            if (side === 'right') cx -= offsetX;
+            // 往两侧拉开，让它铺满整个脸颊
+            const offsetX = 0.03 * w;  // 往外扩
+            if (side === 'left')  cx -= offsetX;   // 左脸往左一点（靠耳朵方向）
+            if (side === 'right') cx += offsetX;   // 右脸往右一点
 
-            // 范围再缩小一点，让腮红更集中在脸颊中央
-            const radiusX = 0.045 * w;   // 原来是 0.055
-            const radiusY = 0.035 * h;   // 原来是 0.04
+            // 腮红范围加大：横向宽、纵向也略大
+            const radiusX = 0.09 * w;   // 原来更小，现在几乎整个脸颊
+            const radiusY = 0.06 * h;
 
             canvasCtx.save();
             canvasCtx.translate(cx, cy);
             canvasCtx.scale(radiusX, radiusY);
 
+            // 中心深、边缘淡的径向渐变
             const grad = canvasCtx.createRadialGradient(0, 0, 0, 0, 0, 1);
-            grad.addColorStop(0.0, setAlpha(baseColor, 0.8));   // 中间深
-            grad.addColorStop(0.45, setAlpha(baseColor, 0.5));
-            grad.addColorStop(1.0, setAlpha(baseColor, 0.0));   // 外圈完全透明
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.75));  // 苹果肌中心
+            grad.addColorStop(0.4, setAlpha(baseColor, 0.45));
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.0));   // 外圈透明
 
             canvasCtx.fillStyle = grad;
             canvasCtx.beginPath();
@@ -630,7 +637,7 @@
           );
 
           function drawGradientBrow(points, baseColor) {
-            // 先算一个 bounding box
+            // 用 polygon 做 clip
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             points.forEach(p => {
               if (p.x < minX) minX = p.x;
@@ -643,7 +650,6 @@
             const height = maxY - minY;
 
             canvasCtx.save();
-            // 建一个 polygon 作为 clip 区域
             canvasCtx.beginPath();
             canvasCtx.moveTo(points[0].x, points[0].y);
             for (let i = 1; i < points.length; i++) {
@@ -652,15 +658,16 @@
             canvasCtx.closePath();
             canvasCtx.clip();
 
-            // 眉头 → 眉尾 做线性渐变
+            // 眉头 → 眉尾 的线性渐变
             const grad = canvasCtx.createLinearGradient(minX, minY, maxX, minY);
-            grad.addColorStop(0.0, setAlpha(baseColor, 0.20)); // 眉头很柔
-            grad.addColorStop(0.45, setAlpha(baseColor, 0.75)); // 中段最深
-            grad.addColorStop(1.0, setAlpha(baseColor, 0.35));  // 尾部再淡一点
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.18)); // 眉头很淡
+            grad.addColorStop(0.3, setAlpha(baseColor, 0.55));
+            grad.addColorStop(0.6, setAlpha(baseColor, 0.8));  // 中段最浓
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.4));  // 眉尾略淡
 
             canvasCtx.fillStyle = grad;
-            // 在 clip 里画一个矩形就可以，颜色会被裁成眉毛形状
-            canvasCtx.fillRect(minX, minY - height * 0.2, width, height * 1.4);
+            // 在剪裁区域里面画一条长条，颜色会被裁成眉毛形状
+            canvasCtx.fillRect(minX, minY - height * 0.4, width, height * 1.8);
 
             canvasCtx.restore();
           }
@@ -669,15 +676,88 @@
           drawGradientBrow(rightBrowPts, currentMakeup.brows);
         }
 
+        // --- 特效层（不再用 soft-light 混合，走正常 alpha） ---
         canvasCtx.globalCompositeOperation = "source-over";
 
-        // 特效：耳朵（在妆容之后绘制，使用 source-over）
-        if (currentMakeup.effects) {
-          if (currentMakeup.effects.type === 'bunny') {
-            drawBunnyEars(canvasCtx, landmarks, w, h);
-          } else if (currentMakeup.effects.type === 'cat') {
-            drawCatEars(canvasCtx, landmarks, w, h);
+        // 1) 猫耳朵（三角形）
+        if (activeEffects.catEars) {
+          // 用眼间中点 + 一点向上偏移，作为头顶位置
+          const betweenEyes = landmarks[168]; // 大致在两眉之间
+          const headX = betweenEyes.x * w;
+          const headY = betweenEyes.y * h - 0.18 * h;
+
+          const earOffsetX = 0.16 * w;
+          const earHeight  = 0.12 * h;
+          const earWidth   = 0.11 * w;
+
+          function drawEar(cx, cy, dir) {
+            canvasCtx.beginPath();
+            // dir = -1 左耳，1 右耳
+            const baseX = cx + dir * earOffsetX;
+            const baseY = cy + earHeight * 0.6;
+
+            canvasCtx.moveTo(baseX - earWidth / 2, baseY);
+            canvasCtx.lineTo(baseX + earWidth / 2, baseY);
+            canvasCtx.lineTo(baseX, baseY - earHeight);
+            canvasCtx.closePath();
+
+            canvasCtx.fillStyle = 'rgba(249, 115, 129, 0.9)';
+            canvasCtx.fill();
+
+            canvasCtx.strokeStyle = 'rgba(15, 23, 42, 0.7)';
+            canvasCtx.lineWidth = 2;
+            canvasCtx.stroke();
           }
+
+          drawEar(headX, headY, -1);
+          drawEar(headX, headY,  1);
+        }
+
+        // 2) 脸颊小星星
+        if (activeEffects.cheekSparkles) {
+          const leftCheekPt  = landmarks[234];
+          const rightCheekPt = landmarks[454];
+
+          function drawStar(cx, cy, size, color) {
+            const spikes = 5;
+            const outerRadius = size;
+            const innerRadius = size * 0.45;
+
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+              x = cx + Math.cos(rot) * outerRadius;
+              y = cy + Math.sin(rot) * outerRadius;
+              canvasCtx.lineTo(x, y);
+              rot += Math.PI / spikes;
+
+              x = cx + Math.cos(rot) * innerRadius;
+              y = cy + Math.sin(rot) * innerRadius;
+              canvasCtx.lineTo(x, y);
+              rot += Math.PI / spikes;
+            }
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+          }
+
+          const baseColor = 'rgba(250, 250, 210, 0.9)';
+
+          // 左右脸各两个小星星
+          const lcx = leftCheekPt.x * w;
+          const lcy = leftCheekPt.y * h;
+          const rcx = rightCheekPt.x * w;
+          const rcy = rightCheekPt.y * h;
+
+          drawStar(lcx - 0.02 * w, lcy - 0.015 * h, 10, baseColor);
+          drawStar(lcx + 0.03 * w, lcy + 0.01  * h, 8,  baseColor);
+
+          drawStar(rcx + 0.02 * w, rcy - 0.015 * h, 10, baseColor);
+          drawStar(rcx - 0.03 * w, rcy + 0.01  * h, 8,  baseColor);
         }
       }
 
@@ -739,7 +819,46 @@
         segment === 'blush' ? 'Blush Shades' :
         segment === 'eyes' ? 'Eyeshadow' :
         segment === 'brows' ? 'Brow Colors' :
-        'Fun Effects';
+        'Effects';
+
+      // Effects 特殊处理：显示可以多选的效果按钮
+      if (segment === 'effects') {
+        const grid = document.createElement('div');
+        grid.className = 'palette';
+
+        const effectsList = [
+          { key: 'catEars',       label: 'Cat Ears' },
+          { key: 'cheekSparkles', label: 'Sparkle Cheeks' }
+        ];
+
+        effectsList.forEach(item => {
+          const chip = document.createElement('button');
+          chip.className = 'tool-chip';
+          if (activeEffects[item.key]) chip.classList.add('active');
+
+          const dot = document.createElement('div');
+          dot.className = 'color-dot';
+          dot.style.background = 'rgba(248, 250, 252, 0.12)';
+
+          const label = document.createElement('div');
+          label.className = 'tool-label';
+          label.textContent = item.label;
+
+          chip.appendChild(dot);
+          chip.appendChild(label);
+
+          chip.addEventListener('click', () => {
+            activeEffects[item.key] = !activeEffects[item.key];
+            renderPalette(segment);
+          });
+
+          grid.appendChild(chip);
+        });
+
+        toolsArea.appendChild(sectionTitle);
+        toolsArea.appendChild(grid);
+        return; // 这里直接返回，不走下面 palettes 的逻辑
+      }
 
       const paletteGrid = document.createElement('div');
       paletteGrid.className = 'palette';
@@ -799,6 +918,7 @@
     document.getElementById('clearAllBtn').addEventListener('click', () => {
       currentMakeup = { lips: null, blush: null, eyes: null, brows: null, effects: null };
       activeSelections = { lips: null, blush: null, eyes: null, brows: null, effects: null };
+      activeEffects = { catEars: false, cheekSparkles: false };
       renderPalette(activeSegment);
     });
 
