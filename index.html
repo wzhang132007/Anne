@@ -391,7 +391,10 @@
     // 新增特效状态（可以多选）
     let activeEffects = {
       catEars: false,
-      cheekSparkles: false
+      cheekSparkles: false,
+      heartUnderEyes: false,
+      softVignette: false,
+      floatingShapes: false
     };
 
     // 绘制多边形
@@ -627,19 +630,14 @@
           drawBlushOval(right, 'right', currentMakeup.blush);
         }
 
-        // 眉毛：沿着眉骨，用线性渐变做由浅到深
+        // 眉毛：用 landmark 算出位置，画一条圆角长条，带由浅到深的渐变
         if (currentMakeup.brows) {
-          const leftBrowPts  = getLandmarkPoints(
-            landmarks, FACE_LANDMARKS.leftBrow,  w, h, 0.9   // 收小避免分叉
-          );
-          const rightBrowPts = getLandmarkPoints(
-            landmarks, FACE_LANDMARKS.rightBrow, w, h, 0.9
-          );
+          function drawSmoothBrow(indices, baseColor) {
+            const pts = getLandmarkPoints(landmarks, indices, w, h, 1.0);
 
-          function drawGradientBrow(points, baseColor) {
-            // 用 polygon 做 clip
+            // 计算眉毛大致区域
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-            points.forEach(p => {
+            pts.forEach(p => {
               if (p.x < minX) minX = p.x;
               if (p.x > maxX) maxX = p.x;
               if (p.y < minY) minY = p.y;
@@ -649,40 +647,62 @@
             const width  = maxX - minX;
             const height = maxY - minY;
 
-            canvasCtx.save();
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(points[0].x, points[0].y);
-            for (let i = 1; i < points.length; i++) {
-              canvasCtx.lineTo(points[i].x, points[i].y);
-            }
-            canvasCtx.closePath();
-            canvasCtx.clip();
+            const centerX = (minX + maxX) / 2;
+            const centerY = minY + height * 0.25;   // 稍微紧贴眼睛上缘
 
-            // 眉头 → 眉尾 的线性渐变
-            const grad = canvasCtx.createLinearGradient(minX, minY, maxX, minY);
-            grad.addColorStop(0.0, setAlpha(baseColor, 0.18)); // 眉头很淡
-            grad.addColorStop(0.3, setAlpha(baseColor, 0.55));
-            grad.addColorStop(0.6, setAlpha(baseColor, 0.8));  // 中段最浓
-            grad.addColorStop(1.0, setAlpha(baseColor, 0.4));  // 眉尾略淡
+            const browWidth  = width * 1.05;        // 稍微长一点
+            const browHeight = height * 0.7;        // 比现在更细一点
+
+            const radius = browHeight / 2;
+
+            canvasCtx.save();
+
+            // 创建从眉头到眉尾的线性渐变
+            const grad = canvasCtx.createLinearGradient(
+              centerX - browWidth / 2, centerY,
+              centerX + browWidth / 2, centerY
+            );
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.18)); // 眉头淡
+            grad.addColorStop(0.35, setAlpha(baseColor, 0.55));
+            grad.addColorStop(0.65, setAlpha(baseColor, 0.85)); // 中段最深
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.4));  // 眉尾稍淡
 
             canvasCtx.fillStyle = grad;
-            // 在剪裁区域里面画一条长条，颜色会被裁成眉毛形状
-            canvasCtx.fillRect(minX, minY - height * 0.4, width, height * 1.8);
+
+            const leftX  = centerX - browWidth / 2;
+            const rightX = centerX + browWidth / 2;
+            const topY   = centerY - browHeight / 2;
+            const botY   = centerY + browHeight / 2;
+
+            // 画一条"胶囊形"的圆角长条眉毛
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(leftX + radius, topY);
+            canvasCtx.lineTo(rightX - radius, topY);
+            canvasCtx.quadraticCurveTo(rightX, topY, rightX, centerY);
+            canvasCtx.quadraticCurveTo(rightX, botY, rightX - radius, botY);
+            canvasCtx.lineTo(leftX + radius, botY);
+            canvasCtx.quadraticCurveTo(leftX, botY, leftX, centerY);
+            canvasCtx.quadraticCurveTo(leftX, topY, leftX + radius, topY);
+            canvasCtx.closePath();
+            canvasCtx.fill();
 
             canvasCtx.restore();
           }
 
-          drawGradientBrow(leftBrowPts,  currentMakeup.brows);
-          drawGradientBrow(rightBrowPts, currentMakeup.brows);
+          drawSmoothBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
+          drawSmoothBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
         }
 
         // --- 特效层（不再用 soft-light 混合，走正常 alpha） ---
         canvasCtx.globalCompositeOperation = "source-over";
 
-        // 1) 猫耳朵（三角形）
+        // 公共的一些点
+        const betweenEyes = landmarks[168];  // 两眉之间
+        const leftCheekPt  = landmarks[234];
+        const rightCheekPt = landmarks[454];
+
+        // 1) Cat ears
         if (activeEffects.catEars) {
-          // 用眼间中点 + 一点向上偏移，作为头顶位置
-          const betweenEyes = landmarks[168]; // 大致在两眉之间
           const headX = betweenEyes.x * w;
           const headY = betweenEyes.y * h - 0.18 * h;
 
@@ -691,17 +711,16 @@
           const earWidth   = 0.11 * w;
 
           function drawEar(cx, cy, dir) {
-            canvasCtx.beginPath();
-            // dir = -1 左耳，1 右耳
             const baseX = cx + dir * earOffsetX;
             const baseY = cy + earHeight * 0.6;
 
+            canvasCtx.beginPath();
             canvasCtx.moveTo(baseX - earWidth / 2, baseY);
             canvasCtx.lineTo(baseX + earWidth / 2, baseY);
             canvasCtx.lineTo(baseX, baseY - earHeight);
             canvasCtx.closePath();
 
-            canvasCtx.fillStyle = 'rgba(249, 115, 129, 0.9)';
+            canvasCtx.fillStyle = 'rgba(255, 180, 190, 0.95)';
             canvasCtx.fill();
 
             canvasCtx.strokeStyle = 'rgba(15, 23, 42, 0.7)';
@@ -713,11 +732,8 @@
           drawEar(headX, headY,  1);
         }
 
-        // 2) 脸颊小星星
+        // 2) Sparkle cheeks
         if (activeEffects.cheekSparkles) {
-          const leftCheekPt  = landmarks[234];
-          const rightCheekPt = landmarks[454];
-
           function drawStar(cx, cy, size, color) {
             const spikes = 5;
             const outerRadius = size;
@@ -745,19 +761,81 @@
             canvasCtx.fill();
           }
 
-          const baseColor = 'rgba(250, 250, 210, 0.9)';
+          const baseColor = 'rgba(255, 248, 210, 0.9)';
 
-          // 左右脸各两个小星星
           const lcx = leftCheekPt.x * w;
           const lcy = leftCheekPt.y * h;
           const rcx = rightCheekPt.x * w;
           const rcy = rightCheekPt.y * h;
 
-          drawStar(lcx - 0.02 * w, lcy - 0.015 * h, 10, baseColor);
-          drawStar(lcx + 0.03 * w, lcy + 0.01  * h, 8,  baseColor);
+          drawStar(lcx - 0.02 * w, lcy - 0.015 * h, 9, baseColor);
+          drawStar(lcx + 0.03 * w, lcy + 0.01  * h, 7, baseColor);
 
-          drawStar(rcx + 0.02 * w, rcy - 0.015 * h, 10, baseColor);
-          drawStar(rcx - 0.03 * w, rcy + 0.01  * h, 8,  baseColor);
+          drawStar(rcx + 0.02 * w, rcy - 0.015 * h, 9, baseColor);
+          drawStar(rcx - 0.03 * w, rcy + 0.01  * h, 7, baseColor);
+        }
+
+        // 3) Heart under eyes
+        if (activeEffects.heartUnderEyes) {
+          function drawHeart(cx, cy, size, color) {
+            canvasCtx.save();
+            canvasCtx.translate(cx, cy);
+            canvasCtx.scale(size, size);
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(0, -0.3);
+            canvasCtx.bezierCurveTo(-0.6, -0.9, -1.2, -0.1, 0, 0.8);
+            canvasCtx.bezierCurveTo(1.2, -0.1, 0.6, -0.9, 0, -0.3);
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+            canvasCtx.restore();
+          }
+
+          const leftEyeUnderX  = landmarks[145].x * w;
+          const leftEyeUnderY  = landmarks[145].y * h + 0.035 * h;
+          const rightEyeUnderX = landmarks[374].x * w;
+          const rightEyeUnderY = landmarks[374].y * h + 0.035 * h;
+
+          const heartColor = 'rgba(255, 140, 180, 0.9)';
+          drawHeart(leftEyeUnderX,  leftEyeUnderY,  12, heartColor);
+          drawHeart(rightEyeUnderX, rightEyeUnderY, 12, heartColor);
+        }
+
+        // 4) Soft vignette
+        if (activeEffects.softVignette) {
+          const centerX = w / 2;
+          const centerY = h / 2;
+          const maxR    = Math.max(w, h) * 0.7;
+
+          const vignetteGrad = canvasCtx.createRadialGradient(
+            centerX, centerY, maxR * 0.35,
+            centerX, centerY, maxR
+          );
+          vignetteGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0.0)');
+          vignetteGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.45)');
+
+          canvasCtx.fillStyle = vignetteGrad;
+          canvasCtx.fillRect(0, 0, w, h);
+        }
+
+        // 5) Floating shapes
+        if (activeEffects.floatingShapes) {
+          const headX = betweenEyes.x * w;
+          const headY = betweenEyes.y * h - 0.22 * h;
+
+          function drawFloatingTriangle(cx, cy, size, color) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(cx, cy - size);
+            canvasCtx.lineTo(cx - size * 0.9, cy + size * 0.7);
+            canvasCtx.lineTo(cx + size * 0.9, cy + size * 0.7);
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+          }
+
+          drawFloatingTriangle(headX - 0.18 * w, headY,       18, 'rgba(244, 114, 182, 0.8)');
+          drawFloatingTriangle(headX + 0.18 * w, headY + 6,   16, 'rgba(129, 140, 248, 0.8)');
+          drawFloatingTriangle(headX,             headY - 12, 14, 'rgba(45, 212, 191, 0.8)');
         }
       }
 
@@ -827,8 +905,11 @@
         grid.className = 'palette';
 
         const effectsList = [
-          { key: 'catEars',       label: 'Cat Ears' },
-          { key: 'cheekSparkles', label: 'Sparkle Cheeks' }
+          { key: 'catEars',        label: 'Cat Ears' },
+          { key: 'cheekSparkles',  label: 'Sparkle Cheeks' },
+          { key: 'heartUnderEyes', label: 'Heart Under Eyes' },
+          { key: 'softVignette',   label: 'Soft Vignette' },
+          { key: 'floatingShapes', label: 'Floating Shapes' }
         ];
 
         effectsList.forEach(item => {
@@ -918,7 +999,13 @@
     document.getElementById('clearAllBtn').addEventListener('click', () => {
       currentMakeup = { lips: null, blush: null, eyes: null, brows: null, effects: null };
       activeSelections = { lips: null, blush: null, eyes: null, brows: null, effects: null };
-      activeEffects = { catEars: false, cheekSparkles: false };
+      activeEffects = {
+        catEars: false,
+        cheekSparkles: false,
+        heartUnderEyes: false,
+        softVignette: false,
+        floatingShapes: false
+      };
       renderPalette(activeSegment);
     });
 
