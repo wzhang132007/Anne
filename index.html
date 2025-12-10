@@ -1,359 +1,671 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diatom Image Gallery</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <title>Grand Luxury Interactive Christmas Tree</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <!-- Tailwind CDN 做 UI -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #020617 0%, #000 55%, #020617 100%);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    }
+    #app { position: fixed; inset: 0; }
+    canvas { display: block; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 20px;
-        }
-
-        .gallery-item {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .gallery-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .gallery-item-info {
-            padding: 20px;
-        }
-
-        .gallery-item-info h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .gallery-item-info p {
-            color: #666;
-            line-height: 1.6;
-            font-size: 0.95em;
-        }
-
-        .upload-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-        }
-
-        .upload-section h2 {
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        .upload-btn {
-            background: white;
-            color: #667eea;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        .upload-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            position: relative;
-            margin: auto;
-            padding: 20px;
-            max-width: 90%;
-            max-height: 90%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-        }
-
-        .modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
-        }
-
-        .close {
-            position: absolute;
-            top: 20px;
-            right: 40px;
-            color: white;
-            font-size: 40px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            z-index: 1001;
-        }
-
-        .close:hover {
-            color: #667eea;
-        }
-
-        .filter-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1em;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: white;
-            color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
-
-            .filter-btn {
-                margin: 5px;
-            }
-        }
-    </style>
+    .glass-panel {
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.7));
+      border: 1px solid rgba(148,163,184,0.5);
+      box-shadow: 0 20px 60px rgba(15,23,42,0.9);
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+    }
+    .btn-soft {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(15,23,42,0.7));
+      font-size: 12px;
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all .16s ease;
+    }
+    .btn-soft.active {
+      border-color: rgba(251,191,36,1);
+      background: radial-gradient(circle at top, rgba(250,204,21,0.95), rgba(180,83,9,1));
+      color: #020617;
+      box-shadow: 0 0 20px rgba(251,191,36,0.85);
+    }
+    .btn-soft:hover {
+      border-color: rgba(248,250,252,0.9);
+      transform: translateY(-1px);
+    }
+    .slider {
+      width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(30,64,175,0.4);
+      outline: none;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fbbf24;
+      box-shadow: 0 0 10px rgba(251,191,36,0.9);
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Diatom Image Gallery</h1>
-            <p>Explore the microscopic beauty of diatoms - nature's glass sculptures</p>
-        </header>
+<div id="app">
+  <canvas id="scene-canvas"></canvas>
 
-        <div class="upload-section">
-            <h2>Add Your Diatom Images</h2>
-            <p style="color: white; margin-bottom: 15px;">Upload images to the 'images' folder and refresh the page</p>
-            <button class="upload-btn" onclick="alert('Place your diatom images in the images/ directory')">Learn More</button>
-        </div>
-
-        <div class="filter-section">
-            <button class="filter-btn active" onclick="filterGallery('all')">All</button>
-            <button class="filter-btn" onclick="filterGallery('pennate')">Pennate</button>
-            <button class="filter-btn" onclick="filterGallery('centric')">Centric</button>
-            <button class="filter-btn" onclick="filterGallery('other')">Other</button>
-        </div>
-
-        <div class="gallery" id="gallery">
-            <!-- Sample diatom images - replace with actual images -->
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=500" alt="Diatom Sample 1">
-                <div class="gallery-item-info">
-                    <h3>Pennate Diatom</h3>
-                    <p>A beautiful example of a pennate (bilateral) diatom showing intricate silica structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500" alt="Diatom Sample 2">
-                <div class="gallery-item-info">
-                    <h3>Centric Diatom</h3>
-                    <p>Radially symmetric diatom with circular patterns resembling a mandala.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1564701148686-5d4b5c7d4c2c?w=500" alt="Diatom Sample 3">
-                <div class="gallery-item-info">
-                    <h3>Navicula Species</h3>
-                    <p>Boat-shaped pennate diatom with distinctive linear markings.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1582719366055-4b689f5ffcdf?w=500" alt="Diatom Sample 4">
-                <div class="gallery-item-info">
-                    <h3>Circular Diatom</h3>
-                    <p>Perfect symmetry displayed in this circular centric diatom structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="other">
-                <img src="https://images.unsplash.com/photo-1564701148705-50c0c4c47b7f?w=500" alt="Diatom Sample 5">
-                <div class="gallery-item-info">
-                    <h3>Colonial Diatom</h3>
-                    <p>Multiple diatoms forming a chain-like colonial structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1579168724170-0c070a56a4f7?w=500" alt="Diatom Sample 6">
-                <div class="gallery-item-info">
-                    <h3>Elongated Diatom</h3>
-                    <p>Highly elongated pennate diatom with fine transverse striations.</p>
-                </div>
-            </div>
-        </div>
+  <!-- 控制面板 -->
+  <div class="absolute top-4 right-4 w-72 px-4 py-3 rounded-2xl glass-panel text-slate-100 text-xs">
+    <div class="flex items-center justify-between mb-2">
+      <div>
+        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-400">Grand Luxury</div>
+        <div class="text-sm font-semibold">Interactive Christmas Tree</div>
+      </div>
+      <div class="flex items-center gap-2 text-[11px] text-slate-300">
+        <div id="stateLabel">State: FORMED</div>
+        <div class="status-dot bg-emerald-400"></div>
+      </div>
     </div>
 
-    <!-- Modal for enlarged images -->
-    <div id="imageModal" class="modal">
-        <span class="close">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Enlarged diatom image">
-        </div>
+    <div class="mt-2 mb-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">Mode</div>
+    <div class="flex gap-2 mb-2">
+      <button id="btnChaos" class="btn-soft">CHAOS</button>
+      <button id="btnFormed" class="btn-soft active">FORMED</button>
     </div>
 
-    <script>
-        // Modal functionality
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        const closeBtn = document.getElementsByClassName('close')[0];
+    <div class="mt-2 mb-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">Color Theme</div>
+    <div class="flex gap-2 mb-2">
+      <button id="btnThemeClassic" class="btn-soft active">Classic Green / Gold</button>
+      <button id="btnThemeRoyal" class="btn-soft">Royal Blue</button>
+    </div>
 
-        // Add click event to all gallery images
-        document.querySelectorAll('.gallery-item img').forEach(img => {
-            img.addEventListener('click', function() {
-                modal.style.display = 'block';
-                modalImg.src = this.src;
-            });
-        });
+    <!-- 新增：Mouse Force -->
+    <div class="mt-2 mb-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">Mouse Force</div>
+    <div class="flex gap-2 mb-2">
+      <button id="btnForceOff" class="btn-soft active">Off</button>
+      <button id="btnForceAttract" class="btn-soft">Attract</button>
+      <button id="btnForceRepel" class="btn-soft">Repel</button>
+    </div>
 
-        // Close modal
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
+    <div class="mt-2 mb-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">Parameters</div>
+    <div class="space-y-2 mb-2">
+      <div>
+        <div class="flex justify-between mb-1"><span>Particle Size</span><span id="valSize">1.4</span></div>
+        <input id="sliderSize" class="slider" type="range" min="0.5" max="3" step="0.1" value="1.4" />
+      </div>
+      <div>
+        <div class="flex justify-between mb-1"><span>Opacity</span><span id="valOpacity">0.9</span></div>
+        <input id="sliderOpacity" class="slider" type="range" min="0.2" max="1" step="0.05" value="0.9" />
+      </div>
+      <div>
+        <div class="flex justify-between mb-1"><span>Morph Speed</span><span id="valSpeed">0.06</span></div>
+        <input id="sliderSpeed" class="slider" type="range" min="0.01" max="0.15" step="0.005" value="0.06" />
+      </div>
+    </div>
+
+    <div class="mt-2 border-t border-slate-700/60 pt-2 text-[11px] leading-snug text-slate-300">
+      使用 <span class="font-semibold">CHAOS / FORMED</span> 切换整体形态，用 <span class="font-semibold">Mouse Force</span> 像「搅动」粒子和礼物一样把树吸过来或弹开。
+    </div>
+  </div>
+
+  <!-- 左下角提示 -->
+  <div class="absolute left-4 bottom-4 px-4 py-2 rounded-full bg-slate-900/70 border border-slate-700/70 text-[11px] text-slate-300 flex items-center gap-2">
+    <span class="text-lg">🖱️</span>
+    <span>移动鼠标在树中间平面产生力场 · 拖动旋转视角 · 滚轮缩放。</span>
+  </div>
+</div>
+
+<script type="module">
+  import * as THREE from "https://unpkg.com/three@0.164.0/build/three.module.js";
+  import { OrbitControls } from "https://unpkg.com/three@0.164.0/examples/jsm/controls/OrbitControls.js";
+
+  const canvas = document.getElementById("scene-canvas");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setClearColor(0x020617, 1);
+
+  const scene = new THREE.Scene();
+
+  // 灯光
+  const hemi = new THREE.HemisphereLight(0x0f172a, 0x020617, 0.9);
+  scene.add(hemi);
+
+  const spot = new THREE.SpotLight(0xfbbf24, 3, 40, Math.PI / 6, 0.3, 2);
+  spot.position.set(10, 25, 15);
+  spot.target.position.set(0, 6, 0);
+  scene.add(spot);
+  scene.add(spot.target);
+
+  const rim = new THREE.PointLight(0x38bdf8, 2.2, 50);
+  rim.position.set(-12, 10, -8);
+  scene.add(rim);
+
+  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera.position.set(0, 8, 26);
+
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.06;
+  controls.minDistance = 8;
+  controls.maxDistance = 40;
+  controls.target.set(0, 6, 0);
+
+  // ---------- 鼠标力场 ----------
+  const raycaster = new THREE.Raycaster();
+  const mouseNdc = new THREE.Vector2();
+  const mouseWorld = new THREE.Vector3();
+  // y = 6 的水平面（大概在树身中间）
+  const mousePlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -6);
+  let mouseActive = false;
+  let mouseMode = "off"; // off / attract / repel
+  let mouseRadius = 4.0;
+  let mouseForce = 1.2;
+
+  function updateMouseWorld(event) {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouseNdc.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    mouseNdc.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouseNdc, camera);
+    raycaster.ray.intersectPlane(mousePlane, mouseWorld);
+  }
+
+  renderer.domElement.addEventListener("pointermove", (e) => {
+    updateMouseWorld(e);
+    mouseActive = true;
+  });
+  renderer.domElement.addEventListener("pointerleave", () => {
+    mouseActive = false;
+  });
+
+  // ---------- 粒子树 ----------
+  const PARTICLE_COUNT = 16000;
+  const chaosPositions = new Float32Array(PARTICLE_COUNT * 3);
+  const treePositions = new Float32Array(PARTICLE_COUNT * 3);
+  const colors = new Float32Array(PARTICLE_COUNT * 3);
+
+  function randomInSphere(radius) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = u * 2 * Math.PI;
+    const phi = Math.acos(2 * v - 1);
+    const r = radius * Math.cbrt(Math.random());
+    return new THREE.Vector3(
+      r * Math.sin(phi) * Math.cos(theta),
+      r * Math.cos(phi),
+      r * Math.sin(phi) * Math.sin(theta)
+    );
+  }
+
+  function generateChaosPositions() {
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      const p = randomInSphere(18);
+      chaosPositions[i3] = p.x;
+      chaosPositions[i3 + 1] = p.y * 0.7 + 6;
+      chaosPositions[i3 + 2] = p.z;
+    }
+  }
+
+  function generateTreePositions() {
+    const height = 12;
+    const radiusBase = 5;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      const t = Math.random();
+      const y = t * height;
+      const radius = radiusBase * (1 - t * 0.9);
+      const angle = Math.random() * Math.PI * 2;
+      const jitterR = radius * (0.6 + Math.random() * 0.4);
+      treePositions[i3] = jitterR * Math.cos(angle);
+      treePositions[i3 + 1] = y;
+      treePositions[i3 + 2] = jitterR * Math.sin(angle);
+
+      if (t > 0.9 && Math.random() < 0.12) {
+        const s = 0.6 + Math.random() * 0.6;
+        treePositions[i3] *= 0.3;
+        treePositions[i3 + 1] = height + s * 1.4;
+        treePositions[i3 + 2] *= 0.3;
+      }
+    }
+  }
+
+  generateChaosPositions();
+  generateTreePositions();
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(chaosPositions.length), 3));
+  const positionAttr = geometry.getAttribute("position");
+  positionAttr.array.set(treePositions);
+
+  let currentTheme = "classic";
+
+  function updateColors() {
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const i3 = i * 3;
+      const t = (treePositions[i3 + 1]) / 12;
+      if (currentTheme === "classic") {
+        const baseG = 0.25 + t * 0.4;
+        colors[i3] = 0.02 + Math.random() * 0.05;
+        colors[i3 + 1] = baseG;
+        colors[i3 + 2] = 0.08 + t * 0.1;
+        if (Math.random() < 0.02) {
+          colors[i3] = 0.95;
+          colors[i3 + 1] = 0.83;
+          colors[i3 + 2] = 0.45;
         }
-
-        // Close modal when clicking outside image
-        modal.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
+      } else {
+        colors[i3] = 0.1 + t * 0.3;
+        colors[i3 + 1] = 0.3 + Math.random() * 0.2;
+        colors[i3 + 2] = 0.75 + Math.random() * 0.15;
+        if (Math.random() < 0.02) {
+          colors[i3] = 0.95;
+          colors[i3 + 1] = 0.6;
+          colors[i3 + 2] = 0.95;
         }
+      }
+    }
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  }
+  updateColors();
 
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                modal.style.display = 'none';
-            }
-        });
+  let particleSize = parseFloat(document.getElementById("sliderSize").value);
+  let particleOpacity = parseFloat(document.getElementById("sliderOpacity").value);
 
-        // Filter gallery
-        function filterGallery(category) {
-            const items = document.querySelectorAll('.gallery-item');
-            const buttons = document.querySelectorAll('.filter-btn');
+  const material = new THREE.PointsMaterial({
+    size: particleSize,
+    vertexColors: true,
+    depthWrite: false,
+    transparent: true,
+    opacity: particleOpacity,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true,
+  });
 
-            // Update active button
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+  const points = new THREE.Points(geometry, material);
+  scene.add(points);
 
-            // Filter items
-            items.forEach(item => {
-                if (category === 'all' || item.dataset.category === category) {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    item.style.opacity = '0';
-                    item.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 300);
-                }
-            });
+  // 底座
+  const baseGeo = new THREE.CylinderGeometry(6.5, 6.5, 0.4, 48);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: 0x1f2937,
+    metalness: 0.6,
+    roughness: 0.3,
+  });
+  const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+  baseMesh.position.y = -0.3;
+  scene.add(baseMesh);
+
+  // ---------- 装饰：礼物盒 / 彩球 / 小灯泡 ----------
+  const GIFT_COUNT = 60;
+  const BAUBLE_COUNT = 260;
+  const LIGHT_COUNT = 360;
+
+  const giftChaos = new Float32Array(GIFT_COUNT * 3);
+  const giftTree = new Float32Array(GIFT_COUNT * 3);
+  const giftRotY = new Float32Array(GIFT_COUNT);
+  const giftScale = new Float32Array(GIFT_COUNT);
+
+  const baubleChaos = new Float32Array(BAUBLE_COUNT * 3);
+  const baubleTree = new Float32Array(BAUBLE_COUNT * 3);
+  const baubleScale = new Float32Array(BAUBLE_COUNT);
+
+  const lightChaos = new Float32Array(LIGHT_COUNT * 3);
+  const lightTree = new Float32Array(LIGHT_COUNT * 3);
+  const lightScale = new Float32Array(LIGHT_COUNT);
+
+  const tmpVec = new THREE.Vector3();
+
+  function pickRandomTreePoint() {
+    const idx = Math.floor(Math.random() * PARTICLE_COUNT);
+    const i3 = idx * 3;
+    const v = tmpVec.set(treePositions[i3], treePositions[i3 + 1], treePositions[i3 + 2]);
+    return v.clone();
+  }
+
+  function initGifts() {
+    for (let i = 0; i < GIFT_COUNT; i++) {
+      const i3 = i * 3;
+      const angle = Math.random() * Math.PI * 2;
+      const r = 4 + Math.random() * 2.2;
+      giftTree[i3] = r * Math.cos(angle);
+      giftTree[i3 + 1] = 0.2 + Math.random() * 0.2;
+      giftTree[i3 + 2] = r * Math.sin(angle);
+
+      const p = randomInSphere(20);
+      giftChaos[i3] = p.x;
+      giftChaos[i3 + 1] = p.y * 0.6 + 3;
+      giftChaos[i3 + 2] = p.z;
+
+      giftRotY[i] = Math.random() * Math.PI * 2;
+      giftScale[i] = 0.7 + Math.random() * 0.6;
+    }
+  }
+
+  function initBaubles() {
+    for (let i = 0; i < BAUBLE_COUNT; i++) {
+      const i3 = i * 3;
+      const base = pickRandomTreePoint();
+      const dir = base.clone().setY(0).normalize();
+      const offset = dir.clone().multiplyScalar(0.5);
+      base.add(offset);
+      baubleTree[i3] = base.x;
+      baubleTree[i3 + 1] = base.y + 0.2;
+      baubleTree[i3 + 2] = base.z;
+
+      const p = randomInSphere(19);
+      baubleChaos[i3] = p.x;
+      baubleChaos[i3 + 1] = p.y * 0.7 + 6;
+      baubleChaos[i3 + 2] = p.z;
+
+      baubleScale[i] = 0.18 + Math.random() * 0.12;
+    }
+  }
+
+  function initLights() {
+    for (let i = 0; i < LIGHT_COUNT; i++) {
+      const i3 = i * 3;
+      const base = pickRandomTreePoint();
+      const dir = base.clone().setY(0).normalize();
+      const offset = dir.clone().multiplyScalar(0.8);
+      base.add(offset);
+      lightTree[i3] = base.x;
+      lightTree[i3 + 1] = base.y + 0.05;
+      lightTree[i3 + 2] = base.z;
+
+      const p = randomInSphere(20);
+      lightChaos[i3] = p.x;
+      lightChaos[i3 + 1] = p.y * 0.7 + 6;
+      lightChaos[i3 + 2] = p.z;
+
+      lightScale[i] = 0.07 + Math.random() * 0.04;
+    }
+  }
+
+  initGifts();
+  initBaubles();
+  initLights();
+
+  const giftGeo = new THREE.BoxGeometry(1, 1, 1);
+  const giftMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    roughness: 0.35,
+    metalness: 0.4,
+  });
+  const giftMesh = new THREE.InstancedMesh(giftGeo, giftMat, GIFT_COUNT);
+  giftMesh.castShadow = true;
+  giftMesh.receiveShadow = true;
+  scene.add(giftMesh);
+
+  const baubleGeo = new THREE.SphereGeometry(1, 16, 16);
+  const baubleMat = new THREE.MeshStandardMaterial({
+    color: 0xffffff,
+    metalness: 0.8,
+    roughness: 0.2,
+  });
+  const baubleMesh = new THREE.InstancedMesh(baubleGeo, baubleMat, BAUBLE_COUNT);
+  scene.add(baubleMesh);
+
+  const lightGeo = new THREE.SphereGeometry(1, 10, 10);
+  const lightMat = new THREE.MeshStandardMaterial({
+    color: 0xfff9c4,
+    emissive: 0xfff3b0,
+    emissiveIntensity: 1.8,
+    metalness: 0.2,
+    roughness: 0.4,
+  });
+  const lightMesh = new THREE.InstancedMesh(lightGeo, lightMat, LIGHT_COUNT);
+  scene.add(lightMesh);
+
+  const giftColors = [0xef4444, 0x22c55e, 0xfacc15, 0x0ea5e9];
+  const baubleColors = [0xf97316, 0x22c55e, 0x38bdf8, 0xa855f7, 0xfbbf24];
+  const lightColors = [0xfff9c4, 0xfef3c7, 0xfee2e2, 0xe0f2fe];
+  const colorTemp = new THREE.Color();
+
+  for (let i = 0; i < GIFT_COUNT; i++) {
+    const c = giftColors[Math.floor(Math.random() * giftColors.length)];
+    colorTemp.setHex(c);
+    giftMesh.setColorAt(i, colorTemp);
+  }
+  giftMesh.instanceColor.needsUpdate = true;
+
+  for (let i = 0; i < BAUBLE_COUNT; i++) {
+    const c = baubleColors[Math.floor(Math.random() * baubleColors.length)];
+    colorTemp.setHex(c);
+    baubleMesh.setColorAt(i, colorTemp);
+  }
+  baubleMesh.instanceColor.needsUpdate = true;
+
+  for (let i = 0; i < LIGHT_COUNT; i++) {
+    const c = lightColors[Math.floor(Math.random() * lightColors.length)];
+    colorTemp.setHex(c);
+    lightMesh.setColorAt(i, colorTemp);
+  }
+  lightMesh.instanceColor.needsUpdate = true;
+
+  // ---------- 状态机 + UI ----------
+  let targetState = "FORMED";
+  let morphProgress = 1.0;
+  let morphSpeed = parseFloat(document.getElementById("sliderSpeed").value);
+
+  const stateLabel = document.getElementById("stateLabel");
+  const btnChaos = document.getElementById("btnChaos");
+  const btnFormed = document.getElementById("btnFormed");
+  const btnThemeClassic = document.getElementById("btnThemeClassic");
+  const btnThemeRoyal = document.getElementById("btnThemeRoyal");
+
+  const btnForceOff = document.getElementById("btnForceOff");
+  const btnForceAttract = document.getElementById("btnForceAttract");
+  const btnForceRepel = document.getElementById("btnForceRepel");
+
+  function setState(next) {
+    targetState = next;
+    if (next === "CHAOS") {
+      btnChaos.classList.add("active");
+      btnFormed.classList.remove("active");
+      stateLabel.textContent = "State: CHAOS";
+    } else {
+      btnChaos.classList.remove("active");
+      btnFormed.classList.add("active");
+      stateLabel.textContent = "State: FORMED";
+    }
+  }
+
+  function setMouseMode(mode) {
+    mouseMode = mode;
+    btnForceOff.classList.toggle("active", mode === "off");
+    btnForceAttract.classList.toggle("active", mode === "attract");
+    btnForceRepel.classList.toggle("active", mode === "repel");
+  }
+
+  btnChaos.addEventListener("click", () => setState("CHAOS"));
+  btnFormed.addEventListener("click", () => setState("FORMED"));
+
+  btnThemeClassic.addEventListener("click", () => {
+    currentTheme = "classic";
+    btnThemeClassic.classList.add("active");
+    btnThemeRoyal.classList.remove("active");
+    updateColors();
+  });
+  btnThemeRoyal.addEventListener("click", () => {
+    currentTheme = "royal";
+    btnThemeRoyal.classList.add("active");
+    btnThemeClassic.classList.remove("active");
+    updateColors();
+  });
+
+  btnForceOff.addEventListener("click", () => setMouseMode("off"));
+  btnForceAttract.addEventListener("click", () => setMouseMode("attract"));
+  btnForceRepel.addEventListener("click", () => setMouseMode("repel"));
+
+  const sliderSize = document.getElementById("sliderSize");
+  const sliderOpacity = document.getElementById("sliderOpacity");
+  const sliderSpeed = document.getElementById("sliderSpeed");
+  const valSize = document.getElementById("valSize");
+  const valOpacity = document.getElementById("valOpacity");
+  const valSpeed = document.getElementById("valSpeed");
+
+  sliderSize.addEventListener("input", () => {
+    particleSize = parseFloat(sliderSize.value);
+    material.size = particleSize;
+    valSize.textContent = particleSize.toFixed(1);
+  });
+  sliderOpacity.addEventListener("input", () => {
+    particleOpacity = parseFloat(sliderOpacity.value);
+    material.opacity = particleOpacity;
+    valOpacity.textContent = particleOpacity.toFixed(2);
+  });
+  sliderSpeed.addEventListener("input", () => {
+    morphSpeed = parseFloat(sliderSpeed.value);
+    valSpeed.textContent = morphSpeed.toFixed(2);
+  });
+
+  // ---------- 动画 ----------
+  const tmp = new THREE.Vector3();
+  const cPos = new THREE.Vector3();
+  const fPos = new THREE.Vector3();
+  const dVec = new THREE.Vector3();
+  const m4 = new THREE.Matrix4();
+  const quat = new THREE.Quaternion();
+  const euler = new THREE.Euler();
+  const scaleV = new THREE.Vector3();
+
+  function lerpArrayPositions(outAttrArray, chaosArr, treeArr, progress, noiseFactor = 0, applyMouse = false) {
+    for (let i = 0; i < outAttrArray.length / 3; i++) {
+      const i3 = i * 3;
+      cPos.set(chaosArr[i3], chaosArr[i3 + 1], chaosArr[i3 + 2]);
+      fPos.set(treeArr[i3], treeArr[i3 + 1], treeArr[i3 + 2]);
+      tmp.copy(cPos).lerp(fPos, progress);
+
+      if (noiseFactor > 0 && progress < 0.4 && targetState === "CHAOS") {
+        const n = (0.4 - progress) * noiseFactor;
+        tmp.x += (Math.random() - 0.5) * n;
+        tmp.y += (Math.random() - 0.5) * n;
+        tmp.z += (Math.random() - 0.5) * n;
+      }
+
+      if (applyMouse && mouseMode !== "off" && mouseActive) {
+        dVec.copy(tmp).sub(mouseWorld);
+        const dist = dVec.length();
+        const radius = mouseRadius;
+        if (dist < radius && dist > 0.0001) {
+          let strength = (1 - dist / radius) * mouseForce;
+          dVec.normalize();
+          if (mouseMode === "attract") dVec.multiplyScalar(-strength);
+          else dVec.multiplyScalar(strength);
+          tmp.add(dVec);
         }
+      }
 
-        // Add smooth transitions
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.style.transition = 'all 0.3s ease';
-        });
-    </script>
+      outAttrArray[i3] = tmp.x;
+      outAttrArray[i3 + 1] = tmp.y;
+      outAttrArray[i3 + 2] = tmp.z;
+    }
+  }
+
+  function updateInstancedMesh(mesh, count, chaosArr, treeArr, progress, rotYArr, scaleArr, wobble = 0, applyMouse = false) {
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      cPos.set(chaosArr[i3], chaosArr[i3 + 1], chaosArr[i3 + 2]);
+      fPos.set(treeArr[i3], treeArr[i3 + 1], treeArr[i3 + 2]);
+      tmp.copy(cPos).lerp(fPos, progress);
+
+      if (targetState === "CHAOS" && progress < 0.4 && wobble > 0) {
+        const n = (0.4 - progress) * wobble;
+        tmp.x += (Math.random() - 0.5) * n;
+        tmp.y += (Math.random() - 0.5) * n;
+        tmp.z += (Math.random() - 0.5) * n;
+      }
+
+      if (applyMouse && mouseMode !== "off" && mouseActive) {
+        dVec.copy(tmp).sub(mouseWorld);
+        const dist = dVec.length();
+        const radius = mouseRadius;
+        if (dist < radius && dist > 0.0001) {
+          let strength = (1 - dist / radius) * mouseForce * 0.9;
+          dVec.normalize();
+          if (mouseMode === "attract") dVec.multiplyScalar(-strength);
+          else dVec.multiplyScalar(strength);
+          tmp.add(dVec);
+        }
+      }
+
+      const rotY = rotYArr ? rotYArr[i] : 0;
+      euler.set(0, rotY, 0);
+      quat.setFromEuler(euler);
+
+      const s = scaleArr ? scaleArr[i] : 1;
+      scaleV.set(s, s, s);
+
+      m4.compose(tmp, quat, scaleV);
+      mesh.setMatrixAt(i, m4);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (targetState === "FORMED" && morphProgress < 1) {
+      morphProgress = THREE.MathUtils.clamp(morphProgress + morphSpeed * 0.6, 0, 1);
+    } else if (targetState === "CHAOS" && morphProgress > 0) {
+      morphProgress = THREE.MathUtils.clamp(morphProgress - morphSpeed * 0.6, 0, 1);
+    }
+
+    lerpArrayPositions(positionAttr.array, chaosPositions, treePositions, morphProgress, 4.0, true);
+    positionAttr.needsUpdate = true;
+
+    updateInstancedMesh(giftMesh, GIFT_COUNT, giftChaos, giftTree, morphProgress, giftRotY, giftScale, 2.5, true);
+    updateInstancedMesh(baubleMesh, BAUBLE_COUNT, baubleChaos, baubleTree, morphProgress, null, baubleScale, 2.0, true);
+    updateInstancedMesh(lightMesh, LIGHT_COUNT, lightChaos, lightTree, morphProgress, null, lightScale, 3.0, true);
+
+    const t = performance.now() * 0.001;
+    lightMat.emissiveIntensity = 1.4 + Math.sin(t * 3.2) * 0.5;
+
+    const autoSpin = 0.003;
+    points.rotation.y += autoSpin;
+    baseMesh.rotation.y += autoSpin * 0.6;
+    giftMesh.rotation.y += autoSpin * 0.5;
+    baubleMesh.rotation.y += autoSpin * 0.5;
+    lightMesh.rotation.y += autoSpin * 0.5;
+
+    controls.update();
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener("resize", () => {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    renderer.setSize(w, h);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  });
+</script>
 </body>
 </html>
