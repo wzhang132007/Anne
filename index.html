@@ -630,12 +630,12 @@
           drawBlushOval(right, 'right', currentMakeup.blush);
         }
 
-        // 眉毛：画成卡通弧线眉（前粗后细、上弯）
+        // 眉毛：细一点的弧线眉
         if (currentMakeup.brows) {
-          function drawStylizedBrow(indices, baseColor) {
+          function drawSimpleArcBrow(indices, baseColor) {
             const pts = getLandmarkPoints(landmarks, indices, w, h, 1.0);
 
-            // 取 landmark 的整体范围
+            // 用 landmark 定位眉头和眉尾
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             pts.forEach(p => {
               if (p.x < minX) minX = p.x;
@@ -647,42 +647,41 @@
             const width  = maxX - minX;
             const height = maxY - minY;
 
-            // 眉毛大概中心位置
-            const baseY   = minY + height * 0.1;         // 靠近原本眉骨
-            const startX  = minX - width * 0.05;         // 眉头稍微再往前一点
-            const endX    = maxX + width * 0.05;         // 眉尾稍微再长一点
-            const midX    = (startX + endX) / 2;
+            // 基准线：紧贴原来的眉骨
+            const baseY  = minY + height * 0.25;
+            const startX = minX;              // 不再额外加长
+            const endX   = maxX;
+            const midX   = (startX + endX) / 2;
 
-            // 弯曲程度和厚度
-            const arch    = height * 0.8;                // 眉峰高度
-            const thickHead = height * 0.7;              // 眉头粗
-            const thickTail = height * 0.3;              // 眉尾细
+            // 弧度和粗细都比之前小很多
+            const arch       = height * 0.6;  // 弯一点点就好
+            const thickHead  = height * 0.4;  // 眉头厚一点
+            const thickTail  = height * 0.18; // 眉尾更细
 
             canvasCtx.save();
 
-            // 顶部轮廓：从眉头到眉尾的弧线
             canvasCtx.beginPath();
+            // 顶部轮廓：眉头 → 眉尾的上弧线
             canvasCtx.moveTo(startX, baseY);
             canvasCtx.quadraticCurveTo(
-              midX, baseY - arch,  // 眉峰抬起
-              endX, baseY - arch * 0.4
+              midX, baseY - arch * 0.8,   // 稍微抬起即可
+              endX, baseY - arch * 0.3
             );
 
-            // 底部轮廓：从眉尾返回眉头，厚度渐变
-            // 在上弧线基础上往下偏移（眉尾更细）
+            // 底部轮廓：从眉尾回到眉头，厚度前粗后细
             canvasCtx.quadraticCurveTo(
-              midX, baseY - arch * 0.2 + thickTail,
+              midX, baseY - arch * 0.15 + thickTail,
               startX, baseY + thickHead
             );
 
             canvasCtx.closePath();
 
-            // 做一个前浅后深的线性渐变
+            // 眉头浅、眉峰深、眉尾稍淡的渐变
             const grad = canvasCtx.createLinearGradient(startX, baseY, endX, baseY);
-            grad.addColorStop(0.0, setAlpha(baseColor, 0.25));  // 眉头淡
+            grad.addColorStop(0.0,  setAlpha(baseColor, 0.22)); // 眉头淡
             grad.addColorStop(0.35, setAlpha(baseColor, 0.6));
-            grad.addColorStop(0.7, setAlpha(baseColor, 0.9));   // 中后段最深
-            grad.addColorStop(1.0, setAlpha(baseColor, 0.5));   // 尾部稍淡
+            grad.addColorStop(0.7,  setAlpha(baseColor, 0.9));  // 中后段较深
+            grad.addColorStop(1.0,  setAlpha(baseColor, 0.45)); // 尾部收一点
 
             canvasCtx.fillStyle = grad;
             canvasCtx.fill();
@@ -690,8 +689,8 @@
             canvasCtx.restore();
           }
 
-          drawStylizedBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
-          drawStylizedBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
+          drawSimpleArcBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
+          drawSimpleArcBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
         }
 
         // --- 特效层（不再用 soft-light 混合，走正常 alpha） ---
