@@ -630,12 +630,12 @@
           drawBlushOval(right, 'right', currentMakeup.blush);
         }
 
-        // 眉毛：用 landmark 算出位置，画一条圆角长条，带由浅到深的渐变
+        // 眉毛：画成卡通弧线眉（前粗后细、上弯）
         if (currentMakeup.brows) {
-          function drawSmoothBrow(indices, baseColor) {
+          function drawStylizedBrow(indices, baseColor) {
             const pts = getLandmarkPoints(landmarks, indices, w, h, 1.0);
 
-            // 计算眉毛大致区域
+            // 取 landmark 的整体范围
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             pts.forEach(p => {
               if (p.x < minX) minX = p.x;
@@ -647,50 +647,51 @@
             const width  = maxX - minX;
             const height = maxY - minY;
 
-            const centerX = (minX + maxX) / 2;
-            const centerY = minY + height * 0.25;   // 稍微紧贴眼睛上缘
+            // 眉毛大概中心位置
+            const baseY   = minY + height * 0.1;         // 靠近原本眉骨
+            const startX  = minX - width * 0.05;         // 眉头稍微再往前一点
+            const endX    = maxX + width * 0.05;         // 眉尾稍微再长一点
+            const midX    = (startX + endX) / 2;
 
-            const browWidth  = width * 1.05;        // 稍微长一点
-            const browHeight = height * 0.7;        // 比现在更细一点
-
-            const radius = browHeight / 2;
+            // 弯曲程度和厚度
+            const arch    = height * 0.8;                // 眉峰高度
+            const thickHead = height * 0.7;              // 眉头粗
+            const thickTail = height * 0.3;              // 眉尾细
 
             canvasCtx.save();
 
-            // 创建从眉头到眉尾的线性渐变
-            const grad = canvasCtx.createLinearGradient(
-              centerX - browWidth / 2, centerY,
-              centerX + browWidth / 2, centerY
+            // 顶部轮廓：从眉头到眉尾的弧线
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(startX, baseY);
+            canvasCtx.quadraticCurveTo(
+              midX, baseY - arch,  // 眉峰抬起
+              endX, baseY - arch * 0.4
             );
-            grad.addColorStop(0.0, setAlpha(baseColor, 0.18)); // 眉头淡
-            grad.addColorStop(0.35, setAlpha(baseColor, 0.55));
-            grad.addColorStop(0.65, setAlpha(baseColor, 0.85)); // 中段最深
-            grad.addColorStop(1.0, setAlpha(baseColor, 0.4));  // 眉尾稍淡
+
+            // 底部轮廓：从眉尾返回眉头，厚度渐变
+            // 在上弧线基础上往下偏移（眉尾更细）
+            canvasCtx.quadraticCurveTo(
+              midX, baseY - arch * 0.2 + thickTail,
+              startX, baseY + thickHead
+            );
+
+            canvasCtx.closePath();
+
+            // 做一个前浅后深的线性渐变
+            const grad = canvasCtx.createLinearGradient(startX, baseY, endX, baseY);
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.25));  // 眉头淡
+            grad.addColorStop(0.35, setAlpha(baseColor, 0.6));
+            grad.addColorStop(0.7, setAlpha(baseColor, 0.9));   // 中后段最深
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.5));   // 尾部稍淡
 
             canvasCtx.fillStyle = grad;
-
-            const leftX  = centerX - browWidth / 2;
-            const rightX = centerX + browWidth / 2;
-            const topY   = centerY - browHeight / 2;
-            const botY   = centerY + browHeight / 2;
-
-            // 画一条"胶囊形"的圆角长条眉毛
-            canvasCtx.beginPath();
-            canvasCtx.moveTo(leftX + radius, topY);
-            canvasCtx.lineTo(rightX - radius, topY);
-            canvasCtx.quadraticCurveTo(rightX, topY, rightX, centerY);
-            canvasCtx.quadraticCurveTo(rightX, botY, rightX - radius, botY);
-            canvasCtx.lineTo(leftX + radius, botY);
-            canvasCtx.quadraticCurveTo(leftX, botY, leftX, centerY);
-            canvasCtx.quadraticCurveTo(leftX, topY, leftX + radius, topY);
-            canvasCtx.closePath();
             canvasCtx.fill();
 
             canvasCtx.restore();
           }
 
-          drawSmoothBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
-          drawSmoothBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
+          drawStylizedBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
+          drawStylizedBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
         }
 
         // --- 特效层（不再用 soft-light 混合，走正常 alpha） ---
