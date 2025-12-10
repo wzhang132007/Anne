@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seasonal Webcam Interaction Prototype</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+        }
+
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .season-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .season-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .season-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        #spring-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #5a3e2b;
+        }
+
+        #summer-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c5f77;
+        }
+
+        #autumn-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+        }
+
+        #winter-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+        }
+
+        #debug {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        #debug .label {
+            color: #888;
+        }
+
+        #debug .value {
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        #webcam-preview {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            transform: scaleX(-1);
+            z-index: 999;
+            display: none; /* Hidden by default, can be toggled */
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #333;
+            z-index: 2000;
+            text-align: center;
+        }
+
+        .hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #666;
+            z-index: 999;
+            text-align: center;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading message -->
+    <div id="loading">
+        <div>🎥 Initializing webcam and hand tracking...</div>
+        <div style="font-size: 14px; margin-top: 10px; color: #666;">Please allow camera access</div>
+    </div>
+
+    <!-- Season selection controls -->
+    <div id="controls">
+        <h3>🎨 Select Season (or press 1-4)</h3>
+        <button class="season-btn" id="spring-btn" onclick="switchSeason('spring')">🌸 Spring (1)</button>
+        <button class="season-btn" id="summer-btn" onclick="switchSeason('summer')">🌊 Summer (2)</button>
+        <button class="season-btn active" id="autumn-btn" onclick="switchSeason('autumn')">🍂 Autumn (3)</button>
+        <button class="season-btn" id="winter-btn" onclick="switchSeason('winter')">❄️ Winter (4)</button>
+    </div>
+
+    <!-- Debug panel -->
+    <div id="debug">
+        <div><span class="label">Season:</span> <span class="value" id="debug-season">-</span></div>
+        <div><span class="label">Hand X:</span> <span class="value" id="debug-x">-</span></div>
+        <div><span class="label">Hand Y:</span> <span class="value" id="debug-y">-</span></div>
+        <div><span class="label">Speed:</span> <span class="value" id="debug-speed">-</span></div>
+        <div><span class="label">Status:</span> <span class="value" id="debug-status">-</span></div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #333;">
+            <div id="debug-extra"></div>
+        </div>
+    </div>
+
+    <!-- Canvas container -->
+    <div id="canvas-container"></div>
+
+    <!-- Load p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+    <!-- Load MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <!-- Main sketch -->
+    <script src="sketch.js"></script>
+</body>
+</html>
