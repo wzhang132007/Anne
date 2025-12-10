@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diatom Image Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item-info {
+            padding: 20px;
+        }
+
+        .gallery-item-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .gallery-item-info p {
+            color: #666;
+            line-height: 1.6;
+            font-size: 0.95em;
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+
+        .upload-section h2 {
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .upload-btn {
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .upload-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #667eea;
+        }
+
+        .filter-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .filter-btn {
+                margin: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Diatom Image Gallery</h1>
+            <p>Explore the microscopic beauty of diatoms - nature's glass sculptures</p>
+        </header>
+
+        <div class="upload-section">
+            <h2>Add Your Diatom Images</h2>
+            <p style="color: white; margin-bottom: 15px;">Upload images to the 'images' folder and refresh the page</p>
+            <button class="upload-btn" onclick="alert('Place your diatom images in the images/ directory')">Learn More</button>
+        </div>
+
+        <div class="filter-section">
+            <button class="filter-btn active" onclick="filterGallery('all')">All</button>
+            <button class="filter-btn" onclick="filterGallery('pennate')">Pennate</button>
+            <button class="filter-btn" onclick="filterGallery('centric')">Centric</button>
+            <button class="filter-btn" onclick="filterGallery('other')">Other</button>
+        </div>
+
+        <div class="gallery" id="gallery">
+            <!-- Sample diatom images - replace with actual images -->
+            <div class="gallery-item" data-category="pennate">
+                <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=500" alt="Diatom Sample 1">
+                <div class="gallery-item-info">
+                    <h3>Pennate Diatom</h3>
+                    <p>A beautiful example of a pennate (bilateral) diatom showing intricate silica structure.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="centric">
+                <img src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500" alt="Diatom Sample 2">
+                <div class="gallery-item-info">
+                    <h3>Centric Diatom</h3>
+                    <p>Radially symmetric diatom with circular patterns resembling a mandala.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="pennate">
+                <img src="https://images.unsplash.com/photo-1564701148686-5d4b5c7d4c2c?w=500" alt="Diatom Sample 3">
+                <div class="gallery-item-info">
+                    <h3>Navicula Species</h3>
+                    <p>Boat-shaped pennate diatom with distinctive linear markings.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="centric">
+                <img src="https://images.unsplash.com/photo-1582719366055-4b689f5ffcdf?w=500" alt="Diatom Sample 4">
+                <div class="gallery-item-info">
+                    <h3>Circular Diatom</h3>
+                    <p>Perfect symmetry displayed in this circular centric diatom structure.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="other">
+                <img src="https://images.unsplash.com/photo-1564701148705-50c0c4c47b7f?w=500" alt="Diatom Sample 5">
+                <div class="gallery-item-info">
+                    <h3>Colonial Diatom</h3>
+                    <p>Multiple diatoms forming a chain-like colonial structure.</p>
+                </div>
+            </div>
+
+            <div class="gallery-item" data-category="pennate">
+                <img src="https://images.unsplash.com/photo-1579168724170-0c070a56a4f7?w=500" alt="Diatom Sample 6">
+                <div class="gallery-item-info">
+                    <h3>Elongated Diatom</h3>
+                    <p>Highly elongated pennate diatom with fine transverse striations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for enlarged images -->
+    <div id="imageModal" class="modal">
+        <span class="close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="Enlarged diatom image">
+        </div>
+    </div>
+
+    <script>
+        // Modal functionality
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        // Add click event to all gallery images
+        document.querySelectorAll('.gallery-item img').forEach(img => {
+            img.addEventListener('click', function() {
+                modal.style.display = 'block';
+                modalImg.src = this.src;
+            });
+        });
+
+        // Close modal
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside image
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Filter gallery
+        function filterGallery(category) {
+            const items = document.querySelectorAll('.gallery-item');
+            const buttons = document.querySelectorAll('.filter-btn');
+
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter items
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = 'block';
+                    setTimeout(() => {
+                        item.style.opacity = '1';
+                        item.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    item.style.opacity = '0';
+                    item.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        item.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
+
+        // Add smooth transitions
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.style.transition = 'all 0.3s ease';
+        });
+    </script>
+</body>
+</html>

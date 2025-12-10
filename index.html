@@ -3,357 +3,191 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Diatom Image Gallery</title>
+    <title>Seasonal Webcam Interaction Prototype</title>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            color: white;
-            padding: 40px 20px;
-            margin-bottom: 40px;
-        }
-
-        header h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            padding: 20px;
-        }
-
-        .gallery-item {
-            background: white;
-            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
         }
 
-        .gallery-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .gallery-item img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .gallery-item-info {
-            padding: 20px;
-        }
-
-        .gallery-item-info h3 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 1.3em;
-        }
-
-        .gallery-item-info p {
-            color: #666;
-            line-height: 1.6;
-            font-size: 0.95em;
-        }
-
-        .upload-section {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
-            text-align: center;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-        }
-
-        .upload-section h2 {
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        .upload-btn {
-            background: white;
-            color: #667eea;
-            padding: 12px 30px;
-            border: none;
-            border-radius: 25px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-        }
-
-        .upload-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.05);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            position: relative;
-            margin: auto;
-            padding: 20px;
-            max-width: 90%;
-            max-height: 90%;
+        #canvas-container {
             display: flex;
-            align-items: center;
             justify-content: center;
-            height: 100%;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
         }
 
-        .modal-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 0 50px rgba(255, 255, 255, 0.2);
-        }
-
-        .close {
-            position: absolute;
+        #controls {
+            position: fixed;
             top: 20px;
-            right: 40px;
-            color: white;
-            font-size: 40px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .season-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
             font-weight: bold;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            z-index: 1001;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        .close:hover {
-            color: #667eea;
+        .season-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
-        .filter-section {
+        .season-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        #spring-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #5a3e2b;
+        }
+
+        #summer-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c5f77;
+        }
+
+        #autumn-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+        }
+
+        #winter-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+        }
+
+        #debug {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        #debug .label {
+            color: #888;
+        }
+
+        #debug .value {
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        #webcam-preview {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            transform: scaleX(-1);
+            z-index: 999;
+            display: none; /* Hidden by default, can be toggled */
+        }
+
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 50px;
+            border-radius: 10px;
+            font-size: 18px;
+            color: #333;
+            z-index: 2000;
             text-align: center;
-            margin-bottom: 30px;
         }
 
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid white;
-            padding: 10px 20px;
-            margin: 0 10px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1em;
-        }
-
-        .filter-btn:hover,
-        .filter-btn.active {
-            background: white;
-            color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 2em;
-            }
-
-            .gallery {
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
-
-            .filter-btn {
-                margin: 5px;
-            }
+        .hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #666;
+            z-index: 999;
+            text-align: center;
+            max-width: 400px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Diatom Image Gallery</h1>
-            <p>Explore the microscopic beauty of diatoms - nature's glass sculptures</p>
-        </header>
+    <!-- Loading message -->
+    <div id="loading">
+        <div>🎥 Initializing webcam and hand tracking...</div>
+        <div style="font-size: 14px; margin-top: 10px; color: #666;">Please allow camera access</div>
+    </div>
 
-        <div class="upload-section">
-            <h2>Add Your Diatom Images</h2>
-            <p style="color: white; margin-bottom: 15px;">Upload images to the 'images' folder and refresh the page</p>
-            <button class="upload-btn" onclick="alert('Place your diatom images in the images/ directory')">Learn More</button>
-        </div>
+    <!-- Season selection controls -->
+    <div id="controls">
+        <h3>🎨 Select Season (or press 1-4)</h3>
+        <button class="season-btn" id="spring-btn" onclick="switchSeason('spring')">🌸 Spring (1)</button>
+        <button class="season-btn" id="summer-btn" onclick="switchSeason('summer')">🌊 Summer (2)</button>
+        <button class="season-btn active" id="autumn-btn" onclick="switchSeason('autumn')">🍂 Autumn (3)</button>
+        <button class="season-btn" id="winter-btn" onclick="switchSeason('winter')">❄️ Winter (4)</button>
+    </div>
 
-        <div class="filter-section">
-            <button class="filter-btn active" onclick="filterGallery('all')">All</button>
-            <button class="filter-btn" onclick="filterGallery('pennate')">Pennate</button>
-            <button class="filter-btn" onclick="filterGallery('centric')">Centric</button>
-            <button class="filter-btn" onclick="filterGallery('other')">Other</button>
-        </div>
-
-        <div class="gallery" id="gallery">
-            <!-- Sample diatom images - replace with actual images -->
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=500" alt="Diatom Sample 1">
-                <div class="gallery-item-info">
-                    <h3>Pennate Diatom</h3>
-                    <p>A beautiful example of a pennate (bilateral) diatom showing intricate silica structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=500" alt="Diatom Sample 2">
-                <div class="gallery-item-info">
-                    <h3>Centric Diatom</h3>
-                    <p>Radially symmetric diatom with circular patterns resembling a mandala.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1564701148686-5d4b5c7d4c2c?w=500" alt="Diatom Sample 3">
-                <div class="gallery-item-info">
-                    <h3>Navicula Species</h3>
-                    <p>Boat-shaped pennate diatom with distinctive linear markings.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="centric">
-                <img src="https://images.unsplash.com/photo-1582719366055-4b689f5ffcdf?w=500" alt="Diatom Sample 4">
-                <div class="gallery-item-info">
-                    <h3>Circular Diatom</h3>
-                    <p>Perfect symmetry displayed in this circular centric diatom structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="other">
-                <img src="https://images.unsplash.com/photo-1564701148705-50c0c4c47b7f?w=500" alt="Diatom Sample 5">
-                <div class="gallery-item-info">
-                    <h3>Colonial Diatom</h3>
-                    <p>Multiple diatoms forming a chain-like colonial structure.</p>
-                </div>
-            </div>
-
-            <div class="gallery-item" data-category="pennate">
-                <img src="https://images.unsplash.com/photo-1579168724170-0c070a56a4f7?w=500" alt="Diatom Sample 6">
-                <div class="gallery-item-info">
-                    <h3>Elongated Diatom</h3>
-                    <p>Highly elongated pennate diatom with fine transverse striations.</p>
-                </div>
-            </div>
+    <!-- Debug panel -->
+    <div id="debug">
+        <div><span class="label">Season:</span> <span class="value" id="debug-season">-</span></div>
+        <div><span class="label">Hand X:</span> <span class="value" id="debug-x">-</span></div>
+        <div><span class="label">Hand Y:</span> <span class="value" id="debug-y">-</span></div>
+        <div><span class="label">Speed:</span> <span class="value" id="debug-speed">-</span></div>
+        <div><span class="label">Status:</span> <span class="value" id="debug-status">-</span></div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #333;">
+            <div id="debug-extra"></div>
         </div>
     </div>
 
-    <!-- Modal for enlarged images -->
-    <div id="imageModal" class="modal">
-        <span class="close">&times;</span>
-        <div class="modal-content">
-            <img id="modalImage" src="" alt="Enlarged diatom image">
-        </div>
-    </div>
+    <!-- Canvas container -->
+    <div id="canvas-container"></div>
 
-    <script>
-        // Modal functionality
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        const closeBtn = document.getElementsByClassName('close')[0];
+    <!-- Load p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 
-        // Add click event to all gallery images
-        document.querySelectorAll('.gallery-item img').forEach(img => {
-            img.addEventListener('click', function() {
-                modal.style.display = 'block';
-                modalImg.src = this.src;
-            });
-        });
+    <!-- Load MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 
-        // Close modal
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
-        }
-
-        // Close modal when clicking outside image
-        modal.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Close modal with Escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                modal.style.display = 'none';
-            }
-        });
-
-        // Filter gallery
-        function filterGallery(category) {
-            const items = document.querySelectorAll('.gallery-item');
-            const buttons = document.querySelectorAll('.filter-btn');
-
-            // Update active button
-            buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            // Filter items
-            items.forEach(item => {
-                if (category === 'all' || item.dataset.category === category) {
-                    item.style.display = 'block';
-                    setTimeout(() => {
-                        item.style.opacity = '1';
-                        item.style.transform = 'scale(1)';
-                    }, 10);
-                } else {
-                    item.style.opacity = '0';
-                    item.style.transform = 'scale(0.8)';
-                    setTimeout(() => {
-                        item.style.display = 'none';
-                    }, 300);
-                }
-            });
-        }
-
-        // Add smooth transitions
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.style.transition = 'all 0.3s ease';
-        });
-    </script>
+    <!-- Main sketch -->
+    <script src="sketch.js"></script>
 </body>
 </html>
