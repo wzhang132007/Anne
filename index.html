@@ -630,12 +630,12 @@
           drawBlushOval(right, 'right', currentMakeup.blush);
         }
 
-        // 眉毛：细一点的弧线眉
+        // 眉毛：左右对称，眉尾往外延伸到太阳穴方向
         if (currentMakeup.brows) {
-          function drawSimpleArcBrow(indices, baseColor) {
-            const pts = getLandmarkPoints(landmarks, indices, w, h, 1.0);
+          const leftPts  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 1.0);
+          const rightPts = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 1.0);
 
-            // 用 landmark 定位眉头和眉尾
+          function getBox(pts) {
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             pts.forEach(p => {
               if (p.x < minX) minX = p.x;
@@ -643,45 +643,71 @@
               if (p.y < minY) minY = p.y;
               if (p.y > maxY) maxY = p.y;
             });
+            return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
+          }
 
-            const width  = maxX - minX;
-            const height = maxY - minY;
+          const boxL = getBox(leftPts);
+          const boxR = getBox(rightPts);
 
-            // 基准线：紧贴原来的眉骨
-            const baseY  = minY + height * 0.25;
-            const startX = minX;              // 不再额外加长
-            const endX   = maxX;
-            const midX   = (startX + endX) / 2;
+          // 统一模板宽高（保证两边形状一致）
+          const browWidthTemplate  = Math.min(boxL.width, boxR.width) * 1.1;
+          const browHeightTemplate = (boxL.height + boxR.height) / 2;
 
-            // 弧度和粗细都比之前小很多
-            const arch       = height * 0.6;  // 弯一点点就好
-            const thickHead  = height * 0.4;  // 眉头厚一点
-            const thickTail  = height * 0.18; // 眉尾更细
+          // 统一基准高度（两边一样高）
+          const baseYL = boxL.minY + boxL.height * 0.25;
+          const baseYR = boxR.minY + boxR.height * 0.25;
+          const commonBaseY = (baseYL + baseYR) / 2;
+
+          const arch      = browHeightTemplate * 0.6;  // 弧度
+          const thickHead = browHeightTemplate * 0.35; // 眉头厚
+          const thickTail = browHeightTemplate * 0.15; // 眉尾细
+
+          function drawOneBrow(box, baseColor, side) {
+            // side: 'left' / 'right'
+            const centerX = (box.minX + box.maxX) / 2;
+            const baseY   = commonBaseY;
+
+            const wTemp = browWidthTemplate;
+            const hTemp = browHeightTemplate;
+
+            let headX, tailX;
+            if (side === 'left') {
+              // 左眉：眉头靠内侧，眉尾向左"甩"出去
+              headX = centerX + wTemp * 0.15;
+              tailX = centerX - wTemp * 0.85;
+            } else {
+              // 右眉：眉头靠内侧，眉尾向右"甩"出去
+              headX = centerX - wTemp * 0.15;
+              tailX = centerX + wTemp * 0.85;
+            }
+
+            const midX = (headX + tailX) / 2;
+
+            const localArch      = arch;
+            const localThickHead = thickHead;
+            const localThickTail = thickTail;
 
             canvasCtx.save();
 
             canvasCtx.beginPath();
-            // 顶部轮廓：眉头 → 眉尾的上弧线
-            canvasCtx.moveTo(startX, baseY);
+            // 上边缘：眉头 → 眉尾 弧线
+            canvasCtx.moveTo(headX, baseY);
             canvasCtx.quadraticCurveTo(
-              midX, baseY - arch * 0.8,   // 稍微抬起即可
-              endX, baseY - arch * 0.3
+              midX, baseY - localArch * 0.9,
+              tailX, baseY - localArch * 0.35
             );
-
-            // 底部轮廓：从眉尾回到眉头，厚度前粗后细
+            // 下边缘：从眉尾回到眉头，前粗后细
             canvasCtx.quadraticCurveTo(
-              midX, baseY - arch * 0.15 + thickTail,
-              startX, baseY + thickHead
+              midX, baseY - localArch * 0.1 + localThickTail,
+              headX, baseY + localThickHead
             );
-
             canvasCtx.closePath();
 
-            // 眉头浅、眉峰深、眉尾稍淡的渐变
-            const grad = canvasCtx.createLinearGradient(startX, baseY, endX, baseY);
-            grad.addColorStop(0.0,  setAlpha(baseColor, 0.22)); // 眉头淡
+            const grad = canvasCtx.createLinearGradient(headX, baseY, tailX, baseY);
+            grad.addColorStop(0.0,  setAlpha(baseColor, 0.25)); // 眉头淡
             grad.addColorStop(0.35, setAlpha(baseColor, 0.6));
-            grad.addColorStop(0.7,  setAlpha(baseColor, 0.9));  // 中后段较深
-            grad.addColorStop(1.0,  setAlpha(baseColor, 0.45)); // 尾部收一点
+            grad.addColorStop(0.7,  setAlpha(baseColor, 0.9));  // 中后段最深
+            grad.addColorStop(1.0,  setAlpha(baseColor, 0.45)); // 眉尾淡一点
 
             canvasCtx.fillStyle = grad;
             canvasCtx.fill();
@@ -689,8 +715,8 @@
             canvasCtx.restore();
           }
 
-          drawSimpleArcBrow(FACE_LANDMARKS.leftBrow,  currentMakeup.brows);
-          drawSimpleArcBrow(FACE_LANDMARKS.rightBrow, currentMakeup.brows);
+          drawOneBrow(boxL, currentMakeup.brows, 'left');
+          drawOneBrow(boxR, currentMakeup.brows, 'right');
         }
 
         // --- 特效层（不再用 soft-light 混合，走正常 alpha） ---
