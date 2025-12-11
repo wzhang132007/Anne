@@ -93,19 +93,34 @@ function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('canvas-container');
 
-    // Initialize webcam
-    videoElement = createCapture(VIDEO, videoReady);
+    // Initialize webcam with constraints
+    const constraints = {
+        video: {
+            width: 640,
+            height: 480
+        },
+        audio: false
+    };
+
+    videoElement = createCapture(constraints, videoReady);
     videoElement.size(640, 480);
     videoElement.hide(); // Hide the default video element
 
-    // Initialize MediaPipe Hands
-    initializeHandTracking();
+    // Add error handling
+    videoElement.elt.addEventListener('loadedmetadata', function() {
+        console.log('Camera loaded successfully');
+        cameraReady = true;
+        initializeHandTracking();
+    });
 
     // Initialize seasonal elements
     initializeSeasonalElements();
 
     // Set initial active button
     updateActiveButton();
+
+    // Show helpful message
+    console.log('请允许摄像头访问权限');
 }
 
 // ============================================
@@ -113,29 +128,44 @@ function setup() {
 // ============================================
 
 function videoReady() {
-    console.log('Video ready');
-    cameraReady = true;
+    console.log('Video ready callback triggered');
 }
 
 function initializeHandTracking() {
-    // Initialize MediaPipe Hands
-    hands = new Hands({
-        locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+    try {
+        console.log('Initializing MediaPipe Hands...');
+
+        // Initialize MediaPipe Hands
+        hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults(onHandResults);
+
+        modelLoaded = true;
+        console.log('✓ 手部追踪已初始化');
+
+        // Update loading message
+        const loadingDiv = document.getElementById('loading');
+        if (loadingDiv) {
+            loadingDiv.innerHTML = '<div>✓ 摄像头已就绪</div><div style="font-size: 14px; margin-top: 10px; color: #666;">挥动你的手开始互动！</div>';
         }
-    });
-
-    hands.setOptions({
-        maxNumHands: 1,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5
-    });
-
-    hands.onResults(onHandResults);
-
-    modelLoaded = true;
-    console.log('Hand tracking initialized');
+    } catch (error) {
+        console.error('Error initializing hand tracking:', error);
+        const loadingDiv = document.getElementById('loading');
+        if (loadingDiv) {
+            loadingDiv.innerHTML = '<div>❌ 初始化失败</div><div style="font-size: 14px; margin-top: 10px; color: #666;">请刷新页面重试</div>';
+        }
+    }
 }
 
 // ============================================

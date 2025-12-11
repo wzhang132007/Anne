@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>季节互动原型 - 鼠标版本</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+        }
+
+        #canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .season-btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .season-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .season-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+        }
+
+        #spring-btn {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #5a3e2b;
+        }
+
+        #summer-btn {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2c5f77;
+        }
+
+        #autumn-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #fff;
+        }
+
+        #winter-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+        }
+
+        #debug {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        #debug .label {
+            color: #888;
+        }
+
+        #debug .value {
+            color: #0f0;
+            font-weight: bold;
+        }
+
+        .info-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 200, 0, 0.95);
+            color: #333;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Info banner -->
+    <div class="info-banner">
+        🖱️ 鼠标测试版本 - 移动鼠标代替手部追踪 | Mouse Test Version
+    </div>
+
+    <!-- Season selection controls -->
+    <div id="controls" style="top: 60px;">
+        <h3>🎨 选择季节 (按键 1-4)</h3>
+        <button class="season-btn" id="spring-btn" onclick="switchSeason('spring')">🌸 春天 (1)</button>
+        <button class="season-btn" id="summer-btn" onclick="switchSeason('summer')">🌊 夏天 (2)</button>
+        <button class="season-btn active" id="autumn-btn" onclick="switchSeason('autumn')">🍂 秋天 (3)</button>
+        <button class="season-btn" id="winter-btn" onclick="switchSeason('winter')">❄️ 冬天 (4)</button>
+    </div>
+
+    <!-- Debug panel -->
+    <div id="debug">
+        <div><span class="label">季节:</span> <span class="value" id="debug-season">-</span></div>
+        <div><span class="label">鼠标 X:</span> <span class="value" id="debug-x">-</span></div>
+        <div><span class="label">鼠标 Y:</span> <span class="value" id="debug-y">-</span></div>
+        <div><span class="label">速度:</span> <span class="value" id="debug-speed">-</span></div>
+        <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #333;">
+            <div id="debug-extra"></div>
+        </div>
+    </div>
+
+    <!-- Canvas container -->
+    <div id="canvas-container"></div>
+
+    <!-- Load p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+
+    <!-- Main sketch (mouse version) -->
+    <script src="sketch-mouse.js"></script>
+</body>
+</html>
