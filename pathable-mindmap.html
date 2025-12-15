@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PathAble User Flow Mind Map</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            padding: 40px;
+            overflow-x: auto;
+        }
+
+        .container {
+            min-width: 1800px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .mindmap {
+            position: relative;
+            width: 1800px;
+            height: 2400px;
+        }
+
+        .node {
+            position: absolute;
+            background: #67D89D;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(103, 216, 157, 0.3);
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 280px;
+            transition: all 0.3s ease;
+        }
+
+        .node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(103, 216, 157, 0.4);
+        }
+
+        .node.central {
+            background: white;
+            border: 4px solid #67D89D;
+            color: #67D89D;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 30px 40px;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .node.flow-title {
+            background: #67D89D;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(103, 216, 157, 0.4);
+        }
+
+        .node.step {
+            background: rgba(103, 216, 157, 0.85);
+            font-size: 12px;
+        }
+
+        .node-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .node-content {
+            font-size: 11px;
+            opacity: 0.95;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .line {
+            stroke: #67D89D;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.4;
+        }
+
+        .flow-line {
+            stroke: #67D89D;
+            stroke-width: 3;
+            fill: none;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mindmap">
+            <svg>
+                <!-- Central to Flow Titles -->
+                <path class="flow-line" d="M 900 200 Q 900 300 700 400" />
+                <path class="flow-line" d="M 900 200 Q 900 300 1100 400" />
+                <path class="flow-line" d="M 900 200 Q 900 500 500 700" />
+                <path class="flow-line" d="M 900 200 Q 900 500 900 700" />
+                <path class="flow-line" d="M 900 200 Q 900 500 1300 700" />
+                <path class="flow-line" d="M 900 200 Q 900 900 600 1100" />
+                <path class="flow-line" d="M 900 200 Q 900 900 1200 1100" />
+                <path class="flow-line" d="M 900 200 Q 900 1200 900 1400" />
+
+                <!-- Flow 1 connections -->
+                <path class="line" d="M 700 480 L 700 570" />
+                <path class="line" d="M 700 640 L 700 730" />
+                <path class="line" d="M 700 800 L 700 890" />
+                <path class="line" d="M 700 960 L 700 1050" />
+
+                <!-- Flow 2 connections -->
+                <path class="line" d="M 1100 480 L 1100 570" />
+                <path class="line" d="M 1100 640 L 1100 730" />
+                <path class="line" d="M 1100 800 L 1100 890" />
+                <path class="line" d="M 1100 960 L 1100 1050" />
+
+                <!-- Flow 3 connections -->
+                <path class="line" d="M 500 780 L 500 870" />
+                <path class="line" d="M 500 940 L 500 1030" />
+                <path class="line" d="M 500 1100 L 500 1190" />
+
+                <!-- Flow 4 connections -->
+                <path class="line" d="M 900 780 L 900 870" />
+                <path class="line" d="M 900 940 L 900 1030" />
+                <path class="line" d="M 900 1100 L 900 1190" />
+
+                <!-- Flow 5 connections -->
+                <path class="line" d="M 1300 780 L 1300 870" />
+                <path class="line" d="M 1300 940 L 1300 1030" />
+                <path class="line" d="M 1300 1100 L 1300 1190" />
+
+                <!-- Flow 6 connections -->
+                <path class="line" d="M 600 1180 L 600 1270" />
+                <path class="line" d="M 600 1340 L 600 1430" />
+                <path class="line" d="M 600 1500 L 600 1590" />
+
+                <!-- Flow 7 connections -->
+                <path class="line" d="M 1200 1180 L 1200 1270" />
+                <path class="line" d="M 1200 1340 L 1200 1430" />
+
+                <!-- Flow 8 connections -->
+                <path class="line" d="M 900 1480 L 900 1570" />
+                <path class="line" d="M 900 1640 L 900 1730" />
+            </svg>
+
+            <!-- Central Node -->
+            <div class="node central" style="top: 100px; left: 730px;">
+                PathAble<br>
+                <span style="font-size: 14px; font-weight: normal;">Accessibility-First Navigation</span>
+            </div>
+
+            <!-- Flow 1: Onboarding -->
+            <div class="node flow-title" style="top: 400px; left: 560px;">
+                Flow 1: First-Time Onboarding
+            </div>
+            <div class="node step" style="top: 570px; left: 540px;">
+                <div class="node-title">Step 1: App Launch</div>
+                <div class="node-content">
+                    • Clear accessibility value statement<br>
+                    • "Safe, step-free navigation for confident travel"<br>
+                    • Establish trust immediately
+                </div>
+            </div>
+            <div class="node step" style="top: 730px; left: 540px;">
+                <div class="node-title">Step 2: Account Creation</div>
+                <div class="node-content">
+                    • Minimal input required<br>
+                    • Low friction setup<br>
+                    • Quick access to value
+                </div>
+            </div>
+            <div class="node step" style="top: 890px; left: 540px;">
+                <div class="node-title">Step 3: Mobility Profile</div>
+                <div class="node-content">
+                    • Select mobility needs (wheelchair, slow walking, etc.)<br>
+                    • Choose sensory preferences<br>
+                    • Set default routing constraints<br>
+                    • "I don't want to explain every time"
+                </div>
+            </div>
+            <div class="node step" style="top: 1050px; left: 540px;">
+                <div class="node-title">Step 4: Confirmation</div>
+                <div class="node-content">
+                    • Review preferences<br>
+                    • Understand routing impact<br>
+                    • "Routes may be longer but safer"
+                </div>
+            </div>
+
+            <!-- Flow 2: Navigation -->
+            <div class="node flow-title" style="top: 400px; left: 960px;">
+                Flow 2: Start Navigation
+            </div>
+            <div class="node step" style="top: 570px; left: 940px;">
+                <div class="node-title">Step 1: Destination Search</div>
+                <div class="node-content">
+                    • Enter destination<br>
+                    • Recent locations<br>
+                    • Promise: "Safest route based on your needs"
+                </div>
+            </div>
+            <div class="node step" style="top: 730px; left: 940px;">
+                <div class="node-title">Step 2: Route Preview</div>
+                <div class="node-content">
+                    • Step-free route by default<br>
+                    • Safety score, incline, crossing difficulty<br>
+                    • View alternatives & accessibility layers
+                </div>
+            </div>
+            <div class="node step" style="top: 890px; left: 940px;">
+                <div class="node-title">Step 3: Route Selection</div>
+                <div class="node-content">
+                    • Confirm route<br>
+                    • Lock accessibility constraints<br>
+                    • Predictability over speed
+                </div>
+            </div>
+            <div class="node step" style="top: 1050px; left: 940px;">
+                <div class="node-title">Step 4: Turn-by-Turn</div>
+                <div class="node-content">
+                    • Clear visual instructions<br>
+                    • Voice + haptic cues<br>
+                    • Monitor hazards & conditions
+                </div>
+            </div>
+
+            <!-- Flow 3: Obstacle Handling -->
+            <div class="node flow-title" style="top: 700px; left: 330px;">
+                Flow 3: En Route & Obstacles
+            </div>
+            <div class="node step" style="top: 870px; left: 310px;">
+                <div class="node-title">Step 1: Real-Time Monitor</div>
+                <div class="node-content">
+                    • Detect community-reported obstacles<br>
+                    • Construction, broken sidewalks<br>
+                    • Blocked ramps
+                </div>
+            </div>
+            <div class="node step" style="top: 1030px; left: 310px;">
+                <div class="node-title">Step 2: Alert & Reroute</div>
+                <div class="node-content">
+                    • "Obstacle ahead — rerouting"<br>
+                    • Auto-reroute around inaccessible segments<br>
+                    • No physical backtracking needed
+                </div>
+            </div>
+            <div class="node step" style="top: 1190px; left: 310px;">
+                <div class="node-title">Step 3: User Confirmation</div>
+                <div class="node-content">
+                    • Accept reroute<br>
+                    • View reroute reason
+                </div>
+            </div>
+
+            <!-- Flow 4: Crossing -->
+            <div class="node flow-title" style="top: 700px; left: 760px;">
+                Flow 4: Crossing Assistance
+            </div>
+            <div class="node step" style="top: 870px; left: 740px;">
+                <div class="node-title">Step 1: Approaching</div>
+                <div class="node-content">
+                    • Detect upcoming crossing<br>
+                    • Countdown timer<br>
+                    • "Safe to Cross" / "Please Wait"
+                </div>
+            </div>
+            <div class="node step" style="top: 1030px; left: 740px;">
+                <div class="node-title">Step 2: Multimodal Guidance</div>
+                <div class="node-content">
+                    • Visual: large countdown<br>
+                    • Audio: verbal cues<br>
+                    • Haptic: vibration alerts
+                </div>
+            </div>
+            <div class="node step" style="top: 1190px; left: 740px;">
+                <div class="node-title">Step 3: Completion</div>
+                <div class="node-content">
+                    • "Crossing completed safely"<br>
+                    • Reduce stress at high-risk moments
+                </div>
+            </div>
+
+            <!-- Flow 5: Arrival -->
+            <div class="node flow-title" style="top: 700px; left: 1160px;">
+                Flow 5: Arrival & Summary
+            </div>
+            <div class="node step" style="top: 870px; left: 1140px;">
+                <div class="node-title">Step 1: Arrival</div>
+                <div class="node-content">
+                    • Reach destination<br>
+                    • Confirm arrival
+                </div>
+            </div>
+            <div class="node step" style="top: 1030px; left: 1140px;">
+                <div class="node-title">Step 2: Journey Summary</div>
+                <div class="node-content">
+                    • Distance, time<br>
+                    • Safety score<br>
+                    • Incline & crossing difficulty
+                </div>
+            </div>
+            <div class="node step" style="top: 1190px; left: 1140px;">
+                <div class="node-title">Step 3: Reflection</div>
+                <div class="node-content">
+                    • "How was your journey?"<br>
+                    • Simple feedback: 👍 😐 👎
+                </div>
+            </div>
+
+            <!-- Flow 6: Hazard Reporting -->
+            <div class="node flow-title" style="top: 1100px; left: 430px;">
+                Flow 6: Hazard Reporting
+            </div>
+            <div class="node step" style="top: 1270px; left: 410px;">
+                <div class="node-title">Step 1: Report Trigger</div>
+                <div class="node-content">
+                    • Tap "Report Hazard"<br>
+                    • Report: stairs, blocked sidewalk, broken curb, unsafe crossing
+                </div>
+            </div>
+            <div class="node step" style="top: 1430px; left: 410px;">
+                <div class="node-title">Step 2: Location & Detail</div>
+                <div class="node-content">
+                    • Auto-detect location<br>
+                    • Select hazard type<br>
+                    • Optional photo upload
+                </div>
+            </div>
+            <div class="node step" style="top: 1590px; left: 410px;">
+                <div class="node-title">Step 3: Submission</div>
+                <div class="node-content">
+                    • Status: "Pending"<br>
+                    • Verified after multiple reports<br>
+                    • Maintain trust & accuracy
+                </div>
+            </div>
+
+            <!-- Flow 7: Community Map -->
+            <div class="node flow-title" style="top: 1100px; left: 1030px;">
+                Flow 7: Community Map
+            </div>
+            <div class="node step" style="top: 1270px; left: 1010px;">
+                <div class="node-title">Step 1: Open Map</div>
+                <div class="node-content">
+                    • View nearby reports<br>
+                    • Filter by: hazard type, time, accessibility relevance
+                </div>
+            </div>
+            <div class="node step" style="top: 1430px; left: 1010px;">
+                <div class="node-title">Step 2: Impact Feedback</div>
+                <div class="node-content">
+                    • See contribution impact<br>
+                    • "Your report helped 12 people avoid this route"
+                </div>
+            </div>
+
+            <!-- Flow 8: History -->
+            <div class="node flow-title" style="top: 1400px; left: 730px;">
+                Flow 8: Journey History
+            </div>
+            <div class="node step" style="top: 1570px; left: 710px;">
+                <div class="node-title">Step 1: View History</div>
+                <div class="node-content">
+                    • View past trips<br>
+                    • Safety score, difficulty, notes
+                </div>
+            </div>
+            <div class="node step" style="top: 1730px; left: 710px;">
+                <div class="node-title">Step 2: Personalization</div>
+                <div class="node-content">
+                    • Update mobility needs<br>
+                    • System adapts future routing
+                </div>
+            </div>
+
+            <!-- End State -->
+            <div class="node" style="top: 2000px; left: 660px; background: white; border: 3px solid #67D89D; color: #67D89D; font-weight: bold; text-align: center;">
+                <div style="font-size: 16px; margin-bottom: 10px;">End State</div>
+                <div style="font-size: 13px; font-weight: normal;">
+                    User feels: Safer • More Confident • Independent<br>
+                    <br>
+                    <span style="font-size: 12px;">Uncertainty → Predictability → Independence</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
