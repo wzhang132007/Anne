@@ -496,11 +496,11 @@
       border-radius: 999px;
     }
 
-    /* ✅ Bottom panel layout fix - 确保 effects 按钮可点击 */
+    /* ✅ Bottom panel layout fix - 确保 effects 按钮可点击，不与右侧工具栏重叠 */
     .shade-tray {
       position: absolute;
       left: 4.5%;
-      right: 4.5%;
+      right: calc(4.5% + 340px);
       bottom: 4.5%;
       height: 22%;
       border-radius: 22px;
