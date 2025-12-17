@@ -438,18 +438,6 @@
       flex-shrink: 0;
     }
 
-    .shade-chip {
-      padding: 10px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(15,23,42,.60);
-      color: rgba(255,255,255,.86);
-      font-size: 12px;
-      transition: .15s ease;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
     .shade-chip:hover {
       border-color: rgba(255,255,255,.22);
       transform: translateY(-1px);
@@ -460,18 +448,37 @@
       box-shadow: 0 0 0 4px rgba(167,139,250,.12);
     }
 
-    /* Effect chips 特殊样式 */
+    /* ✅ Effect chips 特殊样式 - 产品级布局 */
     .effect-chip {
       display: flex;
       align-items: center;
-      justify-content: center;
+      gap: 8px;
       padding: 10px 16px;
-      min-width: 140px;
+      border-radius: 999px;
+      background: rgba(120, 160, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(120,160,255,0.35);
+      color: rgba(255,255,255,.90);
+      font-size: 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: .15s ease;
+      pointer-events: auto;
+      position: relative;
+      z-index: 101;
+    }
+
+    .effect-chip:hover {
+      border-color: rgba(120,180,255,.45);
+      background: rgba(120, 160, 255, 0.20);
+      transform: translateY(-1px);
     }
 
     .effect-chip.active {
       border-color: rgba(120,180,255,.65);
-      background: rgba(120,180,255,.12);
+      background: rgba(120,180,255,.25);
       box-shadow: 0 0 0 4px rgba(120,180,255,.15);
     }
 
@@ -511,17 +518,27 @@
     .shade-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
       flex: 1;
-      overflow-x: auto;
-      overflow-y: hidden;
+      max-width: 100%;
       align-items: center;
       pointer-events: auto;
+      position: relative;
+      z-index: 2;
     }
 
     /* ✅ 确保所有按钮都能点击 */
-    .shade-chip,
-    .effect-chip {
+    .shade-chip {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,42,.60);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      transition: .15s ease;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
       pointer-events: auto;
       position: relative;
       z-index: 101;
