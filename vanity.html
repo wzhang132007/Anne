@@ -153,122 +153,101 @@
       color: #f9fafb;
     }
 
-    /* ===== 桌面上的"单品" ===== */
-    .vanity-items {
+    /* ===== BEAUTY TOOLBAR ===== */
+    .beauty-toolbar {
       position: absolute;
       right: 4.5%;
       top: 9%;
-      width: 30%;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 320px;
     }
 
-    .vanity-item {
+    .beauty-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
-      border-radius: 18px;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 22px;
       border: 1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
-      box-shadow: 0 18px 60px rgba(0,0,0,.25);
-      color: rgba(255,255,255,.90);
-      transition: .18s ease;
-      text-align: left;
+      background: rgba(255,255,255,.04);
+      box-shadow:
+        0 20px 60px rgba(0,0,0,.35),
+        inset 0 1px 0 rgba(255,255,255,.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       cursor: pointer;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
     }
 
-    .vanity-item:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255,255,255,.22);
-    }
-
-    .vanity-item .txt .name {
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: .02em;
-    }
-
-    .vanity-item .txt .sub {
-      font-size: 12px;
-      color: rgba(255,255,255,.55);
-      margin-top: 2px;
-    }
-
-    /* 单品 icon：用"材质色"画出来 */
-    .icon {
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      position: relative;
-      overflow: hidden;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06));
-    }
-
-    .icon::after {
-      content: "";
-      position: absolute;
-      inset: -40% -20%;
-      background: linear-gradient(115deg, rgba(255,255,255,0), rgba(255,255,255,.22), rgba(255,255,255,0));
-      transform: rotate(12deg);
-      opacity: .6;
-    }
-
-    .icon.lipstick {
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-                  linear-gradient(90deg, rgba(244,63,94,.75), rgba(251,113,133,.25));
-    }
-
-    .icon.blush {
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-                  linear-gradient(90deg, rgba(251,146,60,.55), rgba(244,114,182,.18));
-    }
-
-    .icon.palette {
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-                  linear-gradient(90deg, rgba(167,139,250,.50), rgba(99,102,241,.18));
-    }
-
-    .icon.brow {
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-                  linear-gradient(90deg, rgba(120,53,15,.55), rgba(161,98,7,.18));
-    }
-
-    .icon.sparkle {
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
-                  linear-gradient(90deg, rgba(56,189,248,.45), rgba(168,85,247,.22));
-    }
-
-    /* 选中：根据 tone 改"按钮发光色" */
-    .vanity-item.active {
+    .beauty-item:hover {
       transform: translateY(-1px);
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.055);
     }
 
-    .vanity-item.active[data-tone="rose"] {
-      outline: 2px solid rgba(244,63,94,.55);
-      box-shadow: 0 0 0 5px rgba(244,63,94,.10), 0 22px 80px rgba(0,0,0,.35);
+    .beauty-item.active {
+      border-color: rgba(255,90,130,.45);
+      box-shadow:
+        0 22px 70px rgba(0,0,0,.42),
+        0 0 0 2px rgba(255,90,130,.14),
+        inset 0 1px 0 rgba(255,255,255,.07);
     }
 
-    .vanity-item.active[data-tone="peach"] {
-      outline: 2px solid rgba(251,146,60,.55);
-      box-shadow: 0 0 0 5px rgba(251,146,60,.10), 0 22px 80px rgba(0,0,0,.35);
+    /* icon container */
+    .iconWrap {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,255,255,.12);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
 
-    .vanity-item.active[data-tone="violet"] {
-      outline: 2px solid rgba(167,139,250,.55);
-      box-shadow: 0 0 0 5px rgba(167,139,250,.10), 0 22px 80px rgba(0,0,0,.35);
+    .icon {
+      width: 42px;
+      height: 42px;
+      filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+      opacity: .95;
     }
 
-    .vanity-item.active[data-tone="brown"] {
-      outline: 2px solid rgba(161,98,7,.55);
-      box-shadow: 0 0 0 5px rgba(161,98,7,.10), 0 22px 80px rgba(0,0,0,.35);
+    .label .title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: .01em;
+      color: rgba(255,255,255,.92);
+      line-height: 1.1;
     }
 
-    .vanity-item.active[data-tone="glow"] {
-      outline: 2px solid rgba(56,189,248,.55);
-      box-shadow: 0 0 0 5px rgba(56,189,248,.10), 0 22px 80px rgba(0,0,0,.35);
+    .label .sub {
+      margin-top: 4px;
+      font-size: 18px;
+      color: rgba(255,255,255,.55);
+    }
+
+    /* subtle tint per category (keeps your palette) */
+    .tint-lip {
+      background: radial-gradient(circle at 30% 25%, rgba(255,180,198,.22), rgba(255,255,255,.04));
+    }
+
+    .tint-blush {
+      background: radial-gradient(circle at 30% 25%, rgba(255,214,197,.18), rgba(255,255,255,.04));
+    }
+
+    .tint-eyes {
+      background: radial-gradient(circle at 30% 25%, rgba(197,196,255,.18), rgba(255,255,255,.04));
+    }
+
+    .tint-brow {
+      background: radial-gradient(circle at 30% 25%, rgba(210,190,170,.16), rgba(255,255,255,.04));
+    }
+
+    .tint-fx {
+      background: radial-gradient(circle at 30% 25%, rgba(160,200,255,.16), rgba(255,255,255,.04));
     }
 
     /* ===== 色号托盘（桌面前沿） ===== */
@@ -386,44 +365,115 @@
         </div>
       </div>
 
-      <!-- 桌面上的美妆单品 -->
-      <div class="vanity-items">
-        <button class="vanity-item active" data-category="lips" data-tone="rose">
-          <div class="icon lipstick"></div>
-          <div class="txt">
-            <div class="name">Lipstick</div>
+      <!-- BEAUTY TOOLBAR -->
+      <div class="beauty-toolbar">
+        <button class="beauty-item active" data-tool="lips">
+          <div class="iconWrap tint-lip">
+            <!-- Lipstick icon -->
+            <svg viewBox="0 0 64 64" class="icon" aria-hidden="true">
+              <defs>
+                <linearGradient id="lipGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(255,180,198,.95)"/>
+                  <stop offset="1" stop-color="rgba(210,88,125,.95)"/>
+                </linearGradient>
+              </defs>
+              <rect x="22" y="22" width="20" height="28" rx="6" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/>
+              <path d="M28 22 L36 22 L40 14 Q32 6 24 14 Z" fill="url(#lipGrad)"/>
+              <rect x="24" y="26" width="16" height="22" rx="5" fill="rgba(15,23,42,.55)" stroke="rgba(255,255,255,.12)"/>
+              <rect x="24" y="46" width="16" height="6" rx="3" fill="rgba(255,255,255,.08)"/>
+            </svg>
+          </div>
+          <div class="label">
+            <div class="title">Lipstick</div>
             <div class="sub">Lips</div>
           </div>
         </button>
 
-        <button class="vanity-item" data-category="blush" data-tone="peach">
-          <div class="icon blush"></div>
-          <div class="txt">
-            <div class="name">Blush</div>
+        <button class="beauty-item" data-tool="blush">
+          <div class="iconWrap tint-blush">
+            <!-- Blush compact icon -->
+            <svg viewBox="0 0 64 64" class="icon" aria-hidden="true">
+              <defs>
+                <radialGradient id="blushGrad" cx="40%" cy="35%" r="70%">
+                  <stop offset="0" stop-color="rgba(255,214,197,.95)"/>
+                  <stop offset="1" stop-color="rgba(198,141,120,.95)"/>
+                </radialGradient>
+              </defs>
+              <rect x="14" y="18" width="36" height="30" rx="14" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/>
+              <circle cx="32" cy="33" r="12" fill="url(#blushGrad)"/>
+              <path d="M22 33 C26 28, 38 28, 42 33" stroke="rgba(255,255,255,.18)" stroke-width="2" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="label">
+            <div class="title">Blush</div>
             <div class="sub">Cheeks</div>
           </div>
         </button>
 
-        <button class="vanity-item" data-category="eyes" data-tone="violet">
-          <div class="icon palette"></div>
-          <div class="txt">
-            <div class="name">Palette</div>
+        <button class="beauty-item" data-tool="eyes">
+          <div class="iconWrap tint-eyes">
+            <!-- Eyeshadow palette icon -->
+            <svg viewBox="0 0 64 64" class="icon" aria-hidden="true">
+              <defs>
+                <linearGradient id="palGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(197,196,255,.95)"/>
+                  <stop offset="1" stop-color="rgba(128,127,195,.95)"/>
+                </linearGradient>
+              </defs>
+              <rect x="14" y="16" width="36" height="34" rx="10" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/>
+              <rect x="20" y="22" width="24" height="22" rx="7" fill="rgba(15,23,42,.45)" stroke="rgba(255,255,255,.10)"/>
+              <rect x="22" y="24" width="9" height="9" rx="3" fill="url(#palGrad)"/>
+              <rect x="33" y="24" width="9" height="9" rx="3" fill="rgba(255,255,255,.14)"/>
+              <rect x="22" y="35" width="9" height="9" rx="3" fill="rgba(255,255,255,.10)"/>
+              <rect x="33" y="35" width="9" height="9" rx="3" fill="rgba(255,215,130,.18)"/>
+            </svg>
+          </div>
+          <div class="label">
+            <div class="title">Palette</div>
             <div class="sub">Eyes</div>
           </div>
         </button>
 
-        <button class="vanity-item" data-category="brows" data-tone="brown">
-          <div class="icon brow"></div>
-          <div class="txt">
-            <div class="name">Brow</div>
+        <button class="beauty-item" data-tool="brows">
+          <div class="iconWrap tint-brow">
+            <!-- Brow pencil icon -->
+            <svg viewBox="0 0 64 64" class="icon" aria-hidden="true">
+              <defs>
+                <linearGradient id="browGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(210,190,170,.95)"/>
+                  <stop offset="1" stop-color="rgba(125,105,90,.95)"/>
+                </linearGradient>
+              </defs>
+              <rect x="16" y="20" width="32" height="22" rx="10" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/>
+              <path d="M22 40 L44 18" stroke="rgba(15,23,42,.65)" stroke-width="6" stroke-linecap="round"/>
+              <path d="M24 42 L46 20" stroke="url(#browGrad)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M46 20 L50 16 L54 20 L50 24 Z" fill="rgba(255,255,255,.14)"/>
+            </svg>
+          </div>
+          <div class="label">
+            <div class="title">Brow</div>
             <div class="sub">Brows</div>
           </div>
         </button>
 
-        <button class="vanity-item" data-category="effects" data-tone="glow">
-          <div class="icon sparkle"></div>
-          <div class="txt">
-            <div class="name">Effects</div>
+        <button class="beauty-item" data-tool="effects">
+          <div class="iconWrap tint-fx">
+            <!-- Effects sparkle icon -->
+            <svg viewBox="0 0 64 64" class="icon" aria-hidden="true">
+              <defs>
+                <linearGradient id="fxGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="rgba(160,200,255,.95)"/>
+                  <stop offset="1" stop-color="rgba(120,140,190,.95)"/>
+                </linearGradient>
+              </defs>
+              <rect x="16" y="18" width="32" height="28" rx="12" fill="rgba(255,255,255,.06)" stroke="rgba(255,255,255,.14)"/>
+              <path d="M32 18 L35 28 L45 31 L35 34 L32 44 L29 34 L19 31 L29 28 Z" fill="url(#fxGrad)"/>
+              <circle cx="46" cy="22" r="3" fill="rgba(255,255,255,.18)"/>
+              <circle cx="20" cy="42" r="2.5" fill="rgba(255,255,255,.14)"/>
+            </svg>
+          </div>
+          <div class="label">
+            <div class="title">Effects</div>
             <div class="sub">Fun</div>
           </div>
         </button>
@@ -897,11 +947,11 @@
     }
 
     // 分类按钮
-    document.querySelectorAll('.vanity-item').forEach(btn => {
+    document.querySelectorAll('.beauty-item').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.vanity-item').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.beauty-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        activeSegment = btn.dataset.category;
+        activeSegment = btn.dataset.tool;
         renderShades(activeSegment);
       });
     });
