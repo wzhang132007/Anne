@@ -109,6 +109,175 @@
       z-index: 5;
     }
 
+    /* ===== 智能镜框（LED 发光边框） ===== */
+    .mirror-frame {
+      position: absolute;
+      inset: 0;
+      border-radius: 26px;
+      pointer-events: none;
+      z-index: 6;
+      box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.15),
+        inset 0 0 40px rgba(255,182,193,.25),
+        0 0 60px rgba(255,182,193,.20);
+      transition: box-shadow 0.6s ease;
+    }
+
+    .mirror-frame.glow-lip {
+      box-shadow:
+        inset 0 0 0 2px rgba(255,182,193,.30),
+        inset 0 0 50px rgba(255,90,130,.35),
+        0 0 80px rgba(255,90,130,.30);
+    }
+
+    .mirror-frame.glow-blush {
+      box-shadow:
+        inset 0 0 0 2px rgba(255,214,197,.30),
+        inset 0 0 50px rgba(255,150,120,.35),
+        0 0 80px rgba(255,150,120,.30);
+    }
+
+    .mirror-frame.glow-eyes {
+      box-shadow:
+        inset 0 0 0 2px rgba(197,196,255,.30),
+        inset 0 0 50px rgba(150,140,255,.35),
+        0 0 80px rgba(150,140,255,.30);
+    }
+
+    .mirror-frame.glow-brows {
+      box-shadow:
+        inset 0 0 0 2px rgba(210,190,170,.30),
+        inset 0 0 50px rgba(180,150,120,.35),
+        0 0 80px rgba(180,150,120,.30);
+    }
+
+    .mirror-frame.glow-fx {
+      box-shadow:
+        inset 0 0 0 2px rgba(160,200,255,.30),
+        inset 0 0 50px rgba(120,180,255,.35),
+        0 0 80px rgba(120,180,255,.30);
+    }
+
+    /* ===== 情绪化特效层 ===== */
+    .mirror-effects {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+
+    .mirror-effects.active {
+      opacity: 1;
+    }
+
+    /* 爱心特效 */
+    .heart {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: rgba(255,182,193,.75);
+      transform: rotate(45deg);
+      opacity: 0;
+      animation: floatHeart 6s infinite ease-in-out;
+      filter: blur(0.5px);
+    }
+
+    .heart::before,
+    .heart::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: rgba(255,182,193,.75);
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -7px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: -7px;
+      top: 0;
+    }
+
+    .heart:nth-child(1) {
+      top: 10%;
+      left: 8%;
+      animation-delay: 0s;
+    }
+
+    .heart:nth-child(2) {
+      top: 75%;
+      right: 10%;
+      animation-delay: 2s;
+    }
+
+    .heart:nth-child(3) {
+      bottom: 15%;
+      left: 12%;
+      animation-delay: 4s;
+    }
+
+    /* 微光粒子 */
+    .shimmer {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255,255,255,.8);
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(255,255,255,.6);
+      opacity: 0;
+      animation: shimmerPulse 4s infinite ease-in-out;
+    }
+
+    .shimmer:nth-child(4) {
+      top: 20%;
+      right: 15%;
+      animation-delay: 0.5s;
+    }
+
+    .shimmer:nth-child(5) {
+      bottom: 25%;
+      right: 8%;
+      animation-delay: 2.5s;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translateY(0) rotate(45deg) scale(0.9);
+        opacity: 0;
+      }
+      15% {
+        opacity: 0.6;
+      }
+      50% {
+        transform: translateY(-16px) rotate(45deg) scale(1);
+        opacity: 0.75;
+      }
+      85% {
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(0) rotate(45deg) scale(0.9);
+        opacity: 0;
+      }
+    }
+
+    @keyframes shimmerPulse {
+      0%, 100% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 0.9;
+        transform: scale(1.2);
+      }
+    }
+
     .mirror-status {
       position: absolute;
       top: 14px;
@@ -349,6 +518,18 @@
       <div class="mirror" id="mirror">
         <video id="videoElement" autoplay playsinline muted></video>
         <canvas id="canvasElement"></canvas>
+
+        <!-- 智能镜框（高级发光边框） -->
+        <div class="mirror-frame" id="mirrorFrame"></div>
+
+        <!-- 情绪化特效层（爱心/星光） -->
+        <div class="mirror-effects">
+          <span class="heart"></span>
+          <span class="heart"></span>
+          <span class="heart"></span>
+          <span class="shimmer"></span>
+          <span class="shimmer"></span>
+        </div>
 
         <!-- 镜面玻璃质感层 -->
         <div class="mirror-glass"></div>
@@ -946,13 +1127,35 @@
       });
     }
 
-    // 分类按钮
+    // 分类按钮 + 智能镜框控制
+    const mirrorFrame = document.getElementById('mirrorFrame');
+    const mirrorEffects = document.querySelector('.mirror-effects');
+
     document.querySelectorAll('.beauty-item').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.beauty-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeSegment = btn.dataset.tool;
         renderShades(activeSegment);
+
+        // 智能镜框状态反馈（边框变色）
+        mirrorFrame.className = 'mirror-frame';
+        if (activeSegment === 'lips') {
+          mirrorFrame.classList.add('glow-lip');
+          mirrorEffects.classList.add('active');
+        } else if (activeSegment === 'blush') {
+          mirrorFrame.classList.add('glow-blush');
+          mirrorEffects.classList.add('active');
+        } else if (activeSegment === 'eyes') {
+          mirrorFrame.classList.add('glow-eyes');
+          mirrorEffects.classList.remove('active');
+        } else if (activeSegment === 'brows') {
+          mirrorFrame.classList.add('glow-brows');
+          mirrorEffects.classList.remove('active');
+        } else if (activeSegment === 'effects') {
+          mirrorFrame.classList.add('glow-fx');
+          mirrorEffects.classList.add('active');
+        }
       });
     });
 
@@ -971,6 +1174,11 @@
 
     // 启动
     renderShades('lips');
+
+    // 初始化镜框发光状态（默认 lips 模式）
+    mirrorFrame.classList.add('glow-lip');
+    mirrorEffects.classList.add('active');
+
     initCamera();
   </script>
 </body>
