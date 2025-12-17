@@ -475,11 +475,6 @@
       box-shadow: 0 0 0 4px rgba(120,180,255,.15);
     }
 
-    .clear-btn:hover {
-      border-color: rgba(255,255,255,.22);
-      transform: translateY(-1px);
-    }
-
     ::-webkit-scrollbar {
       width: 4px;
       height: 4px;
@@ -526,26 +521,10 @@
 
     /* ✅ 确保所有按钮都能点击 */
     .shade-chip,
-    .effect-chip,
-    .clear-btn {
+    .effect-chip {
       pointer-events: auto;
       position: relative;
       z-index: 101;
-    }
-
-    /* ✅ Clear button 始终可点击 */
-    .clear-btn {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(15,23,42,.65);
-      color: rgba(255,255,255,.86);
-      font-size: 12px;
-      cursor: pointer;
-      transition: .15s ease;
-      flex-shrink: 0;
-      z-index: 102;
-      pointer-events: auto;
     }
   </style>
 </head>
