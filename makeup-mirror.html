@@ -708,7 +708,6 @@
         <div class="shade-row" id="shadeRow">
           <!-- 动态填充 -->
         </div>
-        <button class="clear-btn" id="clearAllBtn">Clear Makeup</button>
       </div>
     </div>
   </div>
@@ -1285,30 +1284,6 @@
         }
       }, true);
     });
-
-    // 清除按钮 - 确保能点击
-    const clearBtn = document.getElementById('clearAllBtn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        console.log('Clear Makeup clicked');
-
-        currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
-        activeEffects = {
-          catEars: false,
-          cheekSparkles: false,
-          heartUnderEyes: false,
-          softVignette: false,
-          floatingShapes: false
-        };
-
-        document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
-
-        flashToast('Makeup Cleared');
-      });
-    }
 
     // 启动
     renderShades('lips');
