@@ -421,37 +421,12 @@
     }
 
     /* ===== 色号托盘（桌面前沿） ===== */
-    .shade-tray {
-      position: absolute;
-      left: 4.5%;
-      right: 4.5%;
-      bottom: 4.5%;
-      height: 22%;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
-      padding: 16px 16px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
     .tray-title {
       font-size: 12px;
       letter-spacing: .18em;
       color: rgba(255,255,255,.55);
       width: 100px;
       flex-shrink: 0;
-    }
-
-    .shade-row {
-      display: flex;
-      gap: 10px;
-      flex: 1;
-      flex-wrap: wrap;
-      overflow-y: auto;
-      max-height: 100%;
-      padding-right: 8px;
     }
 
     .shade-chip {
@@ -491,18 +466,6 @@
       box-shadow: 0 0 0 4px rgba(120,180,255,.15);
     }
 
-    .clear-btn {
-      padding: 10px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(15,23,42,.65);
-      color: rgba(255,255,255,.86);
-      font-size: 12px;
-      cursor: pointer;
-      transition: .15s ease;
-      flex-shrink: 0;
-    }
-
     .clear-btn:hover {
       border-color: rgba(255,255,255,.22);
       transform: translateY(-1px);
@@ -520,6 +483,60 @@
     ::-webkit-scrollbar-thumb {
       background: rgba(255,255,255,.15);
       border-radius: 999px;
+    }
+
+    /* ✅ Bottom panel layout fix - 确保 effects 按钮可点击 */
+    .shade-tray {
+      position: absolute;
+      left: 4.5%;
+      right: 4.5%;
+      bottom: 4.5%;
+      height: 22%;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      padding: 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
+    /* ✅ Shade row grid layout - 避免按钮重叠 */
+    .shade-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
+      align-items: center;
+      pointer-events: auto;
+    }
+
+    /* ✅ 确保所有按钮都能点击 */
+    .shade-chip,
+    .effect-chip,
+    .clear-btn {
+      pointer-events: auto;
+      position: relative;
+      z-index: 101;
+    }
+
+    /* ✅ Clear button 始终可点击 */
+    .clear-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(15,23,42,.65);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      cursor: pointer;
+      transition: .15s ease;
+      flex-shrink: 0;
+      z-index: 102;
+      pointer-events: auto;
     }
   </style>
 </head>
@@ -682,7 +699,7 @@
         <div class="shade-row" id="shadeRow">
           <!-- 动态填充 -->
         </div>
-        <button class="clear-btn" id="clearAllBtn">清除妆容</button>
+        <button class="clear-btn" id="clearAllBtn">Clear Makeup</button>
       </div>
     </div>
   </div>
@@ -1250,18 +1267,29 @@
       });
     });
 
-    // 清除按钮
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-      currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
-      activeEffects = {
-        catEars: false,
-        cheekSparkles: false,
-        heartUnderEyes: false,
-        softVignette: false,
-        floatingShapes: false
-      };
-      document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
-    });
+    // 清除按钮 - 确保能点击
+    const clearBtn = document.getElementById('clearAllBtn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        console.log('Clear Makeup clicked');
+
+        currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
+        activeEffects = {
+          catEars: false,
+          cheekSparkles: false,
+          heartUnderEyes: false,
+          softVignette: false,
+          floatingShapes: false
+        };
+
+        document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
+
+        flashToast('Makeup Cleared');
+      });
+    }
 
     // 启动
     renderShades('lips');
