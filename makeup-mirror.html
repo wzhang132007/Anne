@@ -439,13 +439,15 @@
     }
 
     .shade-chip:hover {
+      background: rgba(255,255,255,.12);
       border-color: rgba(255,255,255,.22);
       transform: translateY(-1px);
     }
 
     .shade-chip.active {
-      border-color: rgba(167,139,250,.65);
-      box-shadow: 0 0 0 4px rgba(167,139,250,.12);
+      border-color: #ff6a88;
+      box-shadow: 0 0 0 1px rgba(255,106,136,0.5);
+      background: rgba(255,106,136,.10);
     }
 
     /* ✅ Effect chips 特殊样式 - 产品级布局 */
@@ -514,12 +516,12 @@
       pointer-events: auto;
     }
 
-    /* ✅ Shade row GRID layout - 两行布局，不重叠 */
+    /* ✅ Shade row FLEX 横向布局 - 自动换行，产品级 */
     .shade-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, max-content));
-      grid-auto-rows: auto;
-      gap: 12px 16px;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 10px 12px;
       max-width: calc(100% - 360px);
       align-items: center;
       pointer-events: auto;
@@ -527,15 +529,15 @@
       z-index: 2;
     }
 
-    /* ✅ 确保所有按钮都能点击 */
+    /* ✅ 产品级按钮样式 - 横向排列 */
     .shade-chip {
-      padding: 10px 12px;
+      padding: 8px 16px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(15,23,42,.60);
-      color: rgba(255,255,255,.86);
-      font-size: 12px;
-      transition: .15s ease;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.90);
+      font-size: 13px;
+      transition: all 0.2s ease;
       cursor: pointer;
       white-space: nowrap;
       flex-shrink: 0;
