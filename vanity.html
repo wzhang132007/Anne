@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AR Makeup Vanity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "SF Pro Text", "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    /* ===== 全屏舞台 ===== */
+    .vanity-stage {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 500px at 50% 0%, rgba(255,255,255,.08), rgba(0,0,0,0) 55%),
+                  radial-gradient(circle at top, #0b1224 0%, #05070f 55%, #020617 100%);
+      overflow: hidden;
+    }
+
+    .vanity-bg {
+      position: absolute;
+      inset: -30%;
+      background:
+        radial-gradient(900px 400px at 60% 10%, rgba(99,102,241,.10), rgba(0,0,0,0) 60%),
+        radial-gradient(700px 420px at 30% 20%, rgba(236,72,153,.08), rgba(0,0,0,0) 60%);
+      filter: blur(30px);
+      opacity: .9;
+    }
+
+    /* ===== 梳妆台桌面容器 ===== */
+    .vanity-table {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(1100px, 92vw);
+      height: min(620px, 78vh);
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      box-shadow: 0 40px 120px rgba(0,0,0,.55);
+      overflow: hidden;
+    }
+
+    /* 桌面底部木质/皮革感（很轻） */
+    .vanity-table::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 38%;
+      background:
+        radial-gradient(900px 260px at 50% 0%, rgba(255,255,255,.10), rgba(0,0,0,0) 70%),
+        linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.35));
+      pointer-events: none;
+    }
+
+    /* ===== 镜子（摄像头区域）===== */
+    .mirror {
+      position: absolute;
+      left: 4.5%;
+      top: 7%;
+      width: 58%;
+      height: 66%;
+      border-radius: 26px;
+      overflow: hidden;
+      background: #0b1020;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 30px 90px rgba(0,0,0,.55);
+    }
+
+    .mirror video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1); /* 镜子 */
+      filter: contrast(1.08) saturate(1.08) brightness(1.02);
+      display: none;
+    }
+
+    .mirror canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      transform: scaleX(-1);
+    }
+
+    .mirror-glass {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(1200px 500px at 20% 10%, rgba(255,255,255,.16), rgba(255,255,255,0) 55%),
+        radial-gradient(900px 500px at 85% 30%, rgba(255,255,255,.10), rgba(255,255,255,0) 60%),
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,.35) 100%);
+      mix-blend-mode: screen;
+      opacity: .9;
+      z-index: 5;
+    }
+
+    .mirror-status {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.70);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .mirror-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 14px rgba(34,197,94,.8);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .camera-error {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      font-size: 14px;
+      background: radial-gradient(circle at top, #111827, #020617);
+      z-index: 100;
+      color: #f9fafb;
+    }
+
+    /* ===== 桌面上的"单品" ===== */
+    .vanity-items {
+      position: absolute;
+      right: 4.5%;
+      top: 9%;
+      width: 30%;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .vanity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+      box-shadow: 0 18px 60px rgba(0,0,0,.25);
+      color: rgba(255,255,255,.90);
+      transition: .18s ease;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .vanity-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.22);
+    }
+
+    .vanity-item .txt .name {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .02em;
+    }
+
+    .vanity-item .txt .sub {
+      font-size: 12px;
+      color: rgba(255,255,255,.55);
+      margin-top: 2px;
+    }
+
+    /* 单品 icon：用"材质色"画出来 */
+    .icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      position: relative;
+      overflow: hidden;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06));
+    }
+
+    .icon::after {
+      content: "";
+      position: absolute;
+      inset: -40% -20%;
+      background: linear-gradient(115deg, rgba(255,255,255,0), rgba(255,255,255,.22), rgba(255,255,255,0));
+      transform: rotate(12deg);
+      opacity: .6;
+    }
+
+    .icon.lipstick {
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+                  linear-gradient(90deg, rgba(244,63,94,.75), rgba(251,113,133,.25));
+    }
+
+    .icon.blush {
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+                  linear-gradient(90deg, rgba(251,146,60,.55), rgba(244,114,182,.18));
+    }
+
+    .icon.palette {
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+                  linear-gradient(90deg, rgba(167,139,250,.50), rgba(99,102,241,.18));
+    }
+
+    .icon.brow {
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+                  linear-gradient(90deg, rgba(120,53,15,.55), rgba(161,98,7,.18));
+    }
+
+    .icon.sparkle {
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.22), rgba(255,255,255,.06)),
+                  linear-gradient(90deg, rgba(56,189,248,.45), rgba(168,85,247,.22));
+    }
+
+    /* 选中：根据 tone 改"按钮发光色" */
+    .vanity-item.active {
+      transform: translateY(-1px);
+    }
+
+    .vanity-item.active[data-tone="rose"] {
+      outline: 2px solid rgba(244,63,94,.55);
+      box-shadow: 0 0 0 5px rgba(244,63,94,.10), 0 22px 80px rgba(0,0,0,.35);
+    }
+
+    .vanity-item.active[data-tone="peach"] {
+      outline: 2px solid rgba(251,146,60,.55);
+      box-shadow: 0 0 0 5px rgba(251,146,60,.10), 0 22px 80px rgba(0,0,0,.35);
+    }
+
+    .vanity-item.active[data-tone="violet"] {
+      outline: 2px solid rgba(167,139,250,.55);
+      box-shadow: 0 0 0 5px rgba(167,139,250,.10), 0 22px 80px rgba(0,0,0,.35);
+    }
+
+    .vanity-item.active[data-tone="brown"] {
+      outline: 2px solid rgba(161,98,7,.55);
+      box-shadow: 0 0 0 5px rgba(161,98,7,.10), 0 22px 80px rgba(0,0,0,.35);
+    }
+
+    .vanity-item.active[data-tone="glow"] {
+      outline: 2px solid rgba(56,189,248,.55);
+      box-shadow: 0 0 0 5px rgba(56,189,248,.10), 0 22px 80px rgba(0,0,0,.35);
+    }
+
+    /* ===== 色号托盘（桌面前沿） ===== */
+    .shade-tray {
+      position: absolute;
+      left: 4.5%;
+      right: 4.5%;
+      bottom: 4.5%;
+      height: 22%;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+      padding: 16px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .tray-title {
+      font-size: 12px;
+      letter-spacing: .18em;
+      color: rgba(255,255,255,.55);
+      width: 100px;
+      flex-shrink: 0;
+    }
+
+    .shade-row {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      flex-wrap: wrap;
+      overflow-y: auto;
+      max-height: 100%;
+      padding-right: 8px;
+    }
+
+    .shade-chip {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,42,.60);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      transition: .15s ease;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .shade-chip:hover {
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
+
+    .shade-chip.active {
+      border-color: rgba(167,139,250,.65);
+      box-shadow: 0 0 0 4px rgba(167,139,250,.12);
+    }
+
+    .clear-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(15,23,42,.65);
+      color: rgba(255,255,255,.86);
+      font-size: 12px;
+      cursor: pointer;
+      transition: .15s ease;
+      flex-shrink: 0;
+    }
+
+    .clear-btn:hover {
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-1px);
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,.15);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="vanity-stage">
+    <!-- 背景：梳妆台 + 暗光房间 -->
+    <div class="vanity-bg"></div>
+
+    <!-- 梳妆台桌面 -->
+    <div class="vanity-table">
+      <!-- 镜子（摄像头画面放这里） -->
+      <div class="mirror" id="mirror">
+        <video id="videoElement" autoplay playsinline muted></video>
+        <canvas id="canvasElement"></canvas>
+
+        <!-- 镜面玻璃质感层 -->
+        <div class="mirror-glass"></div>
+
+        <!-- 状态提示 -->
+        <div class="mirror-status">
+          <span class="dot"></span>
+          Face tracking active ✨
+        </div>
+
+        <div id="cameraError" class="camera-error">
+          无法访问摄像头 🥲<br>
+          请检查浏览器的摄像头权限
+        </div>
+      </div>
+
+      <!-- 桌面上的美妆单品 -->
+      <div class="vanity-items">
+        <button class="vanity-item active" data-category="lips" data-tone="rose">
+          <div class="icon lipstick"></div>
+          <div class="txt">
+            <div class="name">Lipstick</div>
+            <div class="sub">Lips</div>
+          </div>
+        </button>
+
+        <button class="vanity-item" data-category="blush" data-tone="peach">
+          <div class="icon blush"></div>
+          <div class="txt">
+            <div class="name">Blush</div>
+            <div class="sub">Cheeks</div>
+          </div>
+        </button>
+
+        <button class="vanity-item" data-category="eyes" data-tone="violet">
+          <div class="icon palette"></div>
+          <div class="txt">
+            <div class="name">Palette</div>
+            <div class="sub">Eyes</div>
+          </div>
+        </button>
+
+        <button class="vanity-item" data-category="brows" data-tone="brown">
+          <div class="icon brow"></div>
+          <div class="txt">
+            <div class="name">Brow</div>
+            <div class="sub">Brows</div>
+          </div>
+        </button>
+
+        <button class="vanity-item" data-category="effects" data-tone="glow">
+          <div class="icon sparkle"></div>
+          <div class="txt">
+            <div class="name">Effects</div>
+            <div class="sub">Fun</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- 桌面前沿：色号/效果条 -->
+      <div class="shade-tray">
+        <div class="tray-title" id="trayTitle">LIP COLORS</div>
+        <div class="shade-row" id="shadeRow">
+          <!-- 动态填充 -->
+        </div>
+        <button class="clear-btn" id="clearAllBtn">清除妆容</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+
+  <script>
+    const videoElement = document.getElementById('videoElement');
+    const canvasElement = document.getElementById('canvasElement');
+    const canvasCtx = canvasElement.getContext('2d');
+    const cameraError = document.getElementById('cameraError');
+
+    // MediaPipe Face Mesh 关键点索引
+    const FACE_LANDMARKS = {
+      lips: {
+        upper: [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291],
+        lower: [146, 91, 181, 84, 17, 314, 405, 321, 375, 61],
+        outer: [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185]
+      },
+      leftEye: [33, 7, 163, 144, 145, 153, 154, 155, 133, 173, 157, 158, 159, 160, 161, 246],
+      rightEye: [362, 382, 381, 380, 374, 373, 390, 249, 263, 466, 388, 387, 386, 385, 384, 398],
+      leftCheek: [234, 93, 132, 58, 172],
+      rightCheek: [454, 323, 361, 288, 397],
+      leftBrow: [70, 63, 105, 66, 107, 55, 65, 52],
+      rightBrow: [336, 296, 334, 293, 300, 285, 295, 282]
+    };
+
+    // 颜色配置
+    const palettes = {
+      lips: [
+        { label: "Cherry", color: "rgba(227, 35, 86, 0.75)" },
+        { label: "Rose", color: "rgba(214, 92, 124, 0.75)" },
+        { label: "Coral", color: "rgba(244, 114, 82, 0.75)" },
+        { label: "Plum", color: "rgba(147, 51, 234, 0.75)" },
+        { label: "Brick", color: "rgba(185, 28, 28, 0.8)" },
+        { label: "Soft Nude", color: "rgba(248, 187, 151, 0.85)" }
+      ],
+      blush: [
+        { label: "Soft Pink", color: "rgba(248, 113, 166, 0.5)" },
+        { label: "Warm Coral", color: "rgba(248, 153, 112, 0.5)" },
+        { label: "Peach", color: "rgba(252, 211, 172, 0.6)" },
+        { label: "Rose Flush", color: "rgba(225, 29, 72, 0.35)" }
+      ],
+      eyes: [
+        { label: "Brown Nude", color: "rgba(88, 64, 44, 0.6)" },
+        { label: "Cool Smoke", color: "rgba(55, 65, 81, 0.65)" },
+        { label: "Soft Lilac", color: "rgba(167, 139, 250, 0.6)" },
+        { label: "Gold Shimmer", color: "rgba(250, 204, 21, 0.45)" }
+      ],
+      brows: [
+        { label: "Soft Brown", color: "rgba(87, 65, 39, 0.65)" },
+        { label: "Dark Brown", color: "rgba(54, 36, 21, 0.7)" },
+        { label: "Ash Brown", color: "rgba(80, 78, 74, 0.65)" },
+        { label: "Natural Black", color: "rgba(20, 20, 20, 0.7)" }
+      ],
+      effects: [
+        { label: "Cat Ears", key: "catEars" },
+        { label: "Sparkle Cheeks", key: "cheekSparkles" },
+        { label: "Heart Under Eyes", key: "heartUnderEyes" },
+        { label: "Soft Vignette", key: "softVignette" },
+        { label: "Floating Shapes", key: "floatingShapes" }
+      ]
+    };
+
+    let activeSegment = "lips";
+    let currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
+    let activeEffects = {
+      catEars: false,
+      cheekSparkles: false,
+      heartUnderEyes: false,
+      softVignette: false,
+      floatingShapes: false
+    };
+
+    // 绘制多边形
+    function drawPolygon(ctx, points, color) {
+      if (!points || points.length === 0) return;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        ctx.lineTo(points[i].x, points[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function setAlpha(color, alpha) {
+      const match = color.match(/rgba?\(([^)]+)\)/);
+      if (!match) return color;
+      const parts = match[1].split(',').map(p => p.trim());
+      const r = parts[0], g = parts[1], b = parts[2];
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function getLandmarkPoints(landmarks, indices, width, height, expand = 1.0) {
+      const points = indices.map(index => ({
+        x: landmarks[index].x * width,
+        y: landmarks[index].y * height
+      }));
+
+      if (expand === 1.0) return points;
+
+      const centerX = points.reduce((sum, p) => sum + p.x, 0) / points.length;
+      const centerY = points.reduce((sum, p) => sum + p.y, 0) / points.length;
+
+      return points.map(p => ({
+        x: centerX + (p.x - centerX) * expand,
+        y: centerY + (p.y - centerY) * expand
+      }));
+    }
+
+    // MediaPipe Face Mesh 回调
+    function onResults(results) {
+      const image = results.image;
+      if (!image) return;
+
+      const w = image.width;
+      const h = image.height;
+
+      canvasElement.width  = w;
+      canvasElement.height = h;
+
+      canvasCtx.save();
+      canvasCtx.clearRect(0, 0, w, h);
+      canvasCtx.drawImage(image, 0, 0, w, h);
+
+      if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+        const landmarks = results.multiFaceLandmarks[0];
+
+        canvasCtx.globalCompositeOperation = "soft-light";
+
+        // 嘴唇
+        if (currentMakeup.lips) {
+          const outerLip = getLandmarkPoints(landmarks, FACE_LANDMARKS.lips.outer, w, h, 1.05);
+          drawPolygon(canvasCtx, outerLip, currentMakeup.lips);
+        }
+
+        // 眼影
+        if (currentMakeup.eyes) {
+          const leftEye  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftEye,  w, h, 1.15);
+          const rightEye = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightEye, w, h, 1.15);
+          drawPolygon(canvasCtx, leftEye,  currentMakeup.eyes);
+          drawPolygon(canvasCtx, rightEye, currentMakeup.eyes);
+        }
+
+        // 腮红
+        if (currentMakeup.blush) {
+          const left  = landmarks[234];
+          const right = landmarks[454];
+
+          function drawBlushOval(landmark, side, baseColor) {
+            let cx = landmark.x * w;
+            let cy = landmark.y * h;
+            cy -= 0.015 * h;
+
+            const offsetX = 0.03 * w;
+            if (side === 'left')  cx -= offsetX;
+            if (side === 'right') cx += offsetX;
+
+            const radiusX = 0.09 * w;
+            const radiusY = 0.06 * h;
+
+            canvasCtx.save();
+            canvasCtx.translate(cx, cy);
+            canvasCtx.scale(radiusX, radiusY);
+
+            const grad = canvasCtx.createRadialGradient(0, 0, 0, 0, 0, 1);
+            grad.addColorStop(0.0, setAlpha(baseColor, 0.75));
+            grad.addColorStop(0.4, setAlpha(baseColor, 0.45));
+            grad.addColorStop(1.0, setAlpha(baseColor, 0.0));
+
+            canvasCtx.fillStyle = grad;
+            canvasCtx.beginPath();
+            canvasCtx.arc(0, 0, 1, 0, Math.PI * 2);
+            canvasCtx.fill();
+            canvasCtx.restore();
+          }
+
+          drawBlushOval(left,  'left',  currentMakeup.blush);
+          drawBlushOval(right, 'right', currentMakeup.blush);
+        }
+
+        // 眉毛
+        if (currentMakeup.brows) {
+          const leftPts  = getLandmarkPoints(landmarks, FACE_LANDMARKS.leftBrow,  w, h, 1.0);
+          const rightPts = getLandmarkPoints(landmarks, FACE_LANDMARKS.rightBrow, w, h, 1.0);
+
+          function getBox(pts) {
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            pts.forEach(p => {
+              if (p.x < minX) minX = p.x;
+              if (p.x > maxX) maxX = p.x;
+              if (p.y < minY) minY = p.y;
+              if (p.y > maxY) maxY = p.y;
+            });
+            return { minX, maxX, minY, maxY, width: maxX - minX, height: maxY - minY };
+          }
+
+          const boxL = getBox(leftPts);
+          const boxR = getBox(rightPts);
+
+          const browWidthTemplate  = Math.min(boxL.width, boxR.width) * 1.1;
+          const browHeightTemplate = (boxL.height + boxR.height) / 2;
+
+          const baseYL = boxL.minY + boxL.height * 0.25;
+          const baseYR = boxR.minY + boxR.height * 0.25;
+          const commonBaseY = (baseYL + baseYR) / 2;
+
+          const arch      = browHeightTemplate * 0.6;
+          const thickHead = browHeightTemplate * 0.35;
+          const thickTail = browHeightTemplate * 0.15;
+
+          function drawOneBrow(box, baseColor, side) {
+            const centerX = (box.minX + box.maxX) / 2;
+            const baseY   = commonBaseY;
+            const wTemp = browWidthTemplate;
+
+            let headX, tailX;
+            if (side === 'left') {
+              headX = centerX + wTemp * 0.15;
+              tailX = centerX - wTemp * 0.85;
+            } else {
+              headX = centerX - wTemp * 0.15;
+              tailX = centerX + wTemp * 0.85;
+            }
+
+            const midX = (headX + tailX) / 2;
+
+            canvasCtx.save();
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(headX, baseY);
+            canvasCtx.quadraticCurveTo(midX, baseY - arch * 0.9, tailX, baseY - arch * 0.35);
+            canvasCtx.quadraticCurveTo(midX, baseY - arch * 0.1 + thickTail, headX, baseY + thickHead);
+            canvasCtx.closePath();
+
+            const grad = canvasCtx.createLinearGradient(headX, baseY, tailX, baseY);
+            grad.addColorStop(0.0,  setAlpha(baseColor, 0.25));
+            grad.addColorStop(0.35, setAlpha(baseColor, 0.6));
+            grad.addColorStop(0.7,  setAlpha(baseColor, 0.9));
+            grad.addColorStop(1.0,  setAlpha(baseColor, 0.45));
+
+            canvasCtx.fillStyle = grad;
+            canvasCtx.fill();
+            canvasCtx.restore();
+          }
+
+          drawOneBrow(boxL, currentMakeup.brows, 'left');
+          drawOneBrow(boxR, currentMakeup.brows, 'right');
+        }
+
+        canvasCtx.globalCompositeOperation = "source-over";
+
+        const betweenEyes = landmarks[168];
+        const leftCheekPt  = landmarks[234];
+        const rightCheekPt = landmarks[454];
+
+        // Effects
+        if (activeEffects.catEars) {
+          const headX = betweenEyes.x * w;
+          const headY = betweenEyes.y * h - 0.18 * h;
+          const earOffsetX = 0.16 * w;
+          const earHeight  = 0.12 * h;
+          const earWidth   = 0.11 * w;
+
+          function drawEar(cx, cy, dir) {
+            const baseX = cx + dir * earOffsetX;
+            const baseY = cy + earHeight * 0.6;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(baseX - earWidth / 2, baseY);
+            canvasCtx.lineTo(baseX + earWidth / 2, baseY);
+            canvasCtx.lineTo(baseX, baseY - earHeight);
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = 'rgba(255, 180, 190, 0.95)';
+            canvasCtx.fill();
+            canvasCtx.strokeStyle = 'rgba(15, 23, 42, 0.7)';
+            canvasCtx.lineWidth = 2;
+            canvasCtx.stroke();
+          }
+
+          drawEar(headX, headY, -1);
+          drawEar(headX, headY,  1);
+        }
+
+        if (activeEffects.cheekSparkles) {
+          function drawStar(cx, cy, size, color) {
+            const spikes = 5;
+            const outerRadius = size;
+            const innerRadius = size * 0.45;
+            let rot = Math.PI / 2 * 3;
+            let x = cx, y = cy;
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+              x = cx + Math.cos(rot) * outerRadius;
+              y = cy + Math.sin(rot) * outerRadius;
+              canvasCtx.lineTo(x, y);
+              rot += Math.PI / spikes;
+              x = cx + Math.cos(rot) * innerRadius;
+              y = cy + Math.sin(rot) * innerRadius;
+              canvasCtx.lineTo(x, y);
+              rot += Math.PI / spikes;
+            }
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+          }
+
+          const baseColor = 'rgba(255, 248, 210, 0.9)';
+          const lcx = leftCheekPt.x * w;
+          const lcy = leftCheekPt.y * h;
+          const rcx = rightCheekPt.x * w;
+          const rcy = rightCheekPt.y * h;
+
+          drawStar(lcx - 0.02 * w, lcy - 0.015 * h, 9, baseColor);
+          drawStar(lcx + 0.03 * w, lcy + 0.01  * h, 7, baseColor);
+          drawStar(rcx + 0.02 * w, rcy - 0.015 * h, 9, baseColor);
+          drawStar(rcx - 0.03 * w, rcy + 0.01  * h, 7, baseColor);
+        }
+
+        if (activeEffects.heartUnderEyes) {
+          function drawHeart(cx, cy, size, color) {
+            canvasCtx.save();
+            canvasCtx.translate(cx, cy);
+            canvasCtx.scale(size, size);
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(0, -0.3);
+            canvasCtx.bezierCurveTo(-0.6, -0.9, -1.2, -0.1, 0, 0.8);
+            canvasCtx.bezierCurveTo(1.2, -0.1, 0.6, -0.9, 0, -0.3);
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+            canvasCtx.restore();
+          }
+
+          const leftEyeUnderX  = landmarks[145].x * w;
+          const leftEyeUnderY  = landmarks[145].y * h + 0.035 * h;
+          const rightEyeUnderX = landmarks[374].x * w;
+          const rightEyeUnderY = landmarks[374].y * h + 0.035 * h;
+
+          const heartColor = 'rgba(255, 140, 180, 0.9)';
+          drawHeart(leftEyeUnderX,  leftEyeUnderY,  12, heartColor);
+          drawHeart(rightEyeUnderX, rightEyeUnderY, 12, heartColor);
+        }
+
+        if (activeEffects.softVignette) {
+          const centerX = w / 2;
+          const centerY = h / 2;
+          const maxR    = Math.max(w, h) * 0.7;
+
+          const vignetteGrad = canvasCtx.createRadialGradient(centerX, centerY, maxR * 0.35, centerX, centerY, maxR);
+          vignetteGrad.addColorStop(0.0, 'rgba(0, 0, 0, 0.0)');
+          vignetteGrad.addColorStop(1.0, 'rgba(0, 0, 0, 0.45)');
+
+          canvasCtx.fillStyle = vignetteGrad;
+          canvasCtx.fillRect(0, 0, w, h);
+        }
+
+        if (activeEffects.floatingShapes) {
+          const headX = betweenEyes.x * w;
+          const headY = betweenEyes.y * h - 0.22 * h;
+
+          function drawFloatingTriangle(cx, cy, size, color) {
+            canvasCtx.beginPath();
+            canvasCtx.moveTo(cx, cy - size);
+            canvasCtx.lineTo(cx - size * 0.9, cy + size * 0.7);
+            canvasCtx.lineTo(cx + size * 0.9, cy + size * 0.7);
+            canvasCtx.closePath();
+            canvasCtx.fillStyle = color;
+            canvasCtx.fill();
+          }
+
+          drawFloatingTriangle(headX - 0.18 * w, headY,       18, 'rgba(244, 114, 182, 0.8)');
+          drawFloatingTriangle(headX + 0.18 * w, headY + 6,   16, 'rgba(129, 140, 248, 0.8)');
+          drawFloatingTriangle(headX,             headY - 12, 14, 'rgba(45, 212, 191, 0.8)');
+        }
+      }
+
+      canvasCtx.restore();
+    }
+
+    // 初始化 Face Mesh
+    const faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
+
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    faceMesh.onResults(onResults);
+
+    // 初始化摄像头
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'user', width: 1280, height: 720 },
+          audio: false
+        });
+        videoElement.srcObject = stream;
+
+        videoElement.onloadedmetadata = () => {
+          const camera = new Camera(videoElement, {
+            onFrame: async () => {
+              await faceMesh.send({ image: videoElement });
+            },
+            width: 1280,
+            height: 720
+          });
+          camera.start();
+        };
+      } catch (err) {
+        console.error('Camera error:', err);
+        cameraError.style.display = 'flex';
+      }
+    }
+
+    // UI 逻辑
+    const trayTitle = document.getElementById('trayTitle');
+    const shadeRow = document.getElementById('shadeRow');
+
+    const categoryTitles = {
+      lips: 'LIP COLORS',
+      blush: 'BLUSH SHADES',
+      eyes: 'EYESHADOW',
+      brows: 'BROW COLORS',
+      effects: 'EFFECTS'
+    };
+
+    function renderShades(category) {
+      trayTitle.textContent = categoryTitles[category] || category.toUpperCase();
+      shadeRow.innerHTML = '';
+
+      const items = palettes[category];
+      items.forEach((item, index) => {
+        const chip = document.createElement('button');
+        chip.className = 'shade-chip';
+        chip.textContent = item.label;
+        chip.dataset.index = index;
+
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+
+          if (category === 'effects') {
+            activeEffects[item.key] = !activeEffects[item.key];
+          } else {
+            currentMakeup[category] = item.color;
+          }
+        });
+
+        shadeRow.appendChild(chip);
+      });
+    }
+
+    // 分类按钮
+    document.querySelectorAll('.vanity-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.vanity-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeSegment = btn.dataset.category;
+        renderShades(activeSegment);
+      });
+    });
+
+    // 清除按钮
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+      currentMakeup = { lips: null, blush: null, eyes: null, brows: null };
+      activeEffects = {
+        catEars: false,
+        cheekSparkles: false,
+        heartUnderEyes: false,
+        softVignette: false,
+        floatingShapes: false
+      };
+      document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
+    });
+
+    // 启动
+    renderShades('lips');
+    initCamera();
+  </script>
+</body>
+</html>
