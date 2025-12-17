@@ -33,6 +33,7 @@
         radial-gradient(700px 420px at 30% 20%, rgba(236,72,153,.08), rgba(0,0,0,0) 60%);
       filter: blur(30px);
       opacity: .9;
+      pointer-events: none;
     }
 
     /* ===== 梳妆台桌面容器 ===== */
@@ -331,7 +332,8 @@
       flex-direction: column;
       gap: 14px;
       width: 320px;
-      z-index: 50;
+      z-index: 500;
+      pointer-events: auto;
     }
 
     .beauty-item {
@@ -350,6 +352,13 @@
       -webkit-backdrop-filter: blur(16px);
       cursor: pointer;
       transition: transform .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+      pointer-events: auto !important;
+      z-index: 500 !important;
+      position: relative !important;
+    }
+
+    .beauty-item * {
+      pointer-events: none !important;
     }
 
     .beauty-item:hover {
@@ -1240,7 +1249,14 @@
     const mirrorEffects = document.querySelector('.mirror-effects');
 
     document.querySelectorAll('.beauty-item').forEach(btn => {
-      btn.addEventListener('click', () => {
+      // 强制设置样式
+      btn.style.pointerEvents = 'auto';
+      btn.style.zIndex = '500';
+      btn.style.position = 'relative';
+
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         console.log('Button clicked:', btn.dataset.tool);
         document.querySelectorAll('.beauty-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -1267,7 +1283,7 @@
           mirrorFrame.classList.add('glow-fx');
           mirrorEffects.classList.add('active');
         }
-      });
+      }, true);
     });
 
     // 清除按钮 - 确保能点击
