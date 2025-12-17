@@ -1102,10 +1102,12 @@
     };
 
     function renderShades(category) {
+      console.log('renderShades called with category:', category);
       trayTitle.textContent = categoryTitles[category] || category.toUpperCase();
       shadeRow.innerHTML = '';
 
       const items = palettes[category];
+      console.log('Items to render:', items);
       items.forEach((item, index) => {
         const chip = document.createElement('button');
         chip.className = 'shade-chip';
@@ -1117,6 +1119,7 @@
           chip.classList.add('active');
 
           if (category === 'effects') {
+            console.log('Effect toggled:', item.key, !activeEffects[item.key]);
             activeEffects[item.key] = !activeEffects[item.key];
           } else {
             currentMakeup[category] = item.color;
@@ -1125,6 +1128,7 @@
 
         shadeRow.appendChild(chip);
       });
+      console.log('Shade row children count:', shadeRow.children.length);
     }
 
     // 分类按钮 + 智能镜框控制
@@ -1133,9 +1137,12 @@
 
     document.querySelectorAll('.beauty-item').forEach(btn => {
       btn.addEventListener('click', () => {
+        console.log('Button clicked:', btn.dataset.tool);
         document.querySelectorAll('.beauty-item').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         activeSegment = btn.dataset.tool;
+        console.log('Active segment set to:', activeSegment);
+        console.log('Palette items:', palettes[activeSegment]);
         renderShades(activeSegment);
 
         // 智能镜框状态反馈（边框变色）
