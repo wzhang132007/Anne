@@ -475,6 +475,21 @@
       box-shadow: 0 0 0 4px rgba(167,139,250,.12);
     }
 
+    /* Effect chips 特殊样式 */
+    .effect-chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 16px;
+      min-width: 140px;
+    }
+
+    .effect-chip.active {
+      border-color: rgba(120,180,255,.65);
+      background: rgba(120,180,255,.12);
+      box-shadow: 0 0 0 4px rgba(120,180,255,.15);
+    }
+
     .clear-btn {
       padding: 10px 14px;
       border-radius: 999px;
@@ -699,37 +714,37 @@
     // 颜色配置
     const palettes = {
       lips: [
-        { label: "Cherry", color: "rgba(227, 35, 86, 0.75)" },
-        { label: "Rose", color: "rgba(214, 92, 124, 0.75)" },
-        { label: "Coral", color: "rgba(244, 114, 82, 0.75)" },
-        { label: "Plum", color: "rgba(147, 51, 234, 0.75)" },
-        { label: "Brick", color: "rgba(185, 28, 28, 0.8)" },
-        { label: "Soft Nude", color: "rgba(248, 187, 151, 0.85)" }
+        { id: "lip-cherry", label: "Cherry", color: "rgba(227, 35, 86, 0.75)" },
+        { id: "lip-rose", label: "Rose", color: "rgba(214, 92, 124, 0.75)" },
+        { id: "lip-coral", label: "Coral", color: "rgba(244, 114, 82, 0.75)" },
+        { id: "lip-plum", label: "Plum", color: "rgba(147, 51, 234, 0.75)" },
+        { id: "lip-brick", label: "Brick", color: "rgba(185, 28, 28, 0.8)" },
+        { id: "lip-nude", label: "Soft Nude", color: "rgba(248, 187, 151, 0.85)" }
       ],
       blush: [
-        { label: "Soft Pink", color: "rgba(248, 113, 166, 0.5)" },
-        { label: "Warm Coral", color: "rgba(248, 153, 112, 0.5)" },
-        { label: "Peach", color: "rgba(252, 211, 172, 0.6)" },
-        { label: "Rose Flush", color: "rgba(225, 29, 72, 0.35)" }
+        { id: "blush-pink", label: "Soft Pink", color: "rgba(248, 113, 166, 0.5)" },
+        { id: "blush-coral", label: "Warm Coral", color: "rgba(248, 153, 112, 0.5)" },
+        { id: "blush-peach", label: "Peach", color: "rgba(252, 211, 172, 0.6)" },
+        { id: "blush-rose", label: "Rose Flush", color: "rgba(225, 29, 72, 0.35)" }
       ],
       eyes: [
-        { label: "Brown Nude", color: "rgba(88, 64, 44, 0.6)" },
-        { label: "Cool Smoke", color: "rgba(55, 65, 81, 0.65)" },
-        { label: "Soft Lilac", color: "rgba(167, 139, 250, 0.6)" },
-        { label: "Gold Shimmer", color: "rgba(250, 204, 21, 0.45)" }
+        { id: "eye-brown", label: "Brown Nude", color: "rgba(88, 64, 44, 0.6)" },
+        { id: "eye-smoke", label: "Cool Smoke", color: "rgba(55, 65, 81, 0.65)" },
+        { id: "eye-lilac", label: "Soft Lilac", color: "rgba(167, 139, 250, 0.6)" },
+        { id: "eye-gold", label: "Gold Shimmer", color: "rgba(250, 204, 21, 0.45)" }
       ],
       brows: [
-        { label: "Soft Brown", color: "rgba(87, 65, 39, 0.65)" },
-        { label: "Dark Brown", color: "rgba(54, 36, 21, 0.7)" },
-        { label: "Ash Brown", color: "rgba(80, 78, 74, 0.65)" },
-        { label: "Natural Black", color: "rgba(20, 20, 20, 0.7)" }
+        { id: "brow-soft", label: "Soft Brown", color: "rgba(87, 65, 39, 0.65)" },
+        { id: "brow-dark", label: "Dark Brown", color: "rgba(54, 36, 21, 0.7)" },
+        { id: "brow-ash", label: "Ash Brown", color: "rgba(80, 78, 74, 0.65)" },
+        { id: "brow-black", label: "Natural Black", color: "rgba(20, 20, 20, 0.7)" }
       ],
       effects: [
-        { label: "Cat Ears", key: "catEars" },
-        { label: "Sparkle Cheeks", key: "cheekSparkles" },
-        { label: "Heart Under Eyes", key: "heartUnderEyes" },
-        { label: "Soft Vignette", key: "softVignette" },
-        { label: "Floating Shapes", key: "floatingShapes" }
+        { id: "fx-cat", label: "Cat Ears", icon: "🐱", key: "catEars" },
+        { id: "fx-sparkle", label: "Sparkle Cheeks", icon: "✨", key: "cheekSparkles" },
+        { id: "fx-hearts", label: "Heart Under Eyes", icon: "💖", key: "heartUnderEyes" },
+        { id: "fx-vignette", label: "Soft Vignette", icon: "🌙", key: "softVignette" },
+        { id: "fx-shapes", label: "Floating Shapes", icon: "🪞", key: "floatingShapes" }
       ]
     };
 
@@ -1101,33 +1116,101 @@
       effects: 'EFFECTS'
     };
 
+    // Toast 反馈函数
+    function flashToast(text) {
+      let t = document.getElementById("toast");
+      if (!t) {
+        t = document.createElement("div");
+        t.id = "toast";
+        t.style.cssText = `
+          position: fixed; left: 50%; bottom: 80px; transform: translateX(-50%);
+          padding: 10px 16px; border-radius: 999px;
+          background: rgba(15,23,42,.85); color: rgba(255,255,255,.92);
+          font-size: 13px; font-weight: 500;
+          border: 1px solid rgba(255,255,255,.15);
+          backdrop-filter: blur(12px);
+          opacity: 0; transition: opacity .2s ease;
+          z-index: 9999; pointer-events: none;
+        `;
+        document.body.appendChild(t);
+      }
+      t.textContent = text;
+      t.style.opacity = "1";
+      setTimeout(() => (t.style.opacity = "0"), 1200);
+    }
+
     function renderShades(category) {
       console.log('renderShades called with category:', category);
       trayTitle.textContent = categoryTitles[category] || category.toUpperCase();
       shadeRow.innerHTML = '';
 
-      const items = palettes[category];
+      const items = palettes[category] || [];
       console.log('Items to render:', items);
+
+      if (!items || items.length === 0) {
+        console.error('No items found for category:', category);
+        return;
+      }
+
+      // ✅ 如果是 effects，用图标按钮渲染
+      if (category === 'effects') {
+        items.forEach((item, index) => {
+          const chip = document.createElement('button');
+          chip.className = 'shade-chip effect-chip';
+          chip.innerHTML = `
+            <span style="font-size: 18px; margin-right: 6px;">${item.icon || '✨'}</span>
+            <span>${item.label}</span>
+          `;
+          chip.dataset.index = index;
+          chip.dataset.key = item.key;
+
+          chip.addEventListener('click', () => {
+            console.log('Effect clicked:', item.key, item.label);
+
+            // 切换效果状态
+            activeEffects[item.key] = !activeEffects[item.key];
+
+            // 更新按钮样式
+            chip.classList.toggle('active', activeEffects[item.key]);
+
+            // 显示反馈
+            flashToast(`${item.label}: ${activeEffects[item.key] ? 'ON' : 'OFF'}`);
+
+            console.log('Active effects:', activeEffects);
+          });
+
+          // 如果当前效果是激活的，添加 active 类
+          if (activeEffects[item.key]) {
+            chip.classList.add('active');
+          }
+
+          shadeRow.appendChild(chip);
+        });
+
+        console.log('Shade row children count (effects):', shadeRow.children.length);
+        return;
+      }
+
+      // ✅ 其它分类（lips/blush/eyes/brows）用颜色色块渲染
       items.forEach((item, index) => {
         const chip = document.createElement('button');
         chip.className = 'shade-chip';
         chip.textContent = item.label;
         chip.dataset.index = index;
+        chip.style.setProperty('--chip-color', item.color);
 
         chip.addEventListener('click', () => {
+          console.log('Shade selected:', category, item.label);
           document.querySelectorAll('.shade-chip').forEach(c => c.classList.remove('active'));
           chip.classList.add('active');
 
-          if (category === 'effects') {
-            console.log('Effect toggled:', item.key, !activeEffects[item.key]);
-            activeEffects[item.key] = !activeEffects[item.key];
-          } else {
-            currentMakeup[category] = item.color;
-          }
+          currentMakeup[category] = item.color;
+          flashToast(`${categoryTitles[category]}: ${item.label}`);
         });
 
         shadeRow.appendChild(chip);
       });
+
       console.log('Shade row children count:', shadeRow.children.length);
     }
 
