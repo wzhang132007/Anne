@@ -450,21 +450,22 @@
       background: rgba(255,106,136,.10);
     }
 
-    /* ✅ Effect chips 特殊样式 - 产品级布局 */
+    /* ✅ Effect chips 特殊样式 - Grid 两行布局 */
     .effect-chip {
+      width: 100%;
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px 14px;
       border-radius: 999px;
       background: rgba(120, 160, 255, 0.15);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(120,160,255,0.35);
       color: rgba(255,255,255,.90);
-      font-size: 12px;
+      font-size: 13px;
       white-space: nowrap;
-      flex-shrink: 0;
       cursor: pointer;
       transition: .15s ease;
       pointer-events: auto;
@@ -482,6 +483,15 @@
       border-color: rgba(120,180,255,.65);
       background: rgba(120,180,255,.25);
       box-shadow: 0 0 0 4px rgba(120,180,255,.15);
+    }
+
+    /* ✅ Effects 专用 Grid 布局 - 两行横排 */
+    .shade-row.effects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      max-width: calc(100% - 360px);
+      align-items: center;
     }
 
     ::-webkit-scrollbar {
@@ -1176,8 +1186,10 @@
         return;
       }
 
-      // ✅ 如果是 effects，用图标按钮渲染
+      // ✅ 如果是 effects，用图标按钮渲染 + Grid 布局
       if (category === 'effects') {
+        // 添加 Grid 布局 class
+        shadeRow.classList.add('effects-grid');
         items.forEach((item, index) => {
           const chip = document.createElement('button');
           chip.className = 'shade-chip effect-chip';
@@ -1219,6 +1231,9 @@
       }
 
       // ✅ 其它分类（lips/blush/eyes/brows）用颜色色块渲染
+      // 移除 Grid 布局 class
+      shadeRow.classList.remove('effects-grid');
+
       items.forEach((item, index) => {
         const chip = document.createElement('button');
         chip.className = 'shade-chip';
